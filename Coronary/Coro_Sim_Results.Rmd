@@ -1,0 +1,54 @@
+---
+title: "Coronary Result"
+author: "Yicheng Shen"
+date: "2023-04-12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = T, warning = F)
+library(tidyverse)
+library(kableExtra)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+
+```
+
+
+```{r}
+load("result_rate_bleeding.RData")
+load("order_MACE.RData")
+load("result_rate_MACE.RData")
+```
+
+
+```{r}
+result_rate_bleeding %>% data.frame()
+```
+
+```{r}
+sort(prop.table(table(order_MACE)), decreasing = T) 
+```
+
+```{r}
+# prop.table(table(order_MACE)) 
+sort(prop.table(table(order_MACE)), decreasing = T) 
+
+hist(table(order_MACE), breaks = 15)
+abline(v=1/16*10000, lwd = 6)
+```
+
+
+```{r}
+result_rate_MACE %>% data.frame()
+```
+
+
+
+
+
+
+
+
+
+
