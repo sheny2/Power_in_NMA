@@ -7,7 +7,7 @@
 ######## AUGUSTUS: The 4 safety outcomes were updated
 ######## 
 ######## Set your working directory
-setwd("/Users/hh190/Dropbox/2.Hwanhee_Duke/02.Collaboration/1.RenatoLopes/9.UpdatedNMA")
+# setwd("/Users/hh190/Dropbox/2.Hwanhee_Duke/02.Collaboration/1.RenatoLopes/9.UpdatedNMA")
 set.seed(2918)
 
 library(gemtc)

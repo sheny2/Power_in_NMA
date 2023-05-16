@@ -38,7 +38,8 @@ MACE_data = MACE_data[1:(nrow(MACE_data)-2), ]
 
 ## Note: A is reference
 
-trt <- c("A", "B", "C", "D")
+trt <- c("A","B", "C","D")
+# trt <- c("VKA + DAPT", "VKA + P2Y12", "NOAC + DAPT", "NOAC + P2Y12")
 
 trts <- read.table(textConnection('id description
                                   A "VKA + DAPT"

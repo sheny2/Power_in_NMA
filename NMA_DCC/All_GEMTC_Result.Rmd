@@ -36,21 +36,21 @@ gridExtra::grid.arrange(
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.1) %>% 
   ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 6, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw() 
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 6, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw() 
 ,
 df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1) %>% 
   ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 12, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw()
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 12, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw()
 
 ,
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.5) %>% 
   ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 6, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw() 
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 6, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw() 
 ,
 df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>% 
   ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 12, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 12, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
 )
 
 ```
@@ -63,21 +63,21 @@ gridExtra::grid.arrange(
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.1) %>% 
   ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 6, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw() 
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 6, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw() 
 ,
 df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1) %>% 
   ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 12, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw()
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 12, pi_a = 0.1", color = "True OR_bc", x = "") + theme_bw()
 
 ,
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.5) %>% 
   ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 6, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw() 
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 6, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw() 
 ,
 df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>% 
   ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
-  facet_wrap(~tau) + labs(title = "Indirect Evi: k_ab = k_ac = 12, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: k_ab = k_ac = 12, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
 )
 ```
 
