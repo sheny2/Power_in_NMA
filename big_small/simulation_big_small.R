@@ -9,24 +9,10 @@ library(magrittr)
 library(gemtc)
 
 
-# big 4 * 600
-# small 12 * 200
-
-
-
-# k_ab = k_ac = 6
-# k_bc = 6
-# 
-# pi_a = 0.5
-# 
-# OR_ab = 1.2
-# OR_ac = 1.8
-# 
-# tau = 0.2
-# S = 10
-
-big.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1.2, OR_ac = 1.4, tau = 0.01, verbose = F){
+bigsmall.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1.2, OR_ac = 1.4, tau = 0.01, total = 3000, verbose = F){
   
+  n_study = k_ab + k_ac + k_bc
+    
   result = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
     
     # simulate k_ab studies (indirect)
@@ -34,7 +20,7 @@ big.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1
     if (k_ab != 0){
       for (j in 1:k_ab)
       {
-        n_j = runif(n = 1, min = 575, max = 625)
+        n_j = round(total/n_study)
         n_aj = n_bj = round(n_j / 2)
         
         log_OR_ab_j = rnorm(n = 1, mean = log(OR_ab),  sd = tau)
@@ -55,7 +41,7 @@ big.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1
     if (k_ac != 0){
       for (j in 1:k_ac)
       {
-        n_j = runif(n = 1, min = 575, max = 625)
+        n_j = round(total/n_study)
         n_aj = n_cj = round(n_j / 2)
         
         log_OR_ac_j = rnorm(n = 1, mean = log(OR_ac),  sd = tau)
@@ -79,7 +65,7 @@ big.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1
     if (k_bc != 0){
       for (j in 1:k_bc)
       {
-        n_j = runif(n = 1, min = 575, max = 625)
+        n_j = round(total/n_study)
         n_bj = n_cj = round(n_j / 2)
         
         log_OR_bc_j = rnorm(n = 1, mean = log(OR_bc),  sd = tau)

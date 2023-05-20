@@ -7,7 +7,7 @@ library(gemtc)
 
 set.seed(123456)
 
-N_cores = 12
+N_cores = detectCores()
 N_sim = 1000
 
 source("simulation_big.R")

@@ -16,8 +16,173 @@ knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 
 
 
-```{r}
+```{r, fig.height=5.5, fig.width=12}
+load("indirect_result_small.RData")
+load("indirect_result_big.RData")
 
+
+gridExtra::grid.arrange(
+
+indirect_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 * 600, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+indirect_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 * 200, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw()
+,
+indirect_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 * 600, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+,
+indirect_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 * 200, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+)
 
 ```
+
+
+```{r, fig.height=5.5, fig.width=12}
+gridExtra::grid.arrange(
+
+indirect_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 big, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+indirect_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 small, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+indirect_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 big, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+,
+indirect_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 small, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+)
+
+```
+
+
+
+```{r, fig.height=5.5, fig.width=12}
+load("direct_result_small.RData")
+load("direct_result_big.RData")
+
+gridExtra::grid.arrange(
+
+direct_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4*600, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+direct_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12*200, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+direct_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4*600, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+,
+direct_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12*200, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+)
+
+```
+
+
+```{r, fig.height=5.5, fig.width=12}
+gridExtra::grid.arrange(
+
+direct_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4 big, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+direct_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12 small, pi_a = 0.05", color = "True OR_bc", x = "") + theme_bw() 
+,
+direct_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4 big, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+,
+direct_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12 small, pi_a = 0.5", color = "True OR_bc", x = "") + theme_bw()
+)
+
+```
+
+
+
+```{r}
+load("indirect_result_big_small.RData")
+load("direct_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evi, pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+
+,
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evi, pi_a = 0.5", color = "True OR_bc") + theme_bw()
+)
+
+
+
+gridExtra::grid.arrange(
+
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi, pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+
+,
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi, pi_a = 0.5", color = "True OR_bc") + theme_bw()
+)
+```
+
+```{r}
+gridExtra::grid.arrange(
+
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evi, pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+
+,
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evi, pi_a = 0.5", color = "True OR_bc") + theme_bw()
+)
+
+
+
+gridExtra::grid.arrange(
+
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi, pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+
+,
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi, pi_a = 0.5", color = "True OR_bc") + theme_bw()
+)
+```
+
+
 
