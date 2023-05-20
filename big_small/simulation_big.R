@@ -108,7 +108,7 @@ big.sim <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_ab = 1
     
     cons.out = NULL
     
-    cons.out <- gemtc::mtc.run(cons.model, n.adapt=500, n.iter=5000, thin=1)
+    cons.out <- gemtc::mtc.run(cons.model, n.adapt=500, n.iter=2000, thin=1)
     
     # Rank order
     prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)
