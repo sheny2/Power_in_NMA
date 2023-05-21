@@ -185,4 +185,21 @@ direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 ```
 
 
+```{r}
+load("overall_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evi, pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evi, pi_a = 0.5", color = "True OR_bc") + theme_bw()
+)
+```
 
