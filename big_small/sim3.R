@@ -11,7 +11,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores() - 1
-N_sim = 1000
+N_sim = 2000
 
 
 source("simulation_big_small.R")
@@ -135,3 +135,178 @@ overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>%
 stopCluster(cl)
 
 save(overall_result_big_small, file = "overall_result_big_small.RData")
+
+
+
+
+
+
+# overall 1200
+
+pi_a <- c(0.05, 0.5)
+
+tau <- c(0.001, 0.2, 0.4)
+
+OR_ab <- c(1.2)
+OR_ac <- c(1.4, 1.6, 1.8)
+
+k_ab = 0
+k_ac = 0
+k_bc = c(2,4,6,8)
+
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau,total = 1200))
+}
+
+# Apply the function in parallel using foreach
+overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>% 
+  mutate(k_ab = k_bc, k_ac = k_bc) %>% 
+  mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
+  mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
+  mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(overall_result_big_small, file = "result_1200/overall_result_big_small.RData")
+
+
+
+
+
+
+
+
+# overall extreme small
+
+pi_a <- c(0.001, 0.01)
+
+tau <- c(0.001, 0.2, 0.4)
+
+OR_ab <- c(1.2)
+OR_ac <- c(1.4, 1.6, 1.8)
+
+k_ab = 0
+k_ac = 0
+k_bc = c(2,4,6,8)
+
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau,total = 12000))
+}
+
+# Apply the function in parallel using foreach
+overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>% 
+  mutate(k_ab = k_bc, k_ac = k_bc) %>% 
+  mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
+  mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
+  mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(overall_result_big_small, file = "result_extreme_small/overall_result_big_small.RData")
+
+
+# overall extreme small (more)
+
+pi_a <- c(0.001, 0.01)
+
+tau <- c(0.001, 0.2, 0.4)
+
+OR_ab <- c(1.2)
+OR_ac <- c(1.4, 1.6, 1.8)
+
+k_ab = 0
+k_ac = 0
+k_bc = 2:10
+
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau,total = 12000))
+}
+
+# Apply the function in parallel using foreach
+overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>% 
+  mutate(k_ab = k_bc, k_ac = k_bc) %>% 
+  mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
+  mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
+  mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(overall_result_big_small, file = "result_extreme_small/overall_result_big_small2.RData")
+
+
+
+
+
+
+# overall extreme small (3000)
+
+pi_a <- c(0.001, 0.01)
+
+tau <- c(0.001, 0.2, 0.4)
+
+OR_ab <- c(1.2)
+OR_ac <- c(1.4, 1.6, 1.8)
+
+k_ab = 0
+k_ac = 0
+k_bc = c(2,4,6,8)
+
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau,total = 3000))
+}
+
+# Apply the function in parallel using foreach
+overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>% 
+  mutate(k_ab = k_bc, k_ac = k_bc) %>% 
+  mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
+  mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
+  mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(overall_result_big_small, file = "result_extreme_small3000/overall_result_big_small.RData")
+
