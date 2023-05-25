@@ -11,7 +11,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores() - 1
-N_sim = 2000
+N_sim = 5000
 
 
 source("simulation_big_small.R")
@@ -238,7 +238,7 @@ OR_ac <- c(1.4, 1.6, 1.8)
 
 k_ab = 0
 k_ac = 0
-k_bc = 2:10
+k_bc = c(2,4,6,8,10)
 
 
 # Initialize parallel backend
