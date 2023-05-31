@@ -11,7 +11,6 @@ library(tidyverse)
 library(kableExtra)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
-
 ```
 
 
@@ -23,12 +22,53 @@ load("result_rate_MACE.RData")
 
 
 ```{r}
-result_rate_bleeding %>% data.frame()
+Bleed_data %>% filter(treatment %in% c("A", "B")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("A", "B")) %>% summarize(n_distinct(study))
+
+Bleed_data %>% filter(treatment %in% c("A", "C")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("A", "C")) %>% summarize(n_distinct(study))
+
+Bleed_data %>% filter(treatment %in% c("A", "D")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("A", "D")) %>% summarize(n_distinct(study))
+
+Bleed_data %>% filter(treatment %in% c("B", "C")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("B", "C")) %>% summarize(n_distinct(study))
+
+Bleed_data %>% filter(treatment %in% c("B", "D")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("B", "D")) %>% summarize(n_distinct(study))
+
+Bleed_data %>% filter(treatment %in% c("C", "D")) %>% summarize(sum(sampleSize))
+Bleed_data %>% filter(treatment %in% c("C", "D")) %>% summarize(n_distinct(study))
 ```
+
+
+```{r}
+load("result_rate_bleeding.RData")
+result_rate_bleeding_all = result_rate_bleeding %>% data.frame()
+load("result_rate_bleeding_AB.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+load("result_rate_bleeding_AC.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+load("result_rate_bleeding_AD.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+
+result_rate_bleeding_all = cbind(c("Original", "Add AB", "Add AC", "Add AD"), result_rate_bleeding_all)
+
+colnames(result_rate_bleeding_all) <- c("Moditication",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power BC","Power BD","Power CD",
+                                    "Rank A last")
+result_rate_bleeding_all
+```
+
 
 ```{r}
 sort(prop.table(table(order_MACE)), decreasing = T) 
 ```
+
 
 ```{r}
 # prop.table(table(order_MACE)) 
@@ -38,17 +78,47 @@ hist(table(order_MACE), breaks = 15)
 abline(v=1/16*10000, lwd = 6)
 ```
 
-
 ```{r}
-result_rate_MACE %>% data.frame()
+MACE_data %>% filter(treatment %in% c("A", "B")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("A", "B")) %>% summarize(n_distinct(study))
+
+MACE_data %>% filter(treatment %in% c("A", "C")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("A", "C")) %>% summarize(n_distinct(study))
+
+MACE_data %>% filter(treatment %in% c("A", "D")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("A", "D")) %>% summarize(n_distinct(study))
+
+MACE_data %>% filter(treatment %in% c("B", "C")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("B", "C")) %>% summarize(n_distinct(study))
+
+MACE_data %>% filter(treatment %in% c("B", "D")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("B", "D")) %>% summarize(n_distinct(study))
+
+MACE_data %>% filter(treatment %in% c("C", "D")) %>% summarize(sum(sampleSize))
+MACE_data %>% filter(treatment %in% c("C", "D")) %>% summarize(n_distinct(study))
 ```
 
 
 
+```{r}
+load("result_rate_MACE.RData")
+result_rate_MACE_all = result_rate_MACE %>% data.frame() %>% data.frame()
+load("result_rate_MACE_AB.RData")
+result_rate_MACE_all = rbind(result_rate_MACE_all, 
+                                 result_rate_MACE %>% data.frame())
+load("result_rate_MACE_AC.RData")
+result_rate_MACE_all = rbind(result_rate_MACE_all, 
+                                 result_rate_MACE %>% data.frame())
+load("result_rate_MACE_AD.RData")
+result_rate_MACE_all = rbind(result_rate_MACE_all, 
+                                 result_rate_MACE %>% data.frame())
 
+result_rate_MACE_all = cbind(c("Original", "Add AB", "Add AC", "Add AD"), result_rate_MACE_all)
 
-
-
-
+colnames(result_rate_MACE_all) <- c("Moditication",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power BC","Power BD","Power CD")
+result_rate_MACE_all
+```
 
 

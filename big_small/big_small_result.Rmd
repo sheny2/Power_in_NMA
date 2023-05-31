@@ -221,10 +221,10 @@ direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 )
 ```
 
+
 # overall 3000 sample size
 # vary number of total studies c(6,12,18,24)
 # k_ab = k_ac = k_bc = c(2,4,6,8)
-
 
 ```{r}
 load("overall_result_big_small.RData")
@@ -257,12 +257,6 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
   facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.5", color = "True OR_bc") + theme_bw()
 )
 ```
-
-
-
-
-
-More simulation notes:
 
 # overall 1200 sample size
 # vary number of total studies: c(6,12,18,24)
@@ -302,7 +296,6 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 
 
 # overall 3000 sample size
-# overall 12000 sample size
 # vary number of total studies: c(6,12,18,24)
 # look at pi_a = 0.001
 
@@ -338,38 +331,7 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 )
 ```
 
-
-```{r}
-load("result_extreme_small/overall_result_big_small.RData")
-
-gridExtra::grid.arrange(
-
-overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
-  filter(pi_a == 0.001) %>% 
-  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc") + theme_bw() 
-
-,
-overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
-  filter(pi_a == 0.01) %>% 
-  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc") + theme_bw()
-)
-
-gridExtra::grid.arrange(
-
-overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
-  filter(pi_a == 0.001) %>% 
-  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc") + theme_bw() 
-
-,
-overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
-  filter(pi_a == 0.01) %>% 
-  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc") + theme_bw()
-)
-```
+# overall 12000 sample size
 
 ```{r}
 load("result_extreme_small/overall_result_big_small2.RData")

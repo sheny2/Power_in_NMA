@@ -227,7 +227,7 @@ stopCluster(cl)
 save(overall_result_big_small, file = "result_extreme_small/overall_result_big_small.RData")
 
 
-# overall extreme small (more)
+# overall extreme small (one more)
 
 pi_a <- c(0.001, 0.01)
 
@@ -293,7 +293,7 @@ registerDoParallel(cl)
 
 # Define a function to be applied in parallel
 power_mutate <- function(df) {
-  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau,total = 3000))
+  df %>%  mutate(power = bigsmall.sim(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac,tau,total = 3000))
 }
 
 # Apply the function in parallel using foreach
