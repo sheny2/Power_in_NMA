@@ -209,3 +209,7 @@ net4 <- netmeta(TE, seTE, treat1.long, treat2.long, studlab,
                 seq = trts, reference = "Placebo")
 print(net4, digits = 2)
 ## End(Not run)
+
+
+
+

@@ -55,14 +55,51 @@ load("result_rate_bleeding_AD.RData")
 result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
                                  result_rate_bleeding %>% data.frame())
 
-result_rate_bleeding_all = cbind(c("Original", "Add AB", "Add AC", "Add AD"), result_rate_bleeding_all)
+result_rate_bleeding_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_rate_bleeding_all)
 
-colnames(result_rate_bleeding_all) <- c("Moditication",
+colnames(result_rate_bleeding_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD",
                                     "Power BC","Power BD","Power CD",
                                     "Rank A last")
 result_rate_bleeding_all
+
+
+result_rate_bleeding_all %>% 
+  mutate(Modification = factor(Modification, 
+                               levels = c("Original", "Add one AB study", "Add one AC study", "Add one AD study"))) %>% 
+  pivot_longer(cols = 2:7, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
 ```
+```{r}
+effective = eff.binary(Bleed_data_eff)
+
+effective1 = effective$eff.studies
+
+colnames(effective1) = c("A","B", "C","D")
+rownames(effective1) = c("A","B", "C","D")
+
+effective2 = effective$eff.sz
+
+colnames(effective1) = c("A","B", "C","D")
+rownames(effective1) = c("A","B", "C","D")
+
+effective3 = effective$eff.prec
+
+colnames(effective1) = c("A","B", "C","D")
+rownames(effective1) = c("A","B", "C","D")
+
+stargazer::stargazer(effective3)
+
+stargazer::stargazer(eff.binary(Bleed_data_eff))
+```
+
+
+
+
+
+
+
+
 
 
 ```{r}
@@ -115,10 +152,15 @@ result_rate_MACE_all = rbind(result_rate_MACE_all,
 
 result_rate_MACE_all = cbind(c("Original", "Add AB", "Add AC", "Add AD"), result_rate_MACE_all)
 
-colnames(result_rate_MACE_all) <- c("Moditication",
+colnames(result_rate_MACE_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD",
                                     "Power BC","Power BD","Power CD")
 result_rate_MACE_all
+
+result_rate_MACE_all %>% 
+  mutate(Modification = factor(Modification, levels = c("Original", "Add AB", "Add AC", "Add AD"))) %>% 
+  pivot_longer(cols = 2:7, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.75) 
 ```
 
 
