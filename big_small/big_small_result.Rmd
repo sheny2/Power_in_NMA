@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, cache = T, warning = F)
 library(metafor)
 library(tidyverse)
 library(kableExtra)
+library(latex2exp)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
@@ -226,7 +227,7 @@ direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 # vary number of total studies c(6,12,18,24)
 # k_ab = k_ac = k_bc = c(2,4,6,8)
 
-```{r}
+```{r, fig.height=5.5, fig.width=12}
 load("overall_result_big_small.RData")
 
 gridExtra::grid.arrange(
@@ -234,27 +235,26 @@ gridExtra::grid.arrange(
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.05) %>% 
   ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.05", color = "True OR_bc", x = "Number of Studies") + theme_bw() 
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") 
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.5) %>% 
   ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.5", color = "True OR_bc", x = "Number of Studies") + theme_bw()
-)
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") 
 
-gridExtra::grid.arrange(
+,
 
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.05) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.5) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.5", color = "True OR_bc") + theme_bw()
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 )
 ```
 
@@ -284,13 +284,13 @@ gridExtra::grid.arrange(
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.05) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.05", color = "True OR_bc") + theme_bw() 
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence, $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.5) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.5", color = "True OR_bc") + theme_bw()
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence, $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 )
 ```
 
@@ -299,7 +299,7 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 # vary number of total studies: c(6,12,18,24)
 # look at pi_a = 0.001
 
-```{r}
+```{r, fig.height=5.5, fig.width=12}
 load("result_extreme_small3000/overall_result_big_small.RData")
 
 gridExtra::grid.arrange(
@@ -307,27 +307,26 @@ gridExtra::grid.arrange(
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.001) %>% 
   ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc", x = "Number of Studies") + theme_bw() 
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") 
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.01) %>% 
   ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc", x = "Number of Studies") + theme_bw()
-)
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")
 
-gridExtra::grid.arrange(
+,
 
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.001) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc") + theme_bw() 
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.01) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc") + theme_bw()
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") 
 )
 ```
 

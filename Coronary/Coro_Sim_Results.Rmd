@@ -160,7 +160,7 @@ result_rate_MACE_all
 result_rate_MACE_all %>% 
   mutate(Modification = factor(Modification, levels = c("Original", "Add AB", "Add AC", "Add AD"))) %>% 
   pivot_longer(cols = 2:7, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.75) 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.7) 
 ```
 
 
