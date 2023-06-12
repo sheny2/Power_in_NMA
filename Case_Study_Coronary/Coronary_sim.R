@@ -79,10 +79,12 @@ calculate_pi <- function(odds_ratio, p_A) {
   return(p_B)
 }
 
+# from prob to log odds
 logit <- function(p) {
   return(log(p/(1-p)))
 }
 
+# from log odds to prob
 inverse_logit <- function(x) {
   odds <- exp(x)  
   probability <- odds / (1 + odds) 
@@ -107,7 +109,7 @@ tau = 0.24
 OR_ab = 0.58
 OR_ac = 0.70
 OR_ad = 0.49
-Log_OR_dat = c(1, log(c(OR_ab,OR_ac,OR_ad)))
+Log_OR_dat = log(c(1, OR_ab,OR_ac,OR_ad))
 
 pi_b =  calculate_pi(OR_ab, pi_a)
 pi_c =  calculate_pi(OR_ac, pi_a)
@@ -214,7 +216,7 @@ tau = 0.23
 OR_ab = 0.96
 OR_ac = 0.94
 OR_ad = 1.02
-Log_OR_dat = c(1, log(c(OR_ab,OR_ac,OR_ad)))
+Log_OR_dat = log(c(1, OR_ab,OR_ac,OR_ad))
 
 pi_b =  calculate_pi(OR_ab, pi_a)
 pi_c =  calculate_pi(OR_ac, pi_a)

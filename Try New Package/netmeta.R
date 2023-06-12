@@ -6,11 +6,13 @@ library(netmeta)
 
 data(smokingcessation)
 
-smokingcessation
+# smokingcessation
 
 p1 <- pairwise(list(treat1, treat2, treat3),
                event = list(event1, event2, event3), n = list(n1, n2, n3),
                data = smokingcessation, sm = "OR")
+
+p1
 
 net1 <- netmeta(p1, common = FALSE)
 
@@ -211,5 +213,34 @@ print(net4, digits = 2)
 ## End(Not run)
 
 
+
+
+
+#
+data(smokingcessation)
+# Transform data from arm-based format to contrast-based format
+# (interal call of metabin function). Argument 'sm' has to be used
+# for odds ratio as risk ratio (sm = "RR") is default of metabin
+# function.
+#
+p3 <- pairwise(list(treat1, treat2, treat3),
+               list(event1, event2, event3), list(n1, n2, n3),
+               data = smokingcessation,
+               sm = "OR")
+p3
+
+
+study_id = 1:24
+smokingcessation_ab = cbind(study_id, smokingcessation)
+smokingcessation_ab = smokingcessation_ab$treat3
+
+treatments = c()
+  for (i in 1:24) {
+    if (i < 3){
+      treatments = c(treatments, smokingcessation[i,9])
+    } else{ 
+      treatments = c(treatments, smokingcessation[i,8])
+    }
+  }
 
 
