@@ -54,8 +54,11 @@ result_rate_bleeding_all = rbind(result_rate_bleeding_all,
 load("result_rate_bleeding_AD.RData")
 result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
                                  result_rate_bleeding %>% data.frame())
+load("result_rate_bleeding_CD.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
 
-result_rate_bleeding_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_rate_bleeding_all)
+result_rate_bleeding_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study", "Add one CD study"), result_rate_bleeding_all)
 
 colnames(result_rate_bleeding_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD",
@@ -66,7 +69,8 @@ result_rate_bleeding_all
 
 result_rate_bleeding_all %>% 
   mutate(Modification = factor(Modification, 
-                               levels = c("Original", "Add one AB study", "Add one AC study", "Add one AD study"))) %>% 
+                               levels = c("Original", 
+                                          "Add one AB study", "Add one AC study", "Add one AD study", "Add one CD study"))) %>% 
   pivot_longer(cols = 2:7, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
 ```

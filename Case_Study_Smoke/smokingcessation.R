@@ -152,6 +152,7 @@ result_smoke = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar
   sucra <- gemtc::sucra(prob)
   rank_order = rownames(as.matrix(sort(sucra, decreasing = T)))
   A_last = as.numeric(rank_order[4] == "A")
+  Correct_order = as.numeric(identical(rank_order,c("D","C","B", "A")))
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   
@@ -188,7 +189,7 @@ result_smoke = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar
   reject_correct = c(AB_reject, AC_reject, AD_reject)
   reject_incorrect = c(BC_reject, BD_reject, CD_reject)
   
-  return(c(reject_correct, reject_incorrect, A_last))
+  return(c(reject_correct, reject_incorrect, A_last, Correct_order))
 }
 
 
@@ -197,11 +198,10 @@ result_smoke = result_smoke/S
 result_smoke = matrix(result_smoke, nrow = 1)
 colnames(result_smoke) <- c("Power AB","Power AC","Power AD",
                             "Power BC","Power BD","Power CD",
-                            "Rank A last")
+                            "Rank A last", "Al Correct order")
 
 # Compare with relative effect
-estimates
-
+# estimates
 
 save(result_smoke, file = "result_smoke.RData")
 
