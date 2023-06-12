@@ -1,0 +1,55 @@
+---
+title: "Smoke_Result"
+author: "Yicheng Shen"
+date: "2023-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gemtc)
+data(smoking)
+
+as.numeric(c(pi_a, pi_b, pi_c, pi_d))
+```
+
+```{r}
+cons.model <- mtc.model(smoking, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+summary(cons.out)
+```
+
+
+```{r}
+load("result_smoke.RData")
+result_smoke
+```
+
+
+
+```{r}
+library("igraph")
+source("functions.R")
+dir.binary(smoke_eff)
+eff.binary(smoke_eff)
+```
+
+
+```{r, fig.width=10, fig.height=6}
+plot(smoking)
+```
+
+
+
+
+
+
+
+
+
+
+
+

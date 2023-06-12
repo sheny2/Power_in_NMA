@@ -85,6 +85,7 @@ cl <- makeCluster(12)
 # Register the parallel backend
 registerDoParallel(cl)
 
+
 S = 1000
 
 
@@ -201,9 +202,8 @@ colnames(result_smoke) <- c("Power AB","Power AC","Power AD",
 # Compare with relative effect
 estimates
 
+
 save(result_smoke, file = "result_smoke.RData")
-
-
 
 
 
