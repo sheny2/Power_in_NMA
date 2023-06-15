@@ -24,6 +24,7 @@ for (i in 1:24) {
 
 smokingcessation_ab = data.frame(cbind(smokingcessation_ab[,1],smokingcessation_ab[,2],
                                    smokingcessation_ab[,4],smokingcessation_ab[,3]))
+
 colnames(smokingcessation_ab) = c("study","treatment", "sampleSize","responders")
 smokingcessation_ab[,c('sampleSize', 'responders')] <-
   lapply(smokingcessation_ab[,c('sampleSize', 'responders')], as.numeric)
