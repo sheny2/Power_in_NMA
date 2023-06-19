@@ -63,6 +63,7 @@ summary(network)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
 summary(cons.out)
+gemtc::forest(cons.out)
 
 prob <- rank.probability(cons.out, preferredDirection=-1)
 prob <- round(prob, digits=3)

@@ -11,15 +11,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(gemtc)
-data(smoking)
+library(netmeta)
+data("smoking")
+data("smokingcessation")
 
-as.numeric(c(pi_a, pi_b, pi_c, pi_d))
+# as.numeric(c(pi_a, pi_b, pi_c, pi_d))
 ```
 
 ```{r}
-cons.model <- mtc.model(smoking, type="consistency", likelihood="binom", link="logit", linearModel="random")
+load("smokingcessation_ab.RData")
+network <- mtc.network(smokingcessation_ab)
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
 summary(cons.out)
+gemtc::forest(cons.out)
 ```
 
 
@@ -31,6 +36,14 @@ result_smoke
 
 
 ```{r}
+mapping <- c('A' = 1, 'B' = 2, 'C' = 3, 'D' = 4)
+
+smokingcessation_eff = smokingcessation_ab
+smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
+
+
+smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
+                       r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
 library("igraph")
 source("functions.R")
 dir.binary(smoke_eff)
@@ -39,6 +52,7 @@ eff.binary(smoke_eff)
 
 
 ```{r, fig.width=10, fig.height=6}
+plot(network)
 plot(smoking)
 ```
 

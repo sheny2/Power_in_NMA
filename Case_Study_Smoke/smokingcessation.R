@@ -43,7 +43,7 @@ plot(smoking)
 # summary(network)
 
 
-cons.model <- mtc.model(smoking, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
 estimates = summary(cons.out)
 estimates
@@ -220,8 +220,8 @@ smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
 smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
                        r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
 
-source("functions.R")
 
+source("functions.R")
 
 dir.binary(smoke_eff)
 eff.binary(smoke_eff)

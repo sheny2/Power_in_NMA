@@ -21,7 +21,7 @@ load("result_rate_MACE.RData")
 ```
 
 
-```{r}
+```{r, eval = F}
 Bleed_data %>% filter(treatment %in% c("A", "B")) %>% summarize(sum(sampleSize))
 Bleed_data %>% filter(treatment %in% c("A", "B")) %>% summarize(n_distinct(study))
 
@@ -39,6 +39,37 @@ Bleed_data %>% filter(treatment %in% c("B", "D")) %>% summarize(n_distinct(study
 
 Bleed_data %>% filter(treatment %in% c("C", "D")) %>% summarize(sum(sampleSize))
 Bleed_data %>% filter(treatment %in% c("C", "D")) %>% summarize(n_distinct(study))
+```
+
+
+```{r}
+load("result_rate_bleeding.RData")
+result_rate_bleeding_all = result_rate_bleeding %>% data.frame()
+load("result_rate_bleeding_AB.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+load("result_rate_bleeding_AC.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+load("result_rate_bleeding_AD.RData")
+result_rate_bleeding_all = rbind(result_rate_bleeding_all, 
+                                 result_rate_bleeding %>% data.frame())
+
+result_rate_bleeding_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_rate_bleeding_all)
+
+colnames(result_rate_bleeding_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power BC","Power BD","Power CD",
+                                    "Rank A last")
+result_rate_bleeding_all
+
+
+result_rate_bleeding_all %>% 
+  mutate(Modification = factor(Modification, 
+                               levels = c("Original", 
+                                          "Add one AB study", "Add one AC study", "Add one AD study"))) %>% 
+  pivot_longer(cols = 2:7, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Modification), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
 ```
 
 
