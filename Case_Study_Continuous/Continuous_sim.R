@@ -1,4 +1,5 @@
 library(gemtc)
+library(tidyverse)
 load("parkinson_ab.RData")
 
 set.seed(8848)
@@ -127,8 +128,40 @@ result_pk = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   d15_lower_95 = res$summaries$quantiles[4,1]
   d15_upper_95 = res$summaries$quantiles[4,5]
   d15_reject = 1-as.numeric(0 >= d15_lower_95 & 0 <= d15_upper_95)
+
+  res_2 = summary(gemtc::relative.effect(cons.out,"2", c("3","4","5")))
   
-  reject_correct = c(d12_reject, d13_reject, d14_reject, d15_reject, Correct_order)
+  d23_lower_95 = res_2$summaries$quantiles[1,1]
+  d23_upper_95 = res_2$summaries$quantiles[1,5]
+  d23_reject = 1-as.numeric(0 >= d23_lower_95 & 0 <= d23_upper_95)
+  
+  d24_lower_95 = res_2$summaries$quantiles[2,1]
+  d24_upper_95 = res_2$summaries$quantiles[2,5]
+  d24_reject = 1-as.numeric(0 >= d24_lower_95 & 0 <= d24_upper_95)
+  
+  d25_lower_95 = res_2$summaries$quantiles[3,1]
+  d25_upper_95 = res_2$summaries$quantiles[3,5]
+  d25_reject = 1-as.numeric(0 >= d25_lower_95 & 0 <= d25_upper_95)
+
+  
+  res_34 = summary(gemtc::relative.effect(cons.out,c("3","3","4"), c("4","5","5")))
+  
+  d34_lower_95 = res_34$summaries$quantiles[1,1]
+  d34_upper_95 = res_34$summaries$quantiles[1,5]
+  d34_reject = 1-as.numeric(0 >= d34_lower_95 & 0 <= d34_upper_95)
+  
+  d35_lower_95 = res_34$summaries$quantiles[2,1]
+  d35_upper_95 = res_34$summaries$quantiles[2,5]
+  d35_reject = 1-as.numeric(0 >= d35_lower_95 & 0 <= d35_upper_95)
+  
+  d45_lower_95 = res_34$summaries$quantiles[3,1]
+  d45_upper_95 = res_34$summaries$quantiles[3,5]
+  d45_reject = 1-as.numeric(0 >= d45_lower_95 & 0 <= d45_upper_95)
+  
+  
+  reject_correct = c(d12_reject, d13_reject, d14_reject, d15_reject, 
+                     d23_reject, d24_reject, d25_reject, 
+                     d34_reject, d35_reject, d45_reject, Correct_order)
   
   return(c(reject_correct))
 }
@@ -137,7 +170,10 @@ result_pk = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
 result_pk = result_pk/S
 
 result_pk = matrix(result_pk, nrow = 1)
-colnames(result_pk) <- c("Power D12","Power D13","Power D14", "Power D15", "Correct_order")
+colnames(result_pk) <- c("Power D12","Power D13","Power D14", "Power D15", 
+                         "Power D23","Power D24","Power D25", 
+                         "Power D34","Power D35","Power D45", 
+                         "Correct_order")
 
 
 result_pk
