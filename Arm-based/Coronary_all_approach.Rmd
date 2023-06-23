@@ -1,0 +1,304 @@
+---
+title: "Coronary_all_approach"
+author: "Yicheng Shen"
+date: "2023-06-23"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(R2jags)
+library(gemtc)
+library(tibble)
+```
+
+```{r}
+set.seed(2023)
+
+######## Import data
+bleed <- read.table("Data_Bleeding.csv", sep=",", header=TRUE)
+mace <- read.table("Data_MACE.csv", sep=",", header=TRUE)
+
+
+######## Row 7 and 8 need to be combined
+bleed[7,3:7] = bleed[7,3:7] + bleed[8,3:7]
+bleed <- bleed[-8,]
+mace[7,3:10] = mace[7,3:10] + mace[8,3:10]
+mace <- mace[-8,]
+
+
+Bleed_data <- bleed[,c("study", "treatment", "n", "TIMImajor")]
+Bleed_data = Bleed_data[1:(nrow(Bleed_data)-2), ]
+
+MACE_data <- mace[,c("study", "treatment", "n", "MACE")]        
+MACE_data = MACE_data[1:(nrow(MACE_data)-2), ]
+
+
+## Note: A is reference
+
+trt <- c("A","B", "C","D")
+# trt <- c("VKA + DAPT", "VKA + P2Y12", "NOAC + DAPT", "NOAC + P2Y12")
+
+trts <- read.table(textConnection('id description
+                                  A "VKA + DAPT"
+                                  B "VKA + P2Y12"
+                                  C "NOAC + DAPT"
+                                  D "NOAC + P2Y12"'), header=TRUE)
+
+
+
+Bleed_data$treatment <- trt[Bleed_data$treatment]
+colnames(Bleed_data) = c("study","treatment", "sampleSize","responders")
+MACE_data$treatment <- trt[MACE_data$treatment]
+colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
+```
+
+```{r}
+network <- mtc.network(data.ab=Bleed_data, treatments=trts)
+plot(network)
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
+
+Coronary_gemtc = cbind(mean = summary(cons.out)$summaries$statistics[1:3,1], 
+                        summary(cons.out)$summaries$quantiles[1:3,c(1,5)])
+
+Coronary_gemtc
+```
+
+```{r}
+######## Fit AB model
+ABWish<-function(){
+  for (i in 1:Narm){
+    y[i] ~ dbinom(mean[i],n[i])
+    logit(mean[i]) <- mu[drug[i]] + v[study[i],drug[i]]
+  }
+  for (j in 1:Nstudy) { 
+    v[j,1:Ndrug] ~ dmnorm(zero.AB[1:Ndrug], invR[1:Ndrug, 1:Ndrug]) }
+  invR[1:Ndrug, 1:Ndrug] ~ dwish(Omega[1:Ndrug,1:Ndrug], Ndrug)
+  R[1:Ndrug, 1:Ndrug] <- inverse(invR[ , ])
+  for (k in 1:Ndrug){
+    tau[k] <- sqrt(R[k,k])
+  }
+  for (j in 1:Ndrug){
+    for (k in (j+1):Ndrug){
+      rho[j,k] <- R[j,k]/(tau[j]*tau[k])
+    }
+  }
+  for (k in 1:Ndrug) { mu[k] ~ dnorm(0, 0.001) }  
+  for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] }
+  # ranking
+  for (k in 1:Ndrug) { G[k] <- exp(mu[k])/(1+exp(mu[k])) }
+  T.rank <- rank(G)
+  for (k in 1:Ndrug) {
+    rk[k] <- T.rank[k]
+    best1[k] <- equals(rk[k],1)
+    best2[k] <- equals(rk[k],2)
+    best3[k]<-equals(rk[k],3)
+    best12[k] <- best1[k] + best2[k]
+  }
+}
+
+########
+N = nrow(Bleed_data)
+NS = n_distinct(Bleed_data$study)
+NT = n_distinct(Bleed_data$treatment)
+s = Bleed_data$study
+t = Bleed_data$treatment
+t = c(1,2,1,3,4,1,4,1,2,3,4)
+y = Bleed_data$responders
+n = Bleed_data$sampleSize
+
+data_AB <- list('Narm'=N, 'Nstudy'=NS, 
+                'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=4)),
+                'zero.AB' = (rep(0, times=4)))
+inits_AB<- list(list(mu=rep(0,4)),
+                list(mu=rep(0,4)))
+para_AB<-c( "lor", "tau", "best1", "best2", "best3")
+fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=20000, n.burnin = 1500, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=ABWish)
+#output data 
+fit_AB$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+AB_trt_results<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
+AB_trt_results<-AB_trt_results%>%
+  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]"))
+
+
+ABresults<-AB_trt_results%>%
+  mutate(LL = as.numeric(X2.5.), 
+         UL = as.numeric(X97.5.), 
+         mean = as.numeric(mean))%>%
+  filter(!(drug_list==1))
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments LOR")
+
+########
+
+AB_trt_results
+```
+
+
+
+```{r}
+#Lu and Ades Model with Random Effects Model Function
+
+LARE<-function(){
+for (i in 1:Nstudy){
+  for (j in 1:Narm[i]){
+      y[i,j] ~ dbinom(mean[i,j],n[i,j])
+      logit(mean[i,j]) <- mu[i] + lor[i,j]
+    }
+  }
+  for (i in 1:Nstudy){
+    w[i,1] <- 0
+    lor[i,1] <- 0
+    for (j in 2:Narm[i]){
+      lor[i,j] ~ dnorm(md[i,j], inv[i,j])
+      md[i,j] <- d[drug[i,j]] - d[drug[i,1]] + sw[i,j]
+      #Incorporating information from overall treatment effect back 
+      #into study specific treatment effect
+      w[i,j] <- lor[i,j] - d[drug[i,j]] + d[drug[i,1]]
+      sw[i,j] <- sum(w[i,1:(j-1)])/(j-1)
+      #contrast-specific variance
+      inv[i,j] <- inv.d*2*(j-1)/j
+    }
+  }
+  for (j in 1:Nstudy) { 
+      mu[j] ~ dnorm(0, 0.01) }
+  d[1] <- 0
+  for (k in 2:Ndrug) { 
+     d[k] ~ dnorm(0, 0.01)
+    }
+  tau ~ dunif(0.01, 10)
+  inv.d <- 1/pow(tau, 2)
+  # ranking
+  mp <- mean(mu[])
+  for (k in 1:Ndrug) { G[k] <- exp(mp + d[k])/(1+exp(mp + d[k])) }
+  T.rank <- rank(G)
+  for (k in 1:Ndrug) {
+    rk[k] <- T.rank[k]
+    best1[k] <- equals(rk[k],1)
+    best2[k] <- equals(rk[k],2)
+    best3[k] <- equals(rk[k],3)
+    best12[k] <- best1[k] + best2[k]
+  }
+}
+### Running the LARE Model ### 
+##Additional data preparation for this model 
+NS = 4
+NT = 4
+N = nrow(Bleed_data)
+s = Bleed_data$study
+t = Bleed_data$treatment
+t = c(1,2,1,3,4,1,4,1,2,3,4)
+y = Bleed_data$responders
+n = Bleed_data$sampleSize
+drug_list<-unique(Bleed_data$treatment)
+Narm <- as.numeric(table(Bleed_data$study))
+n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
+n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
+dr <- matrix(NA,nrow=NS, ncol=max(Narm))
+study<-unique(Bleed_data$study)
+for (i in 1:NS){
+  n.obs[i,1:Narm[i]] <- Bleed_data$sampleSize[Bleed_data$study==study[i]]
+  n.eve[i,1:Narm[i]] <- Bleed_data$responders[Bleed_data$study==study[i]]
+  dr[i,1:Narm[i]] <- match(Bleed_data$treatment[Bleed_data$study==study[i]],drug_list)
+}
+
+
+##putting data into list form
+data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs) 
+init_LA <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+para_LA <- c('d','tau','best1', 'best2', 'best3')
+fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
+                     n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+                     DIC=TRUE, model.file=LARE)
+#output data 
+fit_LA$BUGSoutput$summary[,c(1, 3, 7)]
+
+#saving treatment effect output
+LA_trt_results<-data.frame(fit_LA$BUGSoutput$summary[,c(1, 3, 7)])
+LA_trt_results <- tibble::rownames_to_column(LA_trt_results, "drug_list")
+LA_trt_results<-LA_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]"))
+LA_trt_results
+```
+
+
+
+```{r}
+CBWish<-function(){
+  for (i in 1:Narm){
+    y[i] ~ dbinom(mean[i],n[i])
+    logit(mean[i]) <- mu[study[i]] + delta[study[i],drug[i]]*(1-equals(drug[i],1))
+  }
+  for (j in 1:Nstudy){
+    delta[j,1:Ndrug] ~ dmnorm(d[1:Ndrug], invR[1:Ndrug, 1:Ndrug])
+  }
+  invR[1:Ndrug, 1:Ndrug] ~ dwish(Omega[1:Ndrug,1:Ndrug], Ndrug)
+  R[1:Ndrug, 1:Ndrug] <- inverse(invR[ , ])
+  for (k in 1:Ndrug){
+    tau[k] <- sqrt(R[k,k])
+  }
+  for (j in 1:Ndrug){
+    for (k in (j+1):Ndrug){
+      rho[j,k] <- R[j,k]/(tau[j]*tau[k])
+    }
+  }
+  for (j in 1:Nstudy) { mu[j] ~ dnorm(0, 0.01) }
+  d[1] <- 0
+  for (k in 2:Ndrug) { d[k] ~ dnorm(0, 0.01) }
+  # ranking
+  mp <- mean(mu[])
+  for (k in 1:Ndrug) { T[k] <- exp(mp + d[k])/(1+exp(mp + d[k])) }
+  T.rank <- rank(T)
+  for (k in 1:Ndrug) {
+    rk[k] <- T.rank[k]
+    best1[k] <- equals(rk[k],1)
+    best2[k] <- equals(rk[k],2)
+    best3[k]<-equals(rk[k],3)
+    best12[k] <- best1[k] + best2[k]
+  }
+}
+### Running Contrast Based  Model  ########
+data_CB <- list('Narm'=N, 'Nstudy'=NS, 
+                  'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                  'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=4)))
+inits_CB <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(1,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+
+para_CB<-c( "d", "tau", "best1", 'best2', 'best3')
+fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
+                n.iter=20000, n.burnin = 1500, n.chains = 2, n.thin = 1,
+                DIC=TRUE, model.file=CBWish)
+
+  #output data 
+  fit_CB$BUGSoutput$summary[,c(1, 3, 7)]
+  #saving treatment effect output
+CB_trt_results<-data.frame(fit_CB$BUGSoutput$summary[,c(1, 3, 7)])
+CB_trt_results <- tibble::rownames_to_column(CB_trt_results, "drug_list")
+CB_trt_results<-CB_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]"))
+CB_trt_results
+```
+
+```{r}
+Coronary_gemtc
+AB_trt_results
+LA_trt_results
+CB_trt_results
+```
+
+

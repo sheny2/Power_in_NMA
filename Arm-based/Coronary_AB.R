@@ -1,4 +1,7 @@
 library(tidyverse)
+library(R2jags)
+library(gemtc)
+library(tibble)
 library(gemtc)
 
 source("ifplot.fun.R")
@@ -45,7 +48,11 @@ MACE_data$treatment <- trt[MACE_data$treatment]
 colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
 
 
-Bleed_data
+network <- mtc.network(data.ab=Bleed_data, treatments=trts)
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
 
 
 ######## Fit AB model
@@ -126,6 +133,14 @@ ggplot(ABresults, aes(y = drug_list, x =mean )) +
 
 ########
 
+
+AB_trt_results
+
+LA_Coronary_results = cbind(mean = LA_Coro_results$summaries$statistics[1:3,1], 
+                        LA_Coro_results$summaries$quantiles[1:3,c(1,5)])
+
+LA_Coronary_results
+AB_trt_results
 
 
 # # simulation

@@ -9,6 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 library(gemtc)
 library(netmeta)
+set.seed(8848)
 ```
 
 ```{r}
