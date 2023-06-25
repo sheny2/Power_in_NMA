@@ -19,44 +19,14 @@ source('Models.R')
 set.seed(2023)
 
 ######## Import data
-bleed <- read.table("Data_Bleeding.csv", sep=",", header=TRUE)
-mace <- read.table("Data_MACE.csv", sep=",", header=TRUE)
-
-######## Row 7 and 8 need to be combined
-bleed[7,3:7] = bleed[7,3:7] + bleed[8,3:7]
-bleed <- bleed[-8,]
-mace[7,3:10] = mace[7,3:10] + mace[8,3:10]
-mace <- mace[-8,]
-
-
-Bleed_data <- bleed[,c("study", "treatment", "n", "TIMImajor")]
-Bleed_data = Bleed_data[1:(nrow(Bleed_data)-2), ]
-
-MACE_data <- mace[,c("study", "treatment", "n", "MACE")]        
-MACE_data = MACE_data[1:(nrow(MACE_data)-2), ]
-
-
-## Note: A is reference
-
-trt <- c("A","B", "C","D")
-# trt <- c("VKA + DAPT", "VKA + P2Y12", "NOAC + DAPT", "NOAC + P2Y12")
-
-trts <- read.table(textConnection('id description
-                                  A "VKA + DAPT"
-                                  B "VKA + P2Y12"
-                                  C "NOAC + DAPT"
-                                  D "NOAC + P2Y12"'), header=TRUE)
-
-
-
-Bleed_data$treatment <- trt[Bleed_data$treatment]
-colnames(Bleed_data) = c("study","treatment", "sampleSize","responders")
-MACE_data$treatment <- trt[MACE_data$treatment]
-colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
+load("smokingcessation_ab.RData")
 ```
 
+
+
 ```{r}
-network <- mtc.network(data.ab=Bleed_data, treatments=trts)
+smokingcessation_ab$study = as.numeric(smokingcessation_ab$study)
+network <- mtc.network(smokingcessation_ab)
 plot(network)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
@@ -72,16 +42,16 @@ gemtc_trt_results
 
 ```{r}
 # data pre for jags
-NS = 4
+NS = 24
 NT = 4
-N = nrow(Bleed_data)
-s = Bleed_data$study
-t = Bleed_data$treatment
-t = c(1,2,1,3,4,1,4,1,2,3,4)
-y = Bleed_data$responders
-n = Bleed_data$sampleSize
-drug_list<-unique(Bleed_data$treatment)
-Narm <- as.numeric(table(Bleed_data$study))
+N = nrow(smokingcessation_ab)
+s = smokingcessation_ab$study
+# t = smokingcessation_ab$treatment
+t = as.integer(factor(smokingcessation_ab$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
+y = smokingcessation_ab$responders
+n = smokingcessation_ab$sampleSize
+drug_list<-unique(smokingcessation_ab$treatment)
+Narm <- as.numeric(table(smokingcessation_ab$study))
 n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
 n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
 dr <- matrix(NA,nrow=NS, ncol=max(Narm))
@@ -134,11 +104,11 @@ AB_trt_results
 
 ### Running the LARE Model ### 
 ##Additional data preparation for this model 
-study<-unique(Bleed_data$study)
+study<-unique(smokingcessation_ab$study)
 for (i in 1:NS){
-  n.obs[i,1:Narm[i]] <- Bleed_data$sampleSize[Bleed_data$study==study[i]]
-  n.eve[i,1:Narm[i]] <- Bleed_data$responders[Bleed_data$study==study[i]]
-  dr[i,1:Narm[i]] <- match(Bleed_data$treatment[Bleed_data$study==study[i]],drug_list)
+  n.obs[i,1:Narm[i]] <- smokingcessation_ab$sampleSize[smokingcessation_ab$study==study[i]]
+  n.eve[i,1:Narm[i]] <- smokingcessation_ab$responders[smokingcessation_ab$study==study[i]]
+  dr[i,1:Narm[i]] <- match(smokingcessation_ab$treatment[smokingcessation_ab$study==study[i]],drug_list)
 }
 
 
@@ -237,7 +207,7 @@ ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0,2) + 
+  xlim(0,8) + 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -252,7 +222,7 @@ ggplot(LAresults, aes(y = drug_list, x =mean )) +
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  xlim(0,2) + 
+  xlim(0,8) + 
   labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
 ggplot(CBresults, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
@@ -263,14 +233,14 @@ ggplot(CBresults, aes(y = drug_list, x =mean )) +
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  xlim(0,2) + 
+  xlim(0,8) + 
   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
 ggplot(ABresults, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   scale_y_discrete(limits=rev) + 
   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0,2)+ 
+  xlim(0,8)+ 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -286,20 +256,12 @@ Gemtc_Result[,-c(3,4)]
 LAresults[,-c(3,4)]
 CBresults[,-c(3,4)]
 ABresults[,-c(3,4)]
-knitr::include_graphics("Coro_paper_result.png")
 ```
 
 
 
 
 
-```{r}
-load("result_bleeding_all.RData")
-result_bleeding_all %>% 
-  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
-  pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
-```
 
 
 
