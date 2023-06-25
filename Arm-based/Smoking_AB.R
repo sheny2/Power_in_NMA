@@ -35,6 +35,9 @@ library(doParallel)
 # Register the parallel backend
 cl <- makeCluster(detectCores())
 
+# Register the parallel backend
+registerDoParallel(cl)
+
 S = 1000
 
 
