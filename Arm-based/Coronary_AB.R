@@ -61,7 +61,7 @@ gemtc::forest(cons.out)
 library(foreach)
 library(doParallel)
 # Initialize parallel backend
-cl <- makeCluster(8)
+cl <- makeCluster(detectCores())
 
 # Register the parallel backend
 registerDoParallel(cl)
@@ -117,7 +117,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   network <- gemtc::mtc.network(data.ab=sim_dat, treatments=trts)
   cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.burnin = 2000, thin=1)
+  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   
@@ -287,8 +287,6 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
 }
 
 
-result_bleeding_all
-
 result_bleeding_all = result_bleeding_all/S
 
 result_bleeding_all = matrix(result_bleeding_all, nrow = 4)
@@ -296,9 +294,9 @@ result_bleeding_all = matrix(result_bleeding_all, nrow = 4)
 colnames(result_bleeding_all) <- c("Power AB","Power AC","Power AD")
 result_bleeding_all = result_bleeding_all %>% as.data.frame() 
 result_bleeding_all$Model = c("GEMTC", "LA", "CB", "AB")
-
+result_bleeding_all
 
 save(result_bleeding_all, file = "result_bleeding_all.RData")
 
-
+stopCluster(cl)
 

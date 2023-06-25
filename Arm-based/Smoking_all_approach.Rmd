@@ -268,8 +268,3 @@ result_smoke_all %>%
 ```
 
 
-
-
-
-
-

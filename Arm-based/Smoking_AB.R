@@ -31,13 +31,11 @@ estimates
 ## simulation
 library(foreach)
 library(doParallel)
-# Initialize parallel backend
-cl <- makeCluster(8)
 
 # Register the parallel backend
-registerDoParallel(cl)
+cl <- makeCluster(detectCores())
 
-S = 50
+S = 1000
 
 
 Log_OR_dat = c(log(1), estimates$summaries$statistics[,1][1:3])
@@ -138,7 +136,7 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
   n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
   n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
   dr <- matrix(NA,nrow=NS, ncol=max(Narm))
-  
+  study<-unique(sim_dat$study)  
   
   # AB models
   data_AB <- list('Narm'=N, 'Nstudy'=NS, 
@@ -259,12 +257,10 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
   
   reject_correct_CB = c(AB_reject, AC_reject, AD_reject) 
   
-
+  # return power results
   return(rbind(reject_correct_gemtc, reject_correct_LA, reject_correct_CB, reject_correct_AB))
 }
 
-
-result_smoke_all
 
 result_smoke_all = result_smoke_all/S
 
@@ -273,21 +269,11 @@ result_smoke_all = matrix(result_smoke_all, nrow = 4)
 colnames(result_smoke_all) <- c("Power AB","Power AC","Power AD")
 result_smoke_all = result_smoke_all %>% as.data.frame() 
 result_smoke_all$Model = c("GEMTC", "LA", "CB", "AB")
-
+result_smoke_all
 
 save(result_smoke_all, file = "result_smoke_all.RData")
 
-
-
-
-
-
-
-
-
-
-
-
+stopCluster(cl)
 
 
 
