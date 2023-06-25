@@ -14,46 +14,17 @@ source("ranko_sucra.R")
 set.seed(2023)
 
 ######## Import data
-bleed <- read.table("Data_Bleeding.csv", sep=",", header=TRUE)
-mace <- read.table("Data_MACE.csv", sep=",", header=TRUE)
+load("smokingcessation_ab.RData")
 
-######## Row 7 and 8 need to be combined
-bleed[7,3:7] = bleed[7,3:7] + bleed[8,3:7]
-bleed <- bleed[-8,]
-mace[7,3:10] = mace[7,3:10] + mace[8,3:10]
-mace <- mace[-8,]
+smokingcessation_ab$study = as.numeric(smokingcessation_ab$study)
 
-Bleed_data <- bleed[,c("study", "treatment", "n", "TIMImajor")]
-Bleed_data = Bleed_data[1:(nrow(Bleed_data)-2), ]
-
-MACE_data <- mace[,c("study", "treatment", "n", "MACE")]        
-MACE_data = MACE_data[1:(nrow(MACE_data)-2), ]
-
-
-## Note: A is reference
-
-trt <- c("A","B", "C","D")
-# trt <- c("VKA + DAPT", "VKA + P2Y12", "NOAC + DAPT", "NOAC + P2Y12")
-
-trts <- read.table(textConnection('id description
-                                  A "VKA + DAPT"
-                                  B "VKA + P2Y12"
-                                  C "NOAC + DAPT"
-                                  D "NOAC + P2Y12"'), header=TRUE)
-
-
-
-Bleed_data$treatment <- trt[Bleed_data$treatment]
-colnames(Bleed_data) = c("study","treatment", "sampleSize","responders")
-MACE_data$treatment <- trt[MACE_data$treatment]
-colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
-
-
-network <- mtc.network(data.ab=Bleed_data, treatments=trts)
+network <- mtc.network(smokingcessation_ab)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
-summary(cons.out)
 gemtc::forest(cons.out)
+
+estimates <- summary(cons.out)
+estimates
 
 
 ########
@@ -66,58 +37,76 @@ cl <- makeCluster(8)
 # Register the parallel backend
 registerDoParallel(cl)
 
-S = 1000
+S = 50
 
 
-### Major Bleeding
-# pi_a = sum(bleed[bleed$treatment==1,]$TIMImajor) / sum(bleed[bleed$treatment==1,]$n)
+Log_OR_dat = c(log(1), estimates$summaries$statistics[,1][1:3])
+OR_dat = exp(Log_OR_dat)
 
-pi_a = sum(Bleed_data[Bleed_data$treatment=="A",]$responders) / sum(Bleed_data[Bleed_data$treatment=="A",]$sampleSize)
-n_study = n_distinct(Bleed_data$study)
 
-tau = 0.24
+OR_ab = exp(estimates$summaries$statistics[,1][1])
+OR_ac = exp(estimates$summaries$statistics[,1][2])
+OR_ad = exp(estimates$summaries$statistics[,1][3])
 
-# True OR (from paper)
-OR_ab = 0.58
-OR_ac = 0.70
-OR_ad = 0.49
-Log_OR_dat = log(c(1, OR_ab,OR_ac,OR_ad))
+pi_a = sum(smokingcessation_ab[smokingcessation_ab$treatment=="A",]$responders) / 
+  sum(smokingcessation_ab[smokingcessation_ab$treatment=="A",]$sampleSize)
+
+n_study = n_distinct(smokingcessation_ab$study)
+
+tau = estimates$summaries$statistics[,1][4]
 
 pi_b =  calculate_pi(OR_ab, pi_a)
 pi_c =  calculate_pi(OR_ac, pi_a)
 pi_d =  calculate_pi(OR_ad, pi_a)
 
 
-result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
+
+result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
   
   y_ik = c()
   for (i in 1:n_study){
-    study_data = Bleed_data[Bleed_data$study==i,]
+    study_data = smokingcessation_ab[smokingcessation_ab$study==i,]
     
     alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
-    for (k in 1:nrow(study_data)){
-      if (k == 1) {
-        logit_p_ik = alpha_iB 
-        p_ik = inverse_logit(logit_p_ik)
-        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
-      } else {
-        d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
-        delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
-        logit_p_ik = alpha_iB + delta_iBk
-        p_ik = inverse_logit(logit_p_ik)
-        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+    if (study_data$treatment[1] == "A") {
+      for (k in 1:nrow(study_data)){
+        if (k == 1) {
+          logit_p_ik = alpha_iB 
+          p_ik = inverse_logit(logit_p_ik)
+          y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+        } else {
+          d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+          delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+          logit_p_ik = alpha_iB + delta_iBk
+          p_ik = inverse_logit(logit_p_ik)
+          y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+        }
       }
+    } else {for (k in 1:nrow(study_data)){
+      d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+      delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+      logit_p_ik = alpha_iB + delta_iBk
+      p_ik = inverse_logit(logit_p_ik)
+      y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+    }
     }
   }
   
-  sim_dat = Bleed_data
+  sim_dat = smokingcessation_ab
   sim_dat$responders = y_ik
   
-  network <- gemtc::mtc.network(data.ab=sim_dat, treatments=trts)
+  network <- gemtc::mtc.network(data.ab=sim_dat)
   cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.burnin = 2000, thin=1)
+  cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+  
+  prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)
+  prob <- round(prob, digits=3)
+  sucra <- gemtc::sucra(prob)
+  rank_order = rownames(as.matrix(sort(sucra, decreasing = T)))
+  A_last = as.numeric(rank_order[4] == "A")
+  Correct_order = as.numeric(identical(rank_order,c("D","C","B", "A")))
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   
@@ -133,36 +122,22 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   AD_upper_95 = res$summaries$quantiles[3,5]
   AD_reject = 1-as.numeric(0 >= AD_lower_95 & 0 <= AD_upper_95)
   
-  res = summary(gemtc::relative.effect(cons.out,c("B","B","C"), c("C","D","D")))
-  
-  BC_lower_95 = res$summaries$quantiles[1,1]
-  BC_upper_95 = res$summaries$quantiles[1,5]
-  BC_reject = 1-as.numeric(0 >= BC_lower_95 & 0 <= BC_upper_95)
-  
-  BD_lower_95 = res$summaries$quantiles[2,1]
-  BD_upper_95 = res$summaries$quantiles[2,5]
-  BD_reject = 1-as.numeric(0 >= BD_lower_95 & 0 <= BD_upper_95)
-  
-  CD_lower_95 = res$summaries$quantiles[3,1]
-  CD_upper_95 = res$summaries$quantiles[3,5]
-  CD_reject = 1-as.numeric(0 >= CD_lower_95 & 0 <= CD_upper_95)
-  
   reject_correct_gemtc = c(AB_reject, AC_reject, AD_reject)
   
   ### Data pre for jags
-  NS = 4
+  NS = 24
   NT = 4
   N = nrow(sim_dat)
   s = sim_dat$study
+  # t = sim_dat$treatment
   t = as.integer(factor(sim_dat$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
   y = sim_dat$responders
   n = sim_dat$sampleSize
-  drug_list <- unique(sim_dat$treatment)
+  drug_list<-unique(sim_dat$treatment)
   Narm <- as.numeric(table(sim_dat$study))
-  n.obs <- matrix(NA, nrow = NS, ncol = max(Narm))
-  n.eve <- matrix(NA, nrow = NS, ncol = max(Narm))
-  dr <- matrix(NA, nrow = NS, ncol = max(Narm))
-  study<-unique(sim_dat$study)
+  n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
+  n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
+  dr <- matrix(NA,nrow=NS, ncol=max(Narm))
   
   
   # AB models
@@ -174,7 +149,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
                   list(mu=rep(0,4)))
   para_AB<-c( "lor", "tau", "best1", "best2", "best3")
   fit_AB<- jags(data=data_AB, inits=inits_AB, para_AB,
-                n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+               n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                DIC=TRUE, model.file=ABWish)
    
   # #saving treatment effect output
@@ -182,6 +157,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
   AB_trt_results <- AB_trt_results %>%
      filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]"))
+  
 
   ABresults <- AB_trt_results%>%
     mutate(LL = as.numeric(X2.5.),
@@ -204,12 +180,12 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
 
   # LA model
-  study<-unique(sim_dat$study)
   for (i in 1:NS){
     n.obs[i,1:Narm[i]] <- sim_dat$sampleSize[sim_dat$study==study[i]]
     n.eve[i,1:Narm[i]] <- sim_dat$responders[sim_dat$study==study[i]]
     dr[i,1:Narm[i]] <- match(sim_dat$treatment[sim_dat$study==study[i]],drug_list)
   }
+  
   
   ##putting data into list form
   data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs) 
@@ -283,22 +259,35 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   reject_correct_CB = c(AB_reject, AC_reject, AD_reject) 
   
+
   return(rbind(reject_correct_gemtc, reject_correct_LA, reject_correct_CB, reject_correct_AB))
 }
 
 
-result_bleeding_all
+result_smoke_all
 
-result_bleeding_all = result_bleeding_all/S
+result_smoke_all = result_smoke_all/S
 
-result_bleeding_all = matrix(result_bleeding_all, nrow = 4)
+result_smoke_all = matrix(result_smoke_all, nrow = 4)
 
-colnames(result_bleeding_all) <- c("Power AB","Power AC","Power AD")
-result_bleeding_all = result_bleeding_all %>% as.data.frame() 
-result_bleeding_all$Model = c("GEMTC", "LA", "CB", "AB")
+colnames(result_smoke_all) <- c("Power AB","Power AC","Power AD")
+result_smoke_all = result_smoke_all %>% as.data.frame() 
+result_smoke_all$Model = c("GEMTC", "LA", "CB", "AB")
 
 
-save(result_bleeding_all, file = "result_bleeding_all.RData")
+save(result_smoke_all, file = "result_smoke_all.RData")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
