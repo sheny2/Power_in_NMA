@@ -132,6 +132,7 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
   y = sim_dat$responders
   n = sim_dat$sampleSize
   drug_list<-unique(sim_dat$treatment)
+  drug_list<- c("A","B","C","D")
   Narm <- as.numeric(table(sim_dat$study))
   n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
   n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
