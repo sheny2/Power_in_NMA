@@ -18,6 +18,12 @@ data("smokingcessation")
 # as.numeric(c(pi_a, pi_b, pi_c, pi_d))
 ```
 
+## Treatment: 
+##  A = no intervention, 
+##  B = self-help, 
+##  C = individual counseling,
+##  D = group counseling.
+
 ```{r}
 load("smokingcessation_ab.RData")
 network <- mtc.network(smokingcessation_ab)

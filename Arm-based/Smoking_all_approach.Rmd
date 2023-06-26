@@ -22,6 +22,11 @@ set.seed(2023)
 load("smokingcessation_ab.RData")
 ```
 
+## Treatment: 
+##  A = no intervention, 
+##  B = self-help, 
+##  C = individual counseling,
+##  D = group counseling.
 
 ```{r}
 smokingcessation_ab$study = as.numeric(smokingcessation_ab$study)

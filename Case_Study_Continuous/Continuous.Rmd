@@ -19,7 +19,7 @@ parkinson
 Franchini2012
 ```
 
-# Name 
+# trt name 
 # 1: Placebo
 # 2: Pramipexole
 # 3: Ropinirole

@@ -199,6 +199,11 @@ gemtc_trt_results <- rownames_to_column(gemtc_trt_results, var = "drug_list")
 ```
 
 ```{r}
+knitr::include_graphics("Coro_paper_result.png")
+```
+
+
+```{r}
 #### Cleaning the data before running the forest plot #### 
 Gemtc_Result<-gemtc_trt_results%>%
   mutate(LL = as.numeric(exp(`2.5%`)), 
@@ -286,7 +291,6 @@ Gemtc_Result[,-c(3,4)]
 LAresults[,-c(3,4)]
 CBresults[,-c(3,4)]
 ABresults[,-c(3,4)]
-knitr::include_graphics("Coro_paper_result.png")
 ```
 
 

@@ -66,7 +66,7 @@ cl <- makeCluster(detectCores())
 # Register the parallel backend
 registerDoParallel(cl)
 
-S = 1000
+S = 2000
 
 
 ### Major Bleeding
