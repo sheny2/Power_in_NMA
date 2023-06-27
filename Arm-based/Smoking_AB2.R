@@ -38,7 +38,7 @@ cl <- makeCluster(detectCores())
 # Register the parallel backend
 registerDoParallel(cl)
 
-S = 10
+S = 1000
 
 
 Log_OR_dat = c(log(1), estimates$summaries$statistics[,1][1:3])
