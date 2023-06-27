@@ -83,14 +83,17 @@ OR_ac = 0.70
 OR_ad = 0.49
 Log_OR_dat = log(c(1, OR_ab,OR_ac,OR_ad))
 
-pi_b =  calculate_pi(OR_ab, pi_a)
-pi_c =  calculate_pi(OR_ac, pi_a)
-pi_d =  calculate_pi(OR_ad, pi_a)
+# pi_b =  calculate_pi(OR_ab, pi_a)
+# pi_c =  calculate_pi(OR_ac, pi_a)
+# pi_d =  calculate_pi(OR_ad, pi_a)
 
 
 result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
+  
+  Log_OR_dat = log(c(1, 0.5628501,0.6746325,0.5066068))
+  tau = 0.2208
   
   y_ik = c()
   for (i in 1:n_study){
@@ -149,7 +152,39 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   reject_correct_gemtc = c(AB_reject, AC_reject, AD_reject)
   
-  ### Data pre for jags
+  
+  
+  
+  ### Data pre for jags, AB model first
+  
+  Log_OR_dat = log(c(1, 0.5666299,0.5335303,0.4539045))
+  tau_AB= c(0.415619241, 0.495172675, 0.468347076, 0.426510282)
+  
+  y_ik = c()
+  for (i in 1:n_study){
+    study_data = Bleed_data[Bleed_data$study==i,]
+    
+    alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
+    for (k in 1:nrow(study_data)){
+      if (k == 1) {
+        logit_p_ik = alpha_iB 
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      } else {
+        d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+        tau = tau_AB[which(trt == study_data$treatment[k])]
+        delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+        logit_p_ik = alpha_iB + delta_iBk
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      }
+    }
+  }
+  
+  sim_dat = Bleed_data
+  sim_dat$responders = y_ik
+  
+  
   NS = 4
   NT = 4
   N = nrow(sim_dat)
@@ -202,8 +237,50 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
 
   reject_correct_AB = c(AB_reject, AC_reject, AD_reject)
   
+  
+  
 
   # LA model
+  Log_OR_dat = log(c(1, 0.5614587,0.6850401,0.5023263))
+  tau = 0.307250329
+  
+  y_ik = c()
+  for (i in 1:n_study){
+    study_data = Bleed_data[Bleed_data$study==i,]
+    
+    alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
+    for (k in 1:nrow(study_data)){
+      if (k == 1) {
+        logit_p_ik = alpha_iB 
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      } else {
+        d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+        delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+        logit_p_ik = alpha_iB + delta_iBk
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      }
+    }
+  }
+  
+  sim_dat = Bleed_data
+  sim_dat$responders = y_ik
+  
+  NS = 4
+  NT = 4
+  N = nrow(sim_dat)
+  s = sim_dat$study
+  t = as.integer(factor(sim_dat$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
+  y = sim_dat$responders
+  n = sim_dat$sampleSize
+  drug_list <- unique(sim_dat$treatment)
+  Narm <- as.numeric(table(sim_dat$study))
+  n.obs <- matrix(NA, nrow = NS, ncol = max(Narm))
+  n.eve <- matrix(NA, nrow = NS, ncol = max(Narm))
+  dr <- matrix(NA, nrow = NS, ncol = max(Narm))
+  study<-unique(sim_dat$study)
+  
   study<-unique(sim_dat$study)
   for (i in 1:NS){
     n.obs[i,1:Narm[i]] <- sim_dat$sampleSize[sim_dat$study==study[i]]
@@ -245,8 +322,51 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   reject_correct_LA = c(AB_reject, AC_reject, AD_reject) 
   
+
+  
   
   # CB model
+  Log_OR_dat = log(c(1, 0.5721020,0.7047791,0.5032106))
+  tau_CB = c(0.580856953,0.485949485,0.508666132,0.438989182)
+  
+  y_ik = c()
+  for (i in 1:n_study){
+    study_data = Bleed_data[Bleed_data$study==i,]
+    
+    alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
+    for (k in 1:nrow(study_data)){
+      if (k == 1) {
+        logit_p_ik = alpha_iB 
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      } else {
+        d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+        tau = tau_CB[which(trt == study_data$treatment[k])]
+        delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+        logit_p_ik = alpha_iB + delta_iBk
+        p_ik = inverse_logit(logit_p_ik)
+        y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+      }
+    }
+  }
+  
+  sim_dat = Bleed_data
+  sim_dat$responders = y_ik
+  
+  NS = 4
+  NT = 4
+  N = nrow(sim_dat)
+  s = sim_dat$study
+  t = as.integer(factor(sim_dat$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
+  y = sim_dat$responders
+  n = sim_dat$sampleSize
+  drug_list <- unique(sim_dat$treatment)
+  Narm <- as.numeric(table(sim_dat$study))
+  n.obs <- matrix(NA, nrow = NS, ncol = max(Narm))
+  n.eve <- matrix(NA, nrow = NS, ncol = max(Narm))
+  dr <- matrix(NA, nrow = NS, ncol = max(Narm))
+  study<-unique(sim_dat$study)
+  
   data_CB <- list('Narm'=N, 'Nstudy'=NS, 
                   'Ndrug'=NT, 'study'= s, 'drug'=t, 
                   'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=4)))
@@ -296,7 +416,7 @@ result_bleeding_all = result_bleeding_all %>% as.data.frame()
 result_bleeding_all$Model = c("GEMTC", "LA", "CB", "AB")
 result_bleeding_all
 
-save(result_bleeding_all, file = "result_bleeding_all.RData")
+save(result_bleeding_all, file = "result_bleeding_all2.RData")
 
 stopCluster(cl)
 
