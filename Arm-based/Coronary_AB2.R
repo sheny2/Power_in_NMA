@@ -51,7 +51,7 @@ colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
 
 network <- mtc.network(data.ab=Bleed_data, treatments=trts)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=10000, thin=1)
 summary(cons.out)
 gemtc::forest(cons.out)
 
@@ -120,7 +120,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   network <- gemtc::mtc.network(data.ab=sim_dat, treatments=trts)
   cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
+  cons.out <-gemtc::mtc.run(cons.model, n.iter=10000, n.adapt = 2000, thin=1)
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   
@@ -209,7 +209,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
                   list(mu=rep(0,4)))
   para_AB<-c( "lor", "tau", "best1", "best2", "best3")
   fit_AB<- jags(data=data_AB, inits=inits_AB, para_AB,
-                n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                DIC=TRUE, model.file=ABWish)
    
   # #saving treatment effect output
@@ -294,7 +294,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
                   list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
   para_LA <- c('d','tau','best1', 'best2', 'best3')
   fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
-                 n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                 n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                  DIC=TRUE, model.file=LARE)
   
   #saving treatment effect output
@@ -375,7 +375,7 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   
   para_CB<-c( "d", "tau", "best1", 'best2', 'best3')
   fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
-               n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+               n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                DIC=TRUE, model.file=CBWish)
   
   #saving treatment effect output
@@ -416,7 +416,7 @@ result_bleeding_all = result_bleeding_all %>% as.data.frame()
 result_bleeding_all$Model = c("GEMTC", "LA", "CB", "AB")
 result_bleeding_all
 
-save(result_bleeding_all, file = "result_bleeding_all2.RData")
+save(result_bleeding_all, file = "result_bleeding_all3.RData")
 
 stopCluster(cl)
 
