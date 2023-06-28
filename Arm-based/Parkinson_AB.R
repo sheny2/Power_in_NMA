@@ -112,7 +112,7 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
   network <- gemtc::mtc.network(data.ab=sim_dat)
   cons.model <- gemtc::mtc.model(network, type="consistency", 
                                  likelihood="normal", link="identity", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.adapt=5000, n.iter=2000, thin=1)
+  cons.out <-gemtc::mtc.run(cons.model, n.adapt=50000, n.iter=20000, thin=1)
   
   prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)
   prob <- round(prob, digits=3)
@@ -166,7 +166,7 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
                   list(mu=rep(0,5)))
   para_AB<-c( "lor", "tau")
   fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-               n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+               n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
                DIC=TRUE, model.file=ABWish_C)
    
   # #saving treatment effect output
@@ -175,7 +175,6 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
   AB_trt_results<-AB_trt_results%>%
     filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]"))
   
-
   ABresults <- AB_trt_results%>%
     mutate(LL = as.numeric(X2.5.),
            UL = as.numeric(X97.5.),
@@ -216,7 +215,7 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
                   list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
   para_LA <- c('d','tau')
   fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
-                 n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                 n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
                  DIC=TRUE, model.file=LARE_C)
   
   #saving treatment effect output
@@ -258,7 +257,7 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
   
   para_CB<-c( "d", "tau")
   fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
-               n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+               n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
                DIC=TRUE, model.file=CBWish_C)
   
   #saving treatment effect output

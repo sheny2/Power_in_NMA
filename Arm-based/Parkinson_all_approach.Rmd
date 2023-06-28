@@ -60,11 +60,9 @@ NT = 5
 N = nrow(parkinson_ab)
 s = parkinson_ab$study
 t = parkinson_ab$treatment
-# t = as.integer(factor(parkinson_ab$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
 y = parkinson_ab$mean
 sigma = parkinson_ab$std.dev
 n = parkinson_ab$sampleSize
-# drug_list<-unique(parkinson_ab$treatment)
 drug_list<- c(1,2,3,4,5)
 Narm <- as.numeric(table(parkinson_ab$study))
 n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
