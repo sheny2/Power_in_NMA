@@ -26,6 +26,7 @@ load("df_overall_BNMA.RData")
 
 ```{r, fig.height=5.5, fig.width=12}
 # power in indirect evidence
+
 gridExtra::grid.arrange(
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.1) %>% 
@@ -50,7 +51,6 @@ df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>%
 ```
 
 ```{r, fig.height=5.5, fig.width=12}
-
 # ranking correct in indirect evidence
 
 gridExtra::grid.arrange(
@@ -77,7 +77,7 @@ df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>%
 
 ```{r, fig.height=5.5, fig.width=12}
 
-### Power 
+### Power Direct
 
 gridExtra::grid.arrange(
 
@@ -107,7 +107,7 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
 
 ```{r, fig.height=5.5, fig.width=12}
 
-### Rank Correct
+### Rank Correct Direct
 
 gridExtra::grid.arrange(
 

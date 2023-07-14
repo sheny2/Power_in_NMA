@@ -8,7 +8,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores()-1
-N_sim = 3
+N_sim = 1000
 
 source("power_sim_AB.R")
 
