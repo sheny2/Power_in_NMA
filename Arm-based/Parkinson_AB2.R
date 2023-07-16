@@ -239,7 +239,7 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
   
 
   # LA model
-  dk = c(0, -1.7634840, -0.4891893, -0.5174223, -0.8127853)
+  dk = c(0, -1.8342801, -0.4891893, -0.5174223, -0.8127853)
   tau = 0.3975971
   
   y_ik = c()

@@ -240,7 +240,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
 
 
 k_ab = k_ac = 0
-k_bc = 6
+k_bc = 3
 
 pi_a = 0.5
 
@@ -445,4 +445,4 @@ power.sim.AB_direct <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.
 
 
 # test
-# power.sim.AB_direct(S = 20, k_ab = 0, k_ac = 0, k_bc = 3, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.6, tau = 0.1)
+power.sim.AB_direct(S = 30, k_ab = 0, k_ac = 0, k_bc = 3, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.6, tau = 0.1)

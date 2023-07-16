@@ -58,7 +58,9 @@ colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
 ```{r}
 network <- mtc.network(data.ab=Bleed_data, treatments=trts)
 plot(network)
-cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random", 
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
 summary(cons.out)
 gemtc::forest(cons.out)
