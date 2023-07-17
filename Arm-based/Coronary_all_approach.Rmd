@@ -302,7 +302,7 @@ load("result_bleeding_all.RData")
 result_bleeding_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,0.5)
 ```
 
 ```{r}
@@ -310,12 +310,12 @@ load("result_bleeding_all2.RData")
 result_bleeding_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,0.5)
 
 result_bleeding_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,0.5)
 ```
 
 ```{r}
@@ -330,3 +330,5 @@ result_bleeding_all %>%
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
 ```
+
+

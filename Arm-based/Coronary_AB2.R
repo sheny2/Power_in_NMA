@@ -50,7 +50,9 @@ colnames(MACE_data) = c("study","treatment", "sampleSize","responders")
 
 
 network <- mtc.network(data.ab=Bleed_data, treatments=trts)
-cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                               hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                               re.prior.sd = 10)
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=10000, thin=1)
 summary(cons.out)
 gemtc::forest(cons.out)
@@ -91,9 +93,10 @@ Log_OR_dat = log(c(1, OR_ab,OR_ac,OR_ad))
 result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
+  library(gemtc)
   
-  Log_OR_dat = log(c(1, 0.5628501,0.6746325,0.5066068))
-  tau = 0.2208
+  Log_OR_dat = log(c(1, 0.5654593,0.6905949,0.5051204))
+  tau = 0.3773
   
   y_ik = c()
   for (i in 1:n_study){
@@ -119,8 +122,10 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   sim_dat$responders = y_ik
   
   network <- gemtc::mtc.network(data.ab=sim_dat, treatments=trts)
-  cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.iter=10000, n.adapt = 2000, thin=1)
+  cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                                 hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                                 re.prior.sd = 10)
+  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   
@@ -416,7 +421,7 @@ result_bleeding_all = result_bleeding_all %>% as.data.frame()
 result_bleeding_all$Model = c("GEMTC", "LA", "CB", "AB")
 result_bleeding_all
 
-save(result_bleeding_all, file = "result_bleeding_all3.RData")
+save(result_bleeding_all, file = "result_bleeding_all2.RData")
 
 stopCluster(cl)
 

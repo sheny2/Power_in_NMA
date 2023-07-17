@@ -27,7 +27,9 @@ parkinson_ab$treatment = as.numeric(parkinson_ab$treatment)
 
 parkinson_net <- mtc.network(parkinson_ab)
 cons.model <- mtc.model(parkinson_net, type="consistency", 
-                        likelihood="normal", link="identity", linearModel="random")
+                        likelihood="normal", link="identity", linearModel="random",
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
 prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)
 prob <- round(prob, digits=3)
@@ -75,9 +77,10 @@ trt = c(1,2,3,4,5)
 result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
+  library(gemtc)
   
-  dk = c(0, -1.8979, -0.4884, -0.5229, -0.8156)
-  tau = 0.3784
+  dk = c(0, -1.8669717, -0.5365794, -0.5338494, -0.8342570)
+  tau = 0.3550
   
   y_ik = c()
   for (i in 1:n_study){
@@ -114,7 +117,9 @@ result_pk_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopa
   
   network <- gemtc::mtc.network(data.ab=sim_dat)
   cons.model <- gemtc::mtc.model(network, type="consistency", 
-                                 likelihood="normal", link="identity", linearModel="random")
+                                 likelihood="normal", link="identity", linearModel="random",
+                                 hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                                 re.prior.sd = 10)
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=5000, n.iter=2000, thin=1)
   
   prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)

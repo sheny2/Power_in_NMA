@@ -32,7 +32,7 @@ MACE_data = MACE_data[1:(nrow(MACE_data)-2), ]
 
 ## Note: A is reference
 
-trt <- c("A","B", "C","D")
+trt <- c("A","B","C","D")
 # trt <- c("VKA + DAPT", "VKA + P2Y12", "NOAC + DAPT", "NOAC + P2Y12")
 
 trts <- read.table(textConnection('id description
@@ -91,6 +91,7 @@ pi_d =  calculate_pi(OR_ad, pi_a)
 result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
+  library(gemtc)
   
   y_ik = c()
   for (i in 1:n_study){
@@ -115,9 +116,11 @@ result_bleeding_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   sim_dat = Bleed_data
   sim_dat$responders = y_ik
   
-  network <- gemtc::mtc.network(data.ab=sim_dat, treatments=trts)
-  cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
+  network <- mtc.network(data.ab=sim_dat, treatments=trts)
+  cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                                 hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                                 re.prior.sd = 10)
+  cons.out <- mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
   
   res = summary(gemtc::relative.effect(cons.out,"A", c("B","C","D")))
   

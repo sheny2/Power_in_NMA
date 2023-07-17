@@ -32,7 +32,9 @@ parkinson_ab$treatment = as.numeric(parkinson_ab$treatment)
 ```{r}
 parkinson_net <- mtc.network(parkinson_ab)
 cons.model <- mtc.model(parkinson_net, type="consistency", 
-                        likelihood="normal", link="identity", linearModel="random", hy.prior=mtc.hy.prior("std.dev", "dunif", 0.01, 10))
+                        likelihood="normal", link="identity", linearModel="random" ,                       
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
 
 cons.out <- mtc.run(cons.model, n.adapt=5000, n.iter=2000, thin=1)
 
@@ -279,7 +281,7 @@ load("result_pk_all.RData")
 result_pk_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
 
 ```{r}
@@ -287,13 +289,13 @@ load("result_pk_all2.RData")
 result_pk_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 
 
 result_pk_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
   pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
-  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ")
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
 
 

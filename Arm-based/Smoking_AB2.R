@@ -19,7 +19,9 @@ load("smokingcessation_ab.RData")
 smokingcessation_ab$study = as.numeric(smokingcessation_ab$study)
 
 network <- mtc.network(smokingcessation_ab)
-cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
 cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
 gemtc::forest(cons.out)
 
@@ -65,9 +67,10 @@ tau = estimates$summaries$statistics[,1][4]
 result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
   library(tidyverse)
+  library(gemtc)
   
   Log_OR_dat = c(log(1), estimates$summaries$statistics[,1][1:3])
-  tau = 0.8491
+  tau = 0.8432
   
   y_ik = c()
   for (i in 1:n_study){
@@ -102,8 +105,10 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
   sim_dat$responders = y_ik
   
   network <- gemtc::mtc.network(data.ab=sim_dat)
-  cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-  cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+  cons.model <- gemtc::mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                                 hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                                 re.prior.sd = 10)
+  cons.out <-gemtc::mtc.run(cons.model, n.iter=5000, n.adapt = 2000, thin=1)
   
   prob <- gemtc::rank.probability(cons.out, preferredDirection = 1)
   prob <- round(prob, digits=3)
