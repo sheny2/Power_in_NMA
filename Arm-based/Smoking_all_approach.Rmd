@@ -275,6 +275,7 @@ result_smoke_all %>%
   ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
 
+
 ```{r}
 load("result_smoke_all2.RData")
 result_smoke_all %>% 

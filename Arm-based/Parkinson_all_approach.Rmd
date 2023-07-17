@@ -180,6 +180,7 @@ LA_trt_results
 CB_trt_results
 ```
 
+
 ```{r}
 gemtc::forest(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
 gemtc_trt_results <- rownames_to_column(gemtc_trt_results, var = "drug_list")
@@ -273,7 +274,6 @@ LAresults[,-c(3,4)]
 CBresults[,-c(3,4)]
 ABresults[,-c(3,4)]
 ```
-
 
 
 ```{r}
