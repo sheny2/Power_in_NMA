@@ -298,4 +298,20 @@ result_pk_all %>%
   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
 
+```{r}
+load("result_pk_all2.RData")
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  filter(Model != "GEMTC") %>% 
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  filter(Model != "GEMTC") %>% 
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
 
