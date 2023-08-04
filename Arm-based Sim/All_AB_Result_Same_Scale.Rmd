@@ -153,7 +153,7 @@ df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>%
 ,
 df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + facet_wrap(~tau) +  
-  labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 6$) Evidence, $pi_a = 0.1$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Power") + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1), aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + ylim(0,1)
+  labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 12$) Evidence, $pi_a = 0.1$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Power") + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1), aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + ylim(0,1)
 
 ,
 
@@ -180,7 +180,7 @@ df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>%
 ,
 df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
   ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau) + labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 6$) Evidence, $pi_a = 0.1$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Probability of Correct Ranking") + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1), aes(yintercept = rank_correct, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0.5,1)
+  facet_wrap(~tau) + labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 12$) Evidence, $pi_a = 0.1$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Probability of Correct Ranking") + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1), aes(yintercept = rank_correct, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0.5,1)
 ,
 
 df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
