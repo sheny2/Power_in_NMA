@@ -56,10 +56,32 @@ dir.binary(smoke_eff)
 eff.binary(smoke_eff)
 ```
 
-
 ```{r, fig.width=10, fig.height=6}
+load("smokingcessation_ab.RData")
+
+replace_values <- function(x) {
+  x <- gsub("A", "A_no_intervention", x)
+  x <- gsub("B", "B_self_help", x)
+  x <- gsub("C", "C_individual_counseling", x)
+  x <- gsub("D", "D_group_counseling", x)
+  return(x)
+}
+
+# Apply the function to the 'treatment' variable
+smokingcessation_ab$treatment <- replace_values(smokingcessation_ab$treatment)
+
+network <- mtc.network(smokingcessation_ab)
 plot(network)
-plot(smoking)
+```
+
+
+```{r}
+load("smokingcessation_ab.RData")
+library(pcnetmeta)
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation Treatments", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation", node.col = "orange")
 ```
 
 
