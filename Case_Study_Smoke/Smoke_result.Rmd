@@ -75,7 +75,7 @@ plot(network)
 ```
 
 
-```{r}
+```{r, fig.height=7, fig.width=10.75}
 load("smokingcessation_ab.RData")
 library(pcnetmeta)
 nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation Treatments", node.col = "orange", edge.col = "gray", adjust.thick = 10,
