@@ -27,6 +27,8 @@ load("df_overall_BNMA.RData")
 ```{r, fig.height=5.5, fig.width=12}
 # power in indirect evidence
 
+png('indirect_power.png', width = 800, height = 400)
+
 gridExtra::grid.arrange(
 
 df_indirect_new %>% filter(k_ab == 6, pi_a == 0.1) %>% 
@@ -48,10 +50,14 @@ df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>%
   facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
 )
 
+
+dev.off()
 ```
 
 ```{r, fig.height=5.5, fig.width=12}
 # ranking correct in indirect evidence
+
+png('indirect_rank.png', width = 800, height = 400)
 
 gridExtra::grid.arrange(
 
@@ -73,6 +79,8 @@ df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>%
   ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
   facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Probability of Correct Ranking") + ylim(0.5,1)
 )
+
+dev.off()
 ```
 
 ```{r, fig.height=5.5, fig.width=12}
@@ -145,6 +153,8 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
 ```{r, fig.height=5.5, fig.width=12}
 # Compare direct and indirect evidence powers
 
+png('direct_indirect_power.png', width = 800, height = 400)
+
 gridExtra::grid.arrange(
 
 df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
@@ -166,6 +176,8 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + facet_wrap(~tau) + 
   labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 12$) Evidence, $pi_a = 0.5$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Power") + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5), aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
 )
+
+dev.off()
 ```
 
 
@@ -174,6 +186,8 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
 
 ```{r, fig.height=5.5, fig.width=12}
 # Compare direct and indirect evidence rank
+
+png('direct_indirect_rank.png', width = 800, height = 400)
 
 gridExtra::grid.arrange(
 
@@ -194,6 +208,8 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
   ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
   facet_wrap(~tau) + labs(title = TeX("Direct ($k_{BC}$) vs. Indirect ($k_{AB} = k_{AC} = 12$) Evidence, $pi_a = 0.5$"), x = TeX("$k_{BC}$"), color = TeX("True $OR_{BC}$"), y = "Probability of Correct Ranking")  + geom_hline(linetype = "dashed", data = df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5), aes(yintercept = rank_correct, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0.5,1)
 )
+
+dev.off()
 ```
 
 
@@ -201,6 +217,8 @@ df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>%
 load("df_indirect_BNMA.RData")
 load("df_direct_BNMA.RData")
 load("df_overall_BNMA.RData")
+
+png('overall_power.png', width = 800, height = 400)
 
 df_indirect_new = df_indirect_new[which(df_indirect_new$pi_a==0.1),]
 df_direct_new = df_direct_new[which(df_direct_new$pi_a==0.1),]
@@ -226,6 +244,8 @@ d <- df_BNMA_new %>% filter(k_ab == 12) %>%
   facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
 
 gridExtra::grid.arrange(a,b,c,d,ncol = 2)
+
+dev.off()
 ```
 
 
