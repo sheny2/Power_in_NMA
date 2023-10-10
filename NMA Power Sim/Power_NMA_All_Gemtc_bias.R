@@ -1,4 +1,3 @@
-library(metafor)
 library(tidyverse)
 library(foreach)
 library(doParallel)
@@ -7,8 +6,8 @@ library(gemtc)
 
 set.seed(123456)
 
-N_cores = 8
-N_sim = 5
+N_cores = 20
+N_sim = 500
 
 source("power_sim_all.R")
 
@@ -88,7 +87,7 @@ df_direct_bias <- expand_grid(S = 1:N_sim, k_bc, pi_a, OR_ab, OR_ac, tau) %>%
   mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
-  group_by(S, k_ab, k_ac, pi_a, OR_ab, OR_ac, tau) %>%
+  group_by(S, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
   do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "point_est", "point_true"), " ", convert = TRUE)
 
 # Stop the parallel backend
@@ -121,8 +120,8 @@ df_BNMA_bias <- expand_grid(S = 1:N_sim, pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR)
   mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
-  group_by(S, k_ab, k_ac, pi_a, OR_ab, OR_ac, tau) %>%
-  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+  group_by(S, k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct", "point_est", "point_true"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
