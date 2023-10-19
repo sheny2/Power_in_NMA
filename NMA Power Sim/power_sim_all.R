@@ -758,7 +758,9 @@ power.sim.NMA4 <- function(S = 3, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_a
     rank_correct = as.numeric(identical(rank_order, true_rank))
     
     point_true = log(OR_bc)
-    c(reject_null, rank_correct, point_est - point_true)
+    c(reject_null, rank_correct, 
+      point_est - point_true, 
+      abs(point_est - point_true))
     
   }
   
@@ -769,8 +771,9 @@ power.sim.NMA4 <- function(S = 3, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_a
   power = result[1] / S 
   rank_correct_prob = result[2] / S
   avg_bias = result[3] / S
+  avg_bias_abs = result[3] / S
   
-  return(paste(power,rank_correct_prob, avg_bias))
+  return(paste(power,rank_correct_prob, avg_bias, avg_bias_abs))
 }
 
 

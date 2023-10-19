@@ -7,7 +7,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = 20
-N_sim = 1000
+N_sim = 2000
 
 source("power_sim_all.R")
 
@@ -57,7 +57,7 @@ df_indirect_bias <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab) %>%
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   mutate(k_ac = k_ab) %>% 
   group_by(k_ab, k_ac, pi_a, OR_ab, OR_ac, tau) %>%
-  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias"), " ", convert = TRUE)
+  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
@@ -88,7 +88,7 @@ df_direct_bias <- expand_grid( k_bc, pi_a, OR_ab, OR_ac, tau) %>%
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   group_by(k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
-  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias"), " ", convert = TRUE)
+  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
@@ -121,7 +121,7 @@ df_BNMA_bias <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
-  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct", "avg_bias"), " ", convert = TRUE)
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
