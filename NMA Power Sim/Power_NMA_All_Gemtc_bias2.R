@@ -7,7 +7,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = 20
-N_sim = 2000
+N_sim = 300
 
 source("power_sim_all.R")
 
@@ -127,3 +127,35 @@ df_BNMA_bias <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
 stopCluster(cl)
 
 save(df_BNMA_bias, file = "df_overall_BNMA_bias2.RData")
+
+
+
+
+
+### BNMA Evidence 
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = power.sim.NMA4(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau))
+}
+
+# Apply the function in parallel using foreach
+df_BNMA_bias <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>% 
+  mutate(k_ac = k_ab, k_bc = k_ab / DR_INDR) %>% 
+  select(-DR_INDR)%>% 
+  mutate(OR_bc = round(exp(log(OR_ac) - log(OR_ab)), 2)) %>% 
+  mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
+  mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(df_BNMA_bias, file = "df_overall_BNMA_bias3.RData")

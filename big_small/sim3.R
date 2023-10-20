@@ -273,7 +273,7 @@ save(overall_result_big_small, file = "result_extreme_small/overall_result_big_s
 
 # overall extreme small (3000)
 
-pi_a <- c(0.001, 0.01)
+pi_a <- c(0.001, 0.01, 0.1)
 
 tau <- c(0.001, 0.2, 0.4)
 
@@ -308,5 +308,5 @@ overall_result_big_small <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_bc) %>%
 # Stop the parallel backend
 stopCluster(cl)
 
-save(overall_result_big_small, file = "result_extreme_small3000/overall_result_big_small.RData")
+save(overall_result_big_small, file = "result_extreme_small3000/overall_result_big_small_new.RData")
 
