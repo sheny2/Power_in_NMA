@@ -7,7 +7,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = 20
-N_sim = 300
+N_sim = 1000
 
 source("power_sim_all.R")
 

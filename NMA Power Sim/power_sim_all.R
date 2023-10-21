@@ -730,7 +730,7 @@ power.sim.NMA4 <- function(S = 3, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_a
     cons.out = NULL
     
     
-    cons.out <- gemtc::mtc.run(cons.model, n.adapt=500, n.iter=5000,thin=1)
+    cons.out <- gemtc::mtc.run(cons.model, n.adapt=500, n.iter=2000,thin=1)
     
     
     # Rank order

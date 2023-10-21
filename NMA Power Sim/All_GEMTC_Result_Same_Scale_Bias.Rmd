@@ -519,7 +519,7 @@ gridExtra::grid.arrange(a,b,c,d,ncol = 2)
 load("df_indirect_BNMA_bias.RData")
 load("df_direct_BNMA_bias.RData")
 load("df_overall_BNMA_bias.RData")
-load("df_overall_BNMA_bias3.RData")
+load("df_overall_BNMA_bias2.RData")
 
 df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
   summarise(power_prob = mean(power), rank_prob = mean(rank_correct),

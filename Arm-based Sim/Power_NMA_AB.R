@@ -8,9 +8,11 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores()-1
+N_cores = 20
 N_sim = 1000
 
-source("power_sim_AB.R")
+# source("power_sim_AB_bias.R")
+source("power_sim_AB_bias.R")
 
 # pi_a <- c(0.2, 0.4, 0.6)
 pi_a <- c(0.1, 0.5)
@@ -58,12 +60,12 @@ df_indirect_new <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab) %>%
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   mutate(k_ac = k_ab) %>% 
   group_by(k_ab, k_ac, pi_a, OR_ab, OR_ac, tau) %>% 
-  do(power_mutate(.))%>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_indirect_new, file = "df_indirect_BNMA_AB.RData")
+save(df_indirect_new, file = "df_indirect_BNMA_AB_bias.RData")
 
 
 
@@ -91,12 +93,12 @@ df_direct_new <- expand_grid(k_bc, pi_a, OR_ab, OR_ac, tau) %>%
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   group_by(k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
-  do(power_mutate(.))%>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+  do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_direct_new, file = "df_direct_BNMA_AB.RData")
+save(df_direct_new, file = "df_direct_BNMA_AB_bias.RData")
 
 
 
@@ -124,12 +126,12 @@ df_BNMA_new <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
   mutate(pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )) %>% 
   mutate(pi_c = pi_a * OR_ac / (1 - pi_a + pi_a * OR_ac )) %>% 
   group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
-  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct"), " ", convert = TRUE)
+  do(power_mutate(.)) %>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_BNMA_new, file = "df_overall_BNMA_AB.RData")
+save(df_BNMA_new, file = "df_overall_BNMA_AB_bias.RData")
 
 
 
