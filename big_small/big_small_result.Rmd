@@ -393,7 +393,7 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
   filter(pi_a == 0.01) %>% 
   ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
-  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
 
 ,
 overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
@@ -409,3 +409,46 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 , nrow = 3)
 ```
 
+
+
+
+```{r, fig.height=8, fig.width=12}
+load("result_extreme_small30000/overall_result_big_small_new.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(linewidth = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+, nrow = 3)
+```
