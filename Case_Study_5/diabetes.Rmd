@@ -1,0 +1,58 @@
+---
+title: "Smoke_Result"
+author: "Yicheng Shen"
+date: "2023-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+This network meta-analysis is reported by Elliott and Meyer (2007) to assess the effects of antihypertensive agents on incident diabetes. Treatment IDs represent 1) diuretic; 2) placebo; 3) beta-blocker; 4) calcium-channel blocker (CCB); 5) angiotensin-converting-enzyme (ACE) inhibitor;
+and 6) angiotensin-receptor blocker (ARB).
+
+```{r, fig.height=7, fig.width=10}
+library(pcnetmeta)
+data(diabetes)
+
+diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabetes$t.id), 
+                         sampleSize = diabetes$n, responders = diabetes$r)
+
+network <- mtc.network(diabetes_ab)
+plot(network)
+
+nma.networkplot(study, treatment, data = diabetes_ab, 
+                title = "Incident Diabetes", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+                trtname = c("1: diuretic", 
+                            "2: placebo", 
+                            "3: β-blocker", 
+                            "4: CCB","5: ACE", "6: ARB"))
+
+nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange")
+
+```
+
+
+
+
+```{r}
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
+```
+
+
+
+```{r}
+diabetes_eff = data.frame(sid = as.numeric(diabetes_ab$study), 
+                          tid = as.numeric(diabetes_ab$treatment), 
+                       r = diabetes_ab$responders, n = diabetes_ab$sampleSize)
+library("igraph")
+source("functions.R")
+dir.binary(diabetes_eff)
+eff.binary(diabetes_eff)
+```
+

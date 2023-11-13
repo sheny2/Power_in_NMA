@@ -7,8 +7,8 @@ library(gemtc)
 
 set.seed(123456)
 
-N_cores = detectCores() - 1
-N_sim = 500
+N_cores = detectCores() 
+N_sim = 50
 
 # source("power_sim_AB_bias.R")
 # source("power_sim_AB_bias.R")
@@ -66,7 +66,7 @@ df_indirect_new <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab) %>%
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_indirect_AB3, file = "df_indirect_BNMA_AB_bias3.RData")
+save(df_indirect_new, file = "df_indirect_BNMA_AB_bias3.RData")
 
 
 
@@ -100,11 +100,24 @@ df_direct_new <- expand_grid(k_bc, pi_a, OR_ab, OR_ac, tau) %>%
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_direct_AB3, file = "df_direct_BNMA_AB_bias3.RData")
+save(df_direct_new, file = "df_direct_BNMA_AB_bias3.RData")
 
 
 
 
+# pi_a <- c(0.2, 0.4, 0.6)
+pi_a <- c(0.5)
+# pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )
+# pi_c = pi_a * OR_bc / (1 - pi_a + pi_a * OR_bc )
+
+tau <- c(0.001, 0.2, 0.4)
+
+OR_ab <- c(1.2)
+OR_ac <- c(1.4, 1.6, 1.8)
+# OR_bc = exp(log(OR_ac) - log(OR_ab))
+
+k_ab = c(6,12) 
+DR_INDR = c(1,2,3,6)
 
 
 ### BNMA Evidence 
@@ -134,7 +147,7 @@ df_BNMA_new <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_BNMA_AB3, file = "df_overall_BNMA_AB_bias3.RData")
+save(df_BNMA_new, file = "df_overall_BNMA_AB_bias3.RData")
 
 
 

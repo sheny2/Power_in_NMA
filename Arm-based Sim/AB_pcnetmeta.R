@@ -1,6 +1,5 @@
 library(pcnetmeta)
 
-
 # 
 # 
 # data("smoke")
