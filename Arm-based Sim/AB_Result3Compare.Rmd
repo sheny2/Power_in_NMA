@@ -2,11 +2,11 @@
 title: "Result"
 author: "Yicheng Shen"
 date: "2023-04-05"
-output: pdf_document
+output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = T, warning = F)
+```{r setup, include=FALSE, warning=F, echo = F}
+knitr::opts_chunk$set(echo = F, cache = T, warning = F)
 library(metafor)
 library(tidyverse)
 library(kableExtra)
@@ -15,29 +15,23 @@ ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
 
-### All bayesian gemtc
+
+power_het_cor
+power_het_eqcor
+power_hom_eqcor
+
+avg_bias_het_cor
+avg_bias_het_eqcor
+avg_bias_hom_eqcor
 
 ```{r}
 load("df_indirect_BNMA_AB_bias3.RData")
 load("df_direct_BNMA_AB_bias3.RData")
 load("df_overall_BNMA_AB_bias3.RData")
 ```
-```{r}
-df_indirect_new %>% ggplot() + geom_point(aes(power_het_cor, power_het_eqcor, color = factor(OR_bc))) + 
-  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
-df_indirect_new %>% ggplot() + geom_point(aes(power_het_cor, power_hom_eqcor, color = factor(OR_bc))) + 
-  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
-```
-
-```{r}
-df_direct_new %>% ggplot() + geom_point(aes(power_het_cor, power_het_eqcor, color = factor(OR_bc))) + 
-  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
-df_direct_new %>% ggplot() + geom_point(aes(power_het_cor, power_hom_eqcor, color = factor(OR_bc))) + 
-  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
-```
 
 
-```{r, fig.height=6}
+```{r, fig.height=7, fig.width=8}
 gridExtra::grid.arrange(
 df_BNMA_new %>% ggplot() + geom_point(aes(power_het_cor, power_het_eqcor, color = factor(OR_bc))) + 
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
@@ -63,7 +57,37 @@ df_BNMA_new %>% mutate(K = k_ab + k_ac + k_bc) %>% ggplot() + geom_point(aes(pow
 )
 ```
 
-```{r, fig.height=6}
+
+```{r, fig.height=7, fig.width=8}
+gridExtra::grid.arrange(
+df_BNMA_new %>% ggplot(aes(power_het_cor, power_het_eqcor)) + geom_point(aes(color = factor(OR_bc))) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+,
+df_BNMA_new %>% ggplot(aes(power_het_cor, power_hom_eqcor)) + geom_point(aes(color = factor(OR_bc))) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+)
+
+gridExtra::grid.arrange(
+df_BNMA_new %>% ggplot(aes(power_het_cor, power_het_eqcor)) + geom_point(aes(color = factor(tau))) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+,
+df_BNMA_new %>% ggplot(aes(power_het_cor, power_hom_eqcor)) + geom_point(aes(color = factor(tau))) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+)
+
+gridExtra::grid.arrange(
+df_BNMA_new %>% mutate(K = k_ab + k_ac + k_bc) %>% ggplot(aes(power_het_cor, power_het_eqcor)) + 
+  geom_point(aes(power_het_cor, power_het_eqcor, color = K)) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+,
+df_BNMA_new %>% mutate(K = k_ab + k_ac + k_bc) %>% ggplot(aes(power_het_cor, power_hom_eqcor)) +   geom_point(aes(power_het_cor, power_hom_eqcor, color = K)) + 
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") + geom_smooth(se = F, color = "black", linetype = "dashed", linewidth = 0.5)
+)
+```
+
+
+# Bias
+```{r, fig.height=7, fig.width=8}
 gridExtra::grid.arrange(
 df_BNMA_new %>% ggplot() + geom_point(aes(avg_bias_het_cor, avg_bias_het_eqcor, color = factor(OR_bc))) + 
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
@@ -88,3 +112,9 @@ df_BNMA_new %>% mutate(K = k_ab + k_ac + k_bc) %>% ggplot() + geom_point(aes(avg
   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") 
 )
 ```
+
+
+
+
+
+

@@ -106,7 +106,7 @@ save(df_direct_new, file = "df_direct_BNMA_AB_bias3.RData")
 
 
 # pi_a <- c(0.2, 0.4, 0.6)
-pi_a <- c(0.5)
+pi_a <- c(0.1, 0.5)
 # pi_b = pi_a * OR_ab / (1 - pi_a + pi_a * OR_ab )
 # pi_c = pi_a * OR_bc / (1 - pi_a + pi_a * OR_bc )
 
@@ -147,7 +147,7 @@ df_BNMA_new <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_BNMA_new, file = "df_overall_BNMA_AB_bias3.RData")
+save(df_BNMA_new, file = "df_overall_BNMA_AB_bias3_100.RData")
 
 
 

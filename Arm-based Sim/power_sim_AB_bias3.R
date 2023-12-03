@@ -100,7 +100,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
     
     # het_cor
     AB_Result_het_cor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-                                   model = "het_cor", n.adapt = 1000, n.iter = 2000, n.chains = 2)
+                                   model = "het_cor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
     AB_Result_het_cor_PointEst = as.numeric(sub("\\s*\\(.*", "", AB_Result_het_cor$LogOddsRatio$Mean_SD[3,2]))
     CI95 = gsub(".*\\(([^,]+),\\s+([^,]+)\\).*", "\\1 \\2", AB_Result_het_cor$LogOddsRatio$Median_CI[3,2])
     AB_Result_het_cor_lower_95 <- as.numeric(unlist(strsplit(CI95, " "))[1])
@@ -111,7 +111,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
     
     # het_eqcor
     AB_Result_het_eqcor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-                                     model = "het_eqcor", n.adapt = 1000, n.iter = 2000, n.chains = 2)
+                                     model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
     AB_Result_het_eqcor_PointEst = as.numeric(sub("\\s*\\(.*", "", AB_Result_het_eqcor$LogOddsRatio$Mean_SD[3,2]))
     CI95 = gsub(".*\\(([^,]+),\\s+([^,]+)\\).*", "\\1 \\2", AB_Result_het_eqcor$LogOddsRatio$Median_CI[3,2])
     AB_Result_het_eqcor_lower_95 <- as.numeric(unlist(strsplit(CI95, " "))[1])
@@ -122,7 +122,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
     
     # hom_eqcor
     AB_Result_hom_eqcor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-                                     model = "hom_eqcor", n.adapt = 1000, n.iter = 2000, n.chains = 2)
+                                     model = "hom_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
     AB_Result_hom_eqcor_PointEst = as.numeric(sub("\\s*\\(.*", "", AB_Result_hom_eqcor$LogOddsRatio$Mean_SD[3,2]))
     CI95 = gsub(".*\\(([^,]+),\\s+([^,]+)\\).*", "\\1 \\2", AB_Result_hom_eqcor$LogOddsRatio$Median_CI[3,2])
     AB_Result_hom_eqcor_lower_95 <- as.numeric(unlist(strsplit(CI95, " "))[1])

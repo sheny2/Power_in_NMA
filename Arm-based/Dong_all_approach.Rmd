@@ -13,131 +13,53 @@ library(tibble)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 source('Models.R')
-
-library(pcnetmeta)
-data(diabetes)
-
-data(Gurusamy2011)
-data(Baker2009)
-data(Dogliotti2014)
-data(Dong2013)
-```
-
-```{r}
 set.seed(2023)
 ```
 
-```{r, fig.width=8, warning=F}
-plot(gemtc::thrombolytic, main = "thrombolytic")
-plot(gemtc::smoking, main = "smoking")
-plot(gemtc::depression, main = "depression")
-plot(gemtc::certolizumab, main = "certolizumab")
-plot(gemtc::atrialFibrillation, main = "atrialFibrillation")
+```{r, fig.width=8, fig.height=6, warning=F}
+library(netmeta)
+data(Dong2013)
 
-Baker2009$treatment = ifelse(Baker2009$treatment == "Fluticasone+Salmeterol", "FS", Baker2009$treatment)
-Baker2009$treatment = ifelse(Baker2009$treatment == "Budesonide+Formoterol", "BF", Baker2009$treatment)
-Baker2009_ab = data.frame(study = Baker2009$study, treatment = Baker2009$treatment, 
-                         sampleSize = Baker2009$total, responders = Baker2009$exac)
-plot(mtc.network(Baker2009_ab), main = "Baker2009")
+Dong2013_ab = data.frame(study = Dong2013$id, treatment = Dong2013$treatment, 
+                         sampleSize = Dong2013$randomized, responders = Dong2013$death)
 
+nma.networkplot(study, treatment, data = Dong2013_ab, 
+                title = "Risk of inhaled medications for COPD", node.col = "orange", edge.col = "gray", adjust.thick = 10)
 
-nma.networkplot(study, treatment, data = Gurusamy_ab, 
-                title = "Gurusamy2011", node.col = "orange", edge.col = "gray", adjust.thick = 10)
-```
-
-```{r, fig.width=8, warning=F}
-diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabetes$t.id), 
-                         sampleSize = diabetes$n, responders = diabetes$r)
-plot(mtc.network(diabetes_ab), main = "Incident diabetes")
-```
-
-
-```{r}
-nma.networkplot(s.id, t.id, data = diabetes, title = "Diabetes",
-trtname = c("Diuretic", "Placebo", "b-blocker", "CCB", "ACE inhibitor",
-"ARB"))
-
-nma.networkplot(s.id, t.id, data = diabetes, title = "Diabetes",
-trtname = c("Diuretic", "Placebo", "b-blocker", "CCB", "ACE inhibitor",
-"ARB"), multi.show = TRUE)
-
-nma.networkplot(s.id, t.id, n, data = diabetes, title = "",
-weight.node.ss = TRUE, multi.show = TRUE)
-mtext(text = "Diabetes", side = 3, line = 0, font = 1, cex = 2)
-```
-
-
-represent 1) diuretic; 2) placebo; 3) βblocker; 4) calcium-channel blocker (CCB); 5) angiotensin-converting-enzyme (ACE) inhibitor;
-and 6) angiotensin-receptor blocker (ARB).
-
-
-```{r, eval = F}
-diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabetes$t.id), 
-                         sampleSize = diabetes$n, responders = diabetes$r)
-
-diabetes_ab = diabetes_ab %>% 
+Dong2013_dat = Dong2013 %>% 
   dplyr::mutate(treatment = recode(
     treatment,
-    "1"  = "diuretic",
-    "2"  = "placebo",
-    "3"  = "b_blocker",
-    "4"  = "CCB",
-    "5"  = "ACE",
-    "6"  = "ARB"
+    "Placebo"   = "A",
+    "TIO-SMI"   = "B",
+    "TIO-HH"    = "C",
+    "LABA"      = "D",
+    "LABA-ICS"  = "E",
+    "ICS"       = "F"
   ))
-```
+  
+Dong2013_ab = data.frame(study = Dong2013_dat$id, treatment = Dong2013_dat$treatment, 
+                         sampleSize = Dong2013_dat$randomized, responders = Dong2013_dat$death)
 
+nma.networkplot(study, treatment, data = Dong2013_ab, 
+                title = "Risk of inhaled medications for COPD", node.col = "orange", edge.col = "gray", adjust.thick = 10)
 
-
-```{r, fig.height=7, fig.width=10}
-
-# diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "2", "placebo", diabetes_ab$treatment)
-# diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "1", "2", diabetes_ab$treatment)
-# diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "placebo", "1", diabetes_ab$treatment)
-
-network <- mtc.network(diabetes_ab)
-plot(network)
-
-# nma.networkplot(study, treatment, data = diabetes_ab, 
-#                 title = "Incident Diabetes", node.col = "orange", edge.col = "gray", adjust.thick = 10,
-#                 trtname = c("1: placebo", 
-#                             "2: diuretic", 
-#                             "3: β-blocker", 
-#                             "4: CCB","5: ACE", "6: ARB"))
-
-# nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange")
+plot(mtc.network(Dong2013_ab), main = "Dong2013")
 ```
 
 
 ```{r}
+network = mtc.network(Dong2013_ab)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
                         hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
                         re.prior.sd = 10)
-cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
-eff_est = cons.out
-summary(eff_est)
-gemtc::forest(eff_est)
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
 
-gemtc_trt_results = cbind(mean = summary(eff_est)$summaries$statistics[1:5,1], 
-                        summary(eff_est)$summaries$quantiles[1:5,c(1,5)]) %>% as.data.frame()
+gemtc_trt_results = cbind(mean = summary(cons.out)$summaries$statistics[1:5,1], 
+                        summary(cons.out)$summaries$quantiles[1:5,c(1,5)]) %>% as.data.frame()
 
 gemtc_trt_results
-```
-
-
-```{r}
-# cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
-#                         hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
-#                         re.prior.sd = 10)
-# cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
-# eff_est = relative.effect(cons.out, "diuretic",c("ARB", "ACE", "CCB", "placebo", "b_blocker"))
-# summary(eff_est)
-# gemtc::forest(eff_est)
-# 
-# gemtc_trt_results = cbind(mean = summary(eff_est)$summaries$statistics[1:5,1], 
-#                         summary(eff_est)$summaries$quantiles[1:5,c(1,5)]) %>% as.data.frame()
-# 
-# gemtc_trt_results
 ```
 
 
@@ -146,17 +68,18 @@ gemtc_trt_results
 
 ```{r}
 # data pre for jags
-NS = 22
+NS = 41
 NT = 6
-N = nrow(diabetes_ab)
-s = as.numeric(diabetes_ab$study)
-t = as.numeric(diabetes_ab$treatment)
-# t = as.integer(factor(diabetes_ab$treatment, levels = c("A", "B", "C", "D"), labels = c(1, 2, 3, 4)))
-y = diabetes_ab$responders
-n = diabetes_ab$sampleSize
-# drug_list<-unique(diabetes_ab$treatment)
-drug_list<- c(1,2,3,4,5,6)
-Narm <- as.numeric(table(diabetes_ab$study))
+N = nrow(Dong2013_ab)
+s = as.numeric(Dong2013_ab$study)
+# t = as.numeric(Dong2013_ab$treatment)
+t = as.integer(factor(Dong2013_ab$treatment, 
+                      levels = c("A", "B", "C", "D", "E", "F"), labels = c(1, 2, 3, 4, 5, 6)))
+y = Dong2013_ab$responders
+n = Dong2013_ab$sampleSize
+# drug_list<-unique(Dong2013_ab$treatment)
+drug_list<-  c("A","B","C","D", "E", "F")
+Narm <- as.numeric(table(Dong2013_ab$study))
 n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
 n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
 dr <- matrix(NA,nrow=NS, ncol=max(Narm))
@@ -171,7 +94,7 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=6)))
 inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
-para_AB<-c( "lor", "tau", "best1", "best2", "best3")
+para_AB<-c( "lor", "tau")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
              n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish)
@@ -209,11 +132,11 @@ AB_trt_results
 
 ### Running the LARE Model ### 
 ##Additional data preparation for this model 
-study<-unique(diabetes_ab$study)
+study<-unique(Dong2013_ab$study)
 for (i in 1:NS){
-  n.obs[i,1:Narm[i]] <- diabetes_ab$sampleSize[diabetes_ab$study==study[i]]
-  n.eve[i,1:Narm[i]] <- diabetes_ab$responders[diabetes_ab$study==study[i]]
-  dr[i,1:Narm[i]] <- match(diabetes_ab$treatment[diabetes_ab$study==study[i]],drug_list)
+  n.obs[i,1:Narm[i]] <- Dong2013_ab$sampleSize[Dong2013_ab$study==study[i]]
+  n.eve[i,1:Narm[i]] <- Dong2013_ab$responders[Dong2013_ab$study==study[i]]
+  dr[i,1:Narm[i]] <- match(Dong2013_ab$treatment[Dong2013_ab$study==study[i]],drug_list)
 }
 
 
@@ -221,7 +144,7 @@ for (i in 1:NS){
 data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs) 
 init_LA <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))),
              list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
-para_LA <- c('d','tau','best1', 'best2', 'best3')
+para_LA <- c('d','tau')
 fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
                      n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
                      DIC=TRUE, model.file=LARE)
@@ -247,7 +170,7 @@ data_CB <- list('Narm'=N, 'Nstudy'=NS,
 inits_CB <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(1,max(t)-1))),
              list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
 
-para_CB<-c( "d", "tau", "best1", 'best2', 'best3')
+para_CB<-c( "d", "tau")
 fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
                 n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
                 DIC=TRUE, model.file=CBWish)
@@ -275,7 +198,7 @@ CB_trt_results
 
 
 ```{r}
-gemtc::forest(relative.effect(cons.out, "1"))
+gemtc::forest(cons.out)
 gemtc_trt_results <- rownames_to_column(gemtc_trt_results, var = "drug_list")
 ```
 
@@ -319,7 +242,7 @@ ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0.2,1.5)+ 
+  xlim(0.5,4)+ 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -334,7 +257,7 @@ ggplot(LAresults, aes(y = drug_list, x =mean )) +
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  xlim(0.2,1.5)+ 
+  xlim(0.5,4)+ 
   labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
 ggplot(CBresults, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
@@ -345,14 +268,14 @@ ggplot(CBresults, aes(y = drug_list, x =mean )) +
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
-  xlim(0.2,1.5)+  
+  xlim(0.5,4)+ 
   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
 ggplot(ABresults, aes(y = drug_list, x =mean )) +
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   scale_y_discrete(limits=rev) + 
   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0.2,1.5)+ 
+  xlim(0.5,4)+ 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
