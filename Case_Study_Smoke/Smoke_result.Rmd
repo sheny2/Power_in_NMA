@@ -85,9 +85,48 @@ nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking S
 ```
 
 
+```{r}
+load("result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
+
+load("result_smoke_AB.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AC.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AD.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
 
 
 
+result_smoke_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+result_smoke_all
+
+
+result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one AB study",
+      "Add one AC study",
+      "Add one AD study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
 
 
 

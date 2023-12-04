@@ -306,4 +306,12 @@ result_smoke_all %>%
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
+```{r}
+
+```
+
+
+
+
+
 
