@@ -169,6 +169,9 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
     }
   }
   
+  sim_dat = smokingcessation_ab
+  sim_dat$responders = y_ik
+  
   NS = 24
   NT = 4
   N = nrow(sim_dat)
@@ -256,6 +259,8 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
     }
     }
   }
+  sim_dat = smokingcessation_ab
+  sim_dat$responders = y_ik
   
   NS = 24
   NT = 4
@@ -349,6 +354,9 @@ result_smoke_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %d
     }
     }
   }
+  
+  sim_dat = smokingcessation_ab
+  sim_dat$responders = y_ik
   
   NS = 24
   NT = 4
