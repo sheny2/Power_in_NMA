@@ -1,7 +1,7 @@
 library(foreach)
 library(doParallel)
 # Initialize parallel backend
-cl <- makeCluster(8)
+cl <- makeCluster(detectCores())
 
 # Register the parallel backend
 registerDoParallel(cl)
@@ -259,7 +259,7 @@ save(result_diabetes, file = "result_diabetes_AB.RData")
 
 # add AC
 diabetes_ab_AC = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_AC = rbind(diabetes_ab_AC, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+diabetes_ab_AC = rbind(diabetes_ab_AC, c(23, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
 diabetes_ab_AC$sampleSize = as.numeric(diabetes_ab_AC$sampleSize)
 diabetes_ab_AC$responders = as.numeric(diabetes_ab_AC$responders)
 n_study = n_distinct(diabetes_ab_AC$study)
@@ -354,7 +354,7 @@ save(result_diabetes, file = "result_diabetes_AC.RData")
 
 # add AC
 diabetes_ab_AD = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_AD = rbind(diabetes_ab_AD, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+diabetes_ab_AD = rbind(diabetes_ab_AD, c(23, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
 diabetes_ab_AD$sampleSize = as.numeric(diabetes_ab_AD$sampleSize)
 diabetes_ab_AD$responders = as.numeric(diabetes_ab_AD$responders)
 n_study = n_distinct(diabetes_ab_AD$study)
@@ -450,7 +450,7 @@ save(result_diabetes, file = "result_diabetes_AD.RData")
 
 # add AE
 diabetes_ab_AE = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_AE = rbind(diabetes_ab_AE, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_e)) )
+diabetes_ab_AE = rbind(diabetes_ab_AE, c(23, "5", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_e)) )
 diabetes_ab_AE$sampleSize = as.numeric(diabetes_ab_AE$sampleSize)
 diabetes_ab_AE$responders = as.numeric(diabetes_ab_AE$responders)
 n_study = n_distinct(diabetes_ab_AE$study)
@@ -547,7 +547,7 @@ save(result_diabetes, file = "result_diabetes_AE.RData")
 
 # add AF
 diabetes_ab_AF = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_AF = rbind(diabetes_ab_AF, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_f)) )
+diabetes_ab_AF = rbind(diabetes_ab_AF, c(23, "6", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_f)) )
 diabetes_ab_AF$sampleSize = as.numeric(diabetes_ab_AF$sampleSize)
 diabetes_ab_AF$responders = as.numeric(diabetes_ab_AF$responders)
 n_study = n_distinct(diabetes_ab_AF$study)
@@ -641,8 +641,8 @@ save(result_diabetes, file = "result_diabetes_AF.RData")
 
 
 # add EF
-diabetes_ab_EF = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_e)) )
-diabetes_ab_EF = rbind(diabetes_ab_EF, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_f)) )
+diabetes_ab_EF = rbind(diabetes_ab, c(23, "5", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_e)) )
+diabetes_ab_EF = rbind(diabetes_ab_EF, c(23, "6", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_f)) )
 diabetes_ab_EF$sampleSize = as.numeric(diabetes_ab_EF$sampleSize)
 diabetes_ab_EF$responders = as.numeric(diabetes_ab_EF$responders)
 n_study = n_distinct(diabetes_ab_EF$study)
