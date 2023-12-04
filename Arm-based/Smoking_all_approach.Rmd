@@ -295,14 +295,14 @@ result_smoke_all %>%
 load("result_smoke_all2.RData")
 result_smoke_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
-  filter(Model != "GEMTC") %>% 
+  filter(!Model %in%  c("GEMTC", "CB"))%>% 
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 
 
 result_smoke_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
-  filter(Model != "GEMTC") %>% 
+  filter(!Model %in%  c("GEMTC", "CB"))%>%  
   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```

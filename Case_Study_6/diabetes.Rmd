@@ -57,3 +57,62 @@ dir.binary(diabetes_eff)
 eff.binary(diabetes_eff)
 ```
 
+
+
+
+
+```{r}
+load("result_diabetes_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+load("result_diabetes_AB.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AC.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AD.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AE.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_EF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study", "Add one AE study","Add one AF study","Add one EF study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power AE","Power AF")
+result_diabetes_all
+
+
+result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one AB study",
+      "Add one AC study",
+      "Add one AD study",
+      "Add one AE study",
+      "Add one AF study",
+      "Add one EF study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:6,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
+
+
