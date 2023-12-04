@@ -41,8 +41,8 @@ Baker2009_ab = data.frame(study = Baker2009$study, treatment = Baker2009$treatme
 plot(mtc.network(Baker2009_ab), main = "Baker2009")
 
 
-nma.networkplot(study, treatment, data = Gurusamy_ab, 
-                title = "Gurusamy2011", node.col = "orange", edge.col = "gray", adjust.thick = 10)
+# nma.networkplot(study, treatment, data = Gurusamy_ab, 
+                # title = "Gurusamy2011", node.col = "orange", edge.col = "gray", adjust.thick = 10)
 ```
 
 ```{r, fig.width=8, warning=F}
@@ -113,7 +113,7 @@ plot(network)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
                         hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
                         re.prior.sd = 10)
-cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=5000, thin=1)
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
 eff_est = cons.out
 summary(eff_est)
 gemtc::forest(eff_est)
@@ -360,4 +360,20 @@ ggplot(ABresults, aes(y = drug_list, x =mean )) +
   labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
 nrow = 4
 )
+```
+
+
+
+```{r}
+load("result_diabetes_all.RData")
+result_diabetes_all %>% 
+  mutate(Model = factor(Model,levels = c("LA", "AB"))) %>%
+  pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+
+result_diabetes_all %>% 
+  mutate(Model = factor(Model,levels = c("LA", "AB"))) %>%
+  pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```
