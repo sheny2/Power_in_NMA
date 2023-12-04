@@ -1,7 +1,7 @@
 library(foreach)
 library(doParallel)
 # Initialize parallel backend
-cl <- makeCluster(8)
+cl <- makeCluster(20)
 
 # Register the parallel backend
 registerDoParallel(cl)
@@ -163,7 +163,7 @@ colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "
 
 save(result_diabetes, file = "result_diabetes_AB.RData")
 
-stopCluster(cl)
+# stopCluster(cl)
 
 
 
@@ -259,7 +259,7 @@ colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "
 
 save(result_diabetes, file = "result_diabetes_AC.RData")
 
-stopCluster(cl)
+# stopCluster(cl)
 
 
 
@@ -354,7 +354,7 @@ colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "
 
 save(result_diabetes, file = "result_diabetes_AD.RData")
 
-stopCluster(cl)
+# stopCluster(cl)
 
 
 
@@ -450,7 +450,7 @@ colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "
 
 save(result_diabetes, file = "result_diabetes_AE.RData")
 
-stopCluster(cl)
+# stopCluster(cl)
 
 
 
