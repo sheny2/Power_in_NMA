@@ -31,7 +31,8 @@ nma.networkplot(study, treatment, data = diabetes_ab,
                             "3: β-blocker", 
                             "4: CCB","5: ACE", "6: ARB"))
 
-nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange")
+nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange",  
+                edge.col = "gray", adjust.thick = 10)
 
 ```
 

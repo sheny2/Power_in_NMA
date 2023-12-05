@@ -23,6 +23,7 @@ diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabe
                          sampleSize = diabetes$n, responders = diabetes$r)
 
 diabetes_ab$study = as.numeric(diabetes_ab$study)
+trt = unique(diabetes_ab$treatment)
 
 # Helper function
 
@@ -730,6 +731,102 @@ result_diabetes = matrix(result_diabetes, nrow = 1)
 colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "AF_power")
 
 save(result_diabetes, file = "result_diabetes_EF.RData")
+
+
+
+
+
+
+# add EF
+diabetes_ab_EF2 = rbind(diabetes_ab, c(23, "5", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_e * 0.5)) )
+diabetes_ab_EF2 = rbind(diabetes_ab_EF2, c(23, "6", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_f * 3)) )
+diabetes_ab_EF2$sampleSize = as.numeric(diabetes_ab_EF2$sampleSize)
+diabetes_ab_EF2$responders = as.numeric(diabetes_ab_EF2$responders)
+n_study = n_distinct(diabetes_ab_EF2$study)
+
+result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
+  library(R2jags)
+  library(tidyverse)
+  library(gemtc)
+  
+  
+  # LA model
+  Log_OR_dat = c(0, -0.2934780,-0.0712749,-0.2427150, -0.4125047, -0.4914017)
+  tau = 0.1345282
+  
+  y_ik = c()
+  for (i in 1:n_study){
+    study_data = diabetes_ab_EF2[diabetes_ab_EF2$study==i,]
+    
+    alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
+    if (study_data$treatment[1] == "1") {
+      for (k in 1:nrow(study_data)){
+        if (k == 1) {
+          logit_p_ik = alpha_iB 
+          p_ik = inverse_logit(logit_p_ik)
+          y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+        } else {
+          d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+          delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+          logit_p_ik = alpha_iB + delta_iBk
+          p_ik = inverse_logit(logit_p_ik)
+          y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+        }
+      }
+    } else {for (k in 1:nrow(study_data)){
+      d_k = Log_OR_dat[which(trt == study_data$treatment[k])]
+      delta_iBk = rnorm(n=1, mean=d_k, sd=tau)
+      logit_p_ik = alpha_iB + delta_iBk
+      p_ik = inverse_logit(logit_p_ik)
+      y_ik = c(y_ik, rbinom(n = 1, size = study_data$sampleSize[k], prob = p_ik))
+    }
+    }
+  }
+  
+  sim_dat = diabetes_ab_EF2
+  sim_dat$responders = y_ik
+  
+  network <- gemtc::mtc.network(data.ab=sim_dat)
+  cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                          hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                          re.prior.sd = 10)
+  cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+  
+  res = summary(gemtc::relative.effect(cons.out,"1", c("2","3","4","5","6")))
+  
+  AB_lower_95 = res$summaries$quantiles[1,1]
+  AB_upper_95 = res$summaries$quantiles[1,5]
+  AB_reject = 1-as.numeric(0 >= AB_lower_95 & 0 <= AB_upper_95)
+  
+  AC_lower_95 = res$summaries$quantiles[2,1]
+  AC_upper_95 = res$summaries$quantiles[2,5]
+  AC_reject = 1-as.numeric(0 >= AC_lower_95 & 0 <= AC_upper_95)
+  
+  AD_lower_95 = res$summaries$quantiles[3,1]
+  AD_upper_95 = res$summaries$quantiles[3,5]
+  AD_reject = 1-as.numeric(0 >= AD_lower_95 & 0 <= AD_upper_95)
+  
+  AE_lower_95 = res$summaries$quantiles[4,1]
+  AE_upper_95 = res$summaries$quantiles[4,5]
+  AE_reject = 1-as.numeric(0 >= AE_lower_95 & 0 <= AE_upper_95)
+  
+  AF_lower_95 = res$summaries$quantiles[5,1]
+  AF_upper_95 = res$summaries$quantiles[5,5]
+  AF_reject = 1-as.numeric(0 >= AF_lower_95 & 0 <= AF_upper_95)
+  
+  
+  reject_correct = c(AB_reject, AC_reject, AD_reject, AE_reject, AF_reject)
+  
+  return(c(reject_correct))
+}
+
+# first three powers / next three Type I errors / last one A being ranked last
+result_diabetes = result_diabetes/S
+
+result_diabetes = matrix(result_diabetes, nrow = 1)
+colnames(result_diabetes) <- c("AB_power", "AC_power", "AD_power", "AE_power", "AF_power")
+
+save(result_diabetes, file = "result_diabetes_EF2.RData")
 
 stopCluster(cl)
 

@@ -207,7 +207,7 @@ ABresults$drug_list = Gemtc_Result$drug_list
 ````{r, fig.width = 6, fig.height = 7}
 ##Runnning forest plots##
 ##plot in OR scale, not log OR! 
-
+four_model_smoking = 
 gridExtra::grid.arrange(
 ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
   scale_y_discrete(limits=rev) + 
@@ -255,6 +255,12 @@ ggplot(ABresults, aes(y = drug_list, x =mean )) +
   labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
 nrow = 4
 )
+
+
+# saveRDS(Gemtc_Result, "smoke_Gemtc_Result.rds")
+# saveRDS(LAresults, "smoke_LAresults.rds")
+# saveRDS(CBresults, "smoke_CBresults.rds")
+# saveRDS(ABresults, "smoke_ABresults.rds")
 ```
 
 ```{r}
