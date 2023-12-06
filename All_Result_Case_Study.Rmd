@@ -41,6 +41,8 @@ smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
 
 smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
                        r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
+
+dir.binary(smoke_eff)
 eff.binary(smoke_eff)
 ```
 

@@ -1,24 +1,9 @@
+source("Model2.R")
 library(pcnetmeta)
+library(R2jags)
 
-# 
-# 
-# data("smoke")
-# # increase n.iter to reach convergence
-# set.seed(1234)
-# nma.out <- nma.ab.bin(s.id, t.id, r, n, data = smoke,
-#                       trtname = c("NC", "SH", "IC", "GC"), param= "AR",
-#                       model = "het_cor", n.adapt = 1000, n.iter = 100, n.chains = 1)
-# absolute.plot(nma.out, save = FALSE)
-# #absolute.plot(nma.out)
-# absolute.plot(nma.out, alphabetic = FALSE, save = FALSE)
-# nma.out
-
-
-
-################################# 
-
-
-k_ab = k_ac = 6
+k_ab = 6
+k_ac = 6
 k_bc = 6
 
 pi_a = 0.5
@@ -27,7 +12,6 @@ OR_ab = 1.2
 OR_ac = 1.8
 
 tau = 0.2
-S = 10
 
 
 # simulate k_ab studies (indirect)
@@ -99,8 +83,22 @@ if (k_bc != 0){
 colnames(dat_ab) = colnames(dat_ac) = colnames(dat_bc) = c("study", "treatment", "sampleSize", "responders")
 all_data = rbind(dat_ab, dat_ac, dat_bc)
 
+dat_ab
+
+
+
 all_data[,c('sampleSize', 'responders')] <-
   lapply(all_data[,c('sampleSize', 'responders')], as.numeric)
+
+
+all_data_pc = tibble(s.id = all_data$study,
+                     t.id = all_data$treatment, 
+                     r = all_data$responders, 
+                     n = all_data$sampleSize) 
+
+all_data
+all_data_pc
+
 
 
 
@@ -110,21 +108,16 @@ NT = n_distinct(all_data$treatment)
 N = nrow(all_data)
 s = all_data$study
 # t = all_data$treatment
-t = as.integer(factor(all_data$treatment, levels = c("B","A","C"), labels = c(1,2,3)))
+t = as.integer(factor(all_data$treatment, levels = c("A", "B", "C"), labels = c(1,2,3)))
 y = all_data$responders
 n = all_data$sampleSize
-drug_list <- c("B","A","C")
+drug_list <- c("A", "B", "C")
 Narm <- as.numeric(table(all_data$study))
 n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
 n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
 dr <- matrix(NA,nrow=NS, ncol=max(Narm))
 study<-unique(all_data$study)
 
-for (i in 1:NS){
-  n.obs[i,1:Narm[i]] <- all_data$sampleSize[all_data$study==study[i]]
-  n.eve[i,1:Narm[i]] <- all_data$responders[all_data$study==study[i]]
-  dr[i,1:Narm[i]] <- match(all_data$treatment[all_data$study==study[i]],drug_list)
-}
 
 
 ### Running Arm Based  Model  ########
@@ -134,61 +127,94 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=3)))
 inits_AB<- list(list(mu=rep(0,3)),
                 list(mu=rep(0,3)))
-para_AB<-c( "lor", "tau", "best1", "best2", "best3")
+para_AB<-c( "or", "tau")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
              n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish.het.cor)
 
 
 # output data
-AB_trt_results<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
-AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
-AB_trt_results<-AB_trt_results%>%
+AB_trt_results_old<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_old <- tibble::rownames_to_column(AB_trt_results_old, "drug_list")
+AB_trt_results_old_lor<-AB_trt_results_old%>%
+  filter(drug_list %in% c("or[1]", "or[2]", "or[3]"))
+AB_trt_results_old
+
+
+
+
+
+system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+                         n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                         DIC=TRUE, model.file=ABWish.het.cor))
+
+
+
+
+### Running Arm Based  Model 2 ########
+data_AB <- list('Narm'=N, 'Nstudy'=NS,
+                'Ndrug'=NT, 'study'= s, 'drug'=t,
+                'y'=y, 'n'=n ,
+                'zero.AB' = (rep(0, times=3)))
+inits_AB<- list(list(mu=rep(0,3)),
+                list(mu=rep(0,3)))
+para_AB<-c( "lor", "rho", "sigma")
+fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=ABWish.het.eqcor)
+
+
+AB_trt_results_new<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_new <- tibble::rownames_to_column(AB_trt_results_new, "drug_list")
+AB_trt_results_new_lor<-AB_trt_results_new%>%
   filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]"))
 
-AB_rank_prob<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
-AB_rank_prob <- tibble::rownames_to_column(AB_rank_prob, "best")
 
-AB_rank_prob <- data.frame(cbind(AB_rank_prob[AB_rank_prob$best%in%c("best1[1]", "best1[2]", "best1[3]"),2],
-                                 AB_rank_prob[AB_rank_prob$best%in%c("best2[1]", "best2[2]", "best2[3]"),2],
-                                 AB_rank_prob[AB_rank_prob$best%in%c("best3[1]", "best3[2]", "best3[3]"),2]))
-rownames(AB_rank_prob)<-c("trt_1", "trt_2", "trt_3")
-
-AB_trt_results[,1:2]
+system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+                         n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                         DIC=TRUE, model.file=ABWish.het.eqcor))
 
 
-all_data_pc = tibble(s.id = all_data$study,
-                    t.id = all_data$treatment, 
-                    r = all_data$responders, 
-                    n = all_data$sampleSize) 
+
+AB_trt_results_old
+
+exp(AB_trt_results_old$mean)
+AB_trt_results_new
 
 
-par(mfrow = c(1,3))
-AB_Result_het_cor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-           model = "het_cor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
+
+### Running Arm Based  Model 3 ########
+# system.time(nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
+#                                  model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2))
+
+
+
+AB_Result_het_cor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR", link="logit",
+                               model = "het_cor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
 AB_Result_het_cor$LogOddsRatio$Mean_SD[1,2]
 AB_Result_het_cor$LogOddsRatio$Mean_SD[3,2]
-contrast.plot(AB_Result_het_cor, save = FALSE, reference = "B")
+
+contrast.plot(AB_Result_het_cor, save = FALSE, reference = "A")
 
 
+AB_Result_het_eqcor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= c("LOR", "\rho"),
+                                 model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
 
-AB_Result_het_eqcor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-                          model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
 
 AB_Result_het_eqcor$LogOddsRatio$Mean_SD[1,2]
 AB_Result_het_eqcor$LogOddsRatio$Mean_SD[3,2]
-contrast.plot(AB_Result_het_eqcor, save = FALSE, reference = "B")
+contrast.plot(AB_Result_het_eqcor, save = FALSE, reference = "A")
+
+AB_Result_het_eqcor$LogOddsRatio
+
+
 
 
 AB_Result_hom_eqcor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-                          model = "hom_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
+                                 model = "hom_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2)
 
 AB_Result_hom_eqcor$LogOddsRatio$Mean_SD[1,2]
 AB_Result_hom_eqcor$LogOddsRatio$Mean_SD[3,2]
-contrast.plot(AB_Result_hom_eqcor, save = FALSE, reference = "B")
+contrast.plot(AB_Result_hom_eqcor, save = FALSE, reference = "A")
 
 
-par(mfrow = c(1,3))
-contrast.plot(AB_Result_het_cor, save = FALSE, reference = "B")
-contrast.plot(AB_Result_het_eqcor, save = FALSE, reference = "B")
-contrast.plot(AB_Result_hom_eqcor, save = FALSE, reference = "B")

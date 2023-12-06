@@ -182,6 +182,8 @@ colnames(Bleed_data) = c("study","treatment", "sampleSize","responders")
 
 Bleed_data_eff = data.frame(sid = Bleed_data$study, tid = Bleed_data$treatment, r = Bleed_data$responders, n = Bleed_data$sampleSize)
 
+eff.binary(Bleed_data_eff)
+
 effective = eff.binary(Bleed_data_eff)
 
 effective1 = effective$eff.studies
