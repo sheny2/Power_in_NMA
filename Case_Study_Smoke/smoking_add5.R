@@ -1,7 +1,7 @@
 library(foreach)
 library(doParallel)
 # Initialize parallel backend
-cl <- makeCluster(8)
+cl <- makeCluster(22)
 
 # Register the parallel backend
 registerDoParallel(cl)
@@ -71,7 +71,7 @@ result_smoke = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar
   library(R2jags)
   library(tidyverse)
   library(gemtc)
-  
+
   Log_OR_dat = c(0, 0.4944, 0.8378, 1.0983)
   tau = 0.8458
   n_study = n_distinct(smokingcessation_ab$study)
@@ -149,6 +149,15 @@ save(result_smoke, file = "result_smoke_original.RData")
 # AB
 smokingcessation_ab_AB = rbind(smokingcessation_ab, c(25, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
 smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(25, "B", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_b)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(26, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(26, "B", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_b)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(27, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(27, "B", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_b)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(28, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(28, "B", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_b)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(29, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AB = rbind(smokingcessation_ab_AB, c(29, "B", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_b)) )
+
 smokingcessation_ab_AB$sampleSize = as.numeric(smokingcessation_ab_AB$sampleSize)
 smokingcessation_ab_AB$responders = as.numeric(smokingcessation_ab_AB$responders)
 n_study = n_distinct(smokingcessation_ab_AB$study)
@@ -224,7 +233,7 @@ result_smoke = result_smoke/S
 result_smoke = matrix(result_smoke, nrow = 1)
 colnames(result_smoke) <- c("AB_power", "AC_power", "AD_power")
 
-save(result_smoke, file = "result_smoke_AB.RData")
+save(result_smoke, file = "result_smoke_AB_add5.RData")
 
 
 
@@ -232,6 +241,15 @@ save(result_smoke, file = "result_smoke_AB.RData")
 # AC
 smokingcessation_ab_AC = rbind(smokingcessation_ab, c(25, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
 smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(25, "C", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_c)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(26, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(26, "C", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_c)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(27, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(27, "C", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_c)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(28, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(28, "C", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_c)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(29, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AC = rbind(smokingcessation_ab_AC, c(29, "C", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_c)) )
+
 smokingcessation_ab_AC$sampleSize = as.numeric(smokingcessation_ab_AC$sampleSize)
 smokingcessation_ab_AC$responders = as.numeric(smokingcessation_ab_AC$responders)
 n_study = n_distinct(smokingcessation_ab_AC$study)
@@ -307,7 +325,7 @@ result_smoke = result_smoke/S
 result_smoke = matrix(result_smoke, nrow = 1)
 colnames(result_smoke) <- c("AB_power", "AC_power", "AD_power")
 
-save(result_smoke, file = "result_smoke_AC.RData")
+save(result_smoke, file = "result_smoke_AC_add5.RData")
 
 
 
@@ -317,6 +335,14 @@ save(result_smoke, file = "result_smoke_AC.RData")
 # AD
 smokingcessation_ab_AD = rbind(smokingcessation_ab, c(25, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
 smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(25, "D", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_d)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(26, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(26, "D", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_d)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(27, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(27, "D", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_d)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(28, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(28, "D", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_d)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(29, "A", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_a)) )
+smokingcessation_ab_AD = rbind(smokingcessation_ab_AD, c(29, "D", round(mean(smokingcessation_ab$sampleSize)), round(mean(smokingcessation_ab$sampleSize) * pi_d)) )
 smokingcessation_ab_AD$sampleSize = as.numeric(smokingcessation_ab_AD$sampleSize)
 smokingcessation_ab_AD$responders = as.numeric(smokingcessation_ab_AD$responders)
 n_study = n_distinct(smokingcessation_ab_AD$study)
@@ -392,7 +418,7 @@ result_smoke = result_smoke/S
 result_smoke = matrix(result_smoke, nrow = 1)
 colnames(result_smoke) <- c("AB_power", "AC_power", "AD_power")
 
-save(result_smoke, file = "result_smoke_AD.RData")
+save(result_smoke, file = "result_smoke_AD_add5.RData")
 
 
 
