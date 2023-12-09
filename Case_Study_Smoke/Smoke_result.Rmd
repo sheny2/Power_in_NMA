@@ -8,6 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(gemtc)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
 
 ## Treatment: 
@@ -20,7 +23,7 @@ library(tidyverse)
 load("smokingcessation_ab.RData")
 network <- mtc.network(smokingcessation_ab)
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
 summary(cons.out)
 gemtc::forest(cons.out)
 ```
@@ -93,7 +96,7 @@ result_smoke_all = rbind(result_smoke_all,
 
 
 
-result_smoke_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_smoke_all)
+result_smoke_all = cbind(c("Original", "Add AB study", "Add AC study", "Add AD study"), result_smoke_all)
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
@@ -105,9 +108,9 @@ p1 = result_smoke_all %>%
     Modification,
     levels = c(
       "Original",
-      "Add one AB study",
-      "Add one AC study",
-      "Add one AD study"
+      "Add AB study",
+      "Add AC study",
+      "Add AD study"
     )
   )) %>%
   pivot_longer(cols = 2:4,
@@ -218,7 +221,12 @@ p10 = result_smoke_all %>%
   labs(x = " ") + ylim(0,1)
 ```
 
-```{r, fig.height=6, fig.width=18}
-gridExtra::grid.arrange(p1, p5, p10, nrow = 1)
+```{r, fig.height=5, fig.width=18}
+library(gridExtra)
+grid.arrange(arrangeGrob(p1 + theme(legend.position="none") + labs(title = "Add one more study"),
+                         p5 + theme(legend.position="none") + labs(title = "Add five more studies"),
+                         p10 + theme(legend.position="none") + labs(title = "Add ten more studies"), nrow = 1),
+             lemon::g_legend(diabetes_p1 +  theme(legend.position="bottom") + guides(colour = guide_legend(nrow = 1))),
+             nrow = 2, heights = c(10, 1))
 ```
 

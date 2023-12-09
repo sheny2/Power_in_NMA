@@ -8,6 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(gemtc)
+library(tidyverse)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
 
 
@@ -140,7 +143,7 @@ result_diabetes_all = rbind(result_diabetes_all,
                                  result_diabetes %>% data.frame())
 
 
-result_diabetes_all = cbind(c("Original", "Add one 5-6 study", "Add one 2-3 study", "Add one 1-4 study", "Add one 3-4 study"), result_diabetes_all)
+result_diabetes_all = cbind(c("Original", "Add 5-6 study", "Add 2-3 study", "Add 1-4 study", "Add 3-4 study"), result_diabetes_all)
 
 colnames(result_diabetes_all) <- c("Modification",
                                     "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
@@ -150,7 +153,7 @@ colnames(result_diabetes_all) <- c("Modification",
 diabetes_p1 = result_diabetes_all %>%
   mutate(Modification = factor(
     Modification,
-    levels = c( "Original", "Add one 5-6 study", "Add one 2-3 study", "Add one 1-4 study", "Add one 3-4 study")
+    levels = c( "Original", "Add 5-6 study", "Add 2-3 study", "Add 1-4 study", "Add 3-4 study")
   )) %>%
   pivot_longer(cols = 2:5,
                names_to = "Comparison",
@@ -271,7 +274,12 @@ diabetes_p10 = result_diabetes_all %>%
 ```
 
 
-```{r, fig.height=5, fig.width=20}
-gridExtra::grid.arrange(diabetes_p1, diabetes_p5, diabetes_p10, nrow = 1)
+```{r, fig.height=5, fig.width=18}
+library(gridExtra)
+grid.arrange(arrangeGrob(diabetes_p1 + theme(legend.position="none") + labs(title = "Add one more study"),
+                         diabetes_p5 + theme(legend.position="none") + labs(title = "Add five more studies"),
+                         diabetes_p10 + theme(legend.position="none") + labs(title = "Add ten more studies"), nrow = 1),
+             lemon::g_legend(diabetes_p1 +  theme(legend.position="bottom") + guides(colour = guide_legend(nrow = 1))),
+             nrow = 2, heights = c(10, 1))
 ```
 
