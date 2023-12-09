@@ -97,7 +97,7 @@ result_smoke_all = cbind(c("Original", "Add one AB study", "Add one AC study", "
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
-result_smoke_all
+# result_smoke_all
 
 
 result_smoke_all %>%
@@ -141,7 +141,7 @@ result_smoke_all = cbind(c("Original", "Add five AB studies", "Add five AC studi
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
-result_smoke_all
+# result_smoke_all
 
 
 result_smoke_all %>%
@@ -166,5 +166,46 @@ result_smoke_all %>%
 
 
 
+```{r}
+load("result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
 
+load("result_smoke_AB_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AC_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AD_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+
+
+
+result_smoke_all = cbind(c("Original", "Add ten AB studies", "Add ten AC studies", "Add ten AD studies"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+# result_smoke_all
+
+
+result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add ten AB studies",
+      "Add ten AC studies",
+      "Add ten AD studies"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
 
