@@ -115,9 +115,12 @@ p1 = result_smoke_all %>%
                values_to = "Power") %>%
   ggplot() + geom_col(
     aes(x = Comparison, y = Power, fill = Modification),
-    position = position_dodge(0.8),
-    width = 0.75
-  )  + labs(x = " ")
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
 ```
 
 
@@ -159,9 +162,12 @@ p5 = result_smoke_all %>%
                values_to = "Power") %>%
   ggplot() + geom_col(
     aes(x = Comparison, y = Power, fill = Modification),
-    position = position_dodge(0.8),
-    width = 0.75
-  )  + labs(x = " ")
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
 ```
 
 
@@ -204,9 +210,12 @@ p10 = result_smoke_all %>%
                values_to = "Power") %>%
   ggplot() + geom_col(
     aes(x = Comparison, y = Power, fill = Modification),
-    position = position_dodge(0.8),
-    width = 0.75
-  )  + labs(x = " ")
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
 ```
 
 ```{r, fig.height=6, fig.width=18}

@@ -6,7 +6,7 @@ cl <- makeCluster(detectCores())
 # Register the parallel backend
 registerDoParallel(cl)
 
-S = 20
+S = 1000
 
 library(tidyverse)
 library(gemtc)
@@ -122,27 +122,27 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
   
   res56 = summary(gemtc::relative.effect(cons.out,"5", "6"))
-  res24 = summary(gemtc::relative.effect(cons.out,"2", "4")) 
-  res13 = summary(gemtc::relative.effect(cons.out,"1", "3")) 
+  res23 = summary(gemtc::relative.effect(cons.out,"2", "3")) 
+  res14 = summary(gemtc::relative.effect(cons.out,"1", "4")) 
   res34 = summary(gemtc::relative.effect(cons.out,"3", "4")) 
   
   lower_56 = res56$summaries$quantiles[1,1]
   upper_56 = res56$summaries$quantiles[1,5]
   reject_56 = 1-as.numeric(0 >= lower_56 & 0 <= upper_56)
   
-  lower_24 = res24$summaries$quantiles[1,1]
-  upper_24 = res24$summaries$quantiles[1,5]
-  reject_24 = 1-as.numeric(0 >= lower_24 & 0 <= upper_24)
+  lower_23 = res23$summaries$quantiles[1,1]
+  upper_23 = res23$summaries$quantiles[1,5]
+  reject_23 = 1-as.numeric(0 >= lower_23 & 0 <= upper_23)
   
-  lower_13 = res13$summaries$quantiles[1,1]
-  upper_13 = res13$summaries$quantiles[1,5]
-  reject_13 = 1-as.numeric(0 >= lower_13 & 0 <= upper_13)
+  lower_14 = res14$summaries$quantiles[1,1]
+  upper_14 = res14$summaries$quantiles[1,5]
+  reject_14 = 1-as.numeric(0 >= lower_14 & 0 <= upper_14)
   
   lower_34 = res34$summaries$quantiles[1,1]
   upper_34 = res34$summaries$quantiles[1,5]
   reject_34 = 1-as.numeric(0 >= lower_34 & 0 <= upper_34)
   
-  reject_correct = c(reject_56, reject_24, reject_13, reject_34)
+  reject_correct = c(reject_56, reject_23, reject_14, reject_34)
   
   return(c(reject_correct))
 }
@@ -150,7 +150,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
 result_diabetes = result_diabetes/S
 
 result_diabetes = matrix(result_diabetes, nrow = 1)
-colnames(result_diabetes) <- c("Power.5-6","Power.2-4","Power.1-3","Power.3-4")
+colnames(result_diabetes) <- c("Power.5-6","Power.2-3","Power.1-4","Power.3-4")
 
 save(result_diabetes, file = "result_diabetes_4power_original.RData")
 
@@ -224,27 +224,27 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
   
   res56 = summary(gemtc::relative.effect(cons.out,"5", "6"))
-  res24 = summary(gemtc::relative.effect(cons.out,"2", "4")) 
-  res13 = summary(gemtc::relative.effect(cons.out,"1", "3")) 
+  res23 = summary(gemtc::relative.effect(cons.out,"2", "3")) 
+  res14 = summary(gemtc::relative.effect(cons.out,"1", "4")) 
   res34 = summary(gemtc::relative.effect(cons.out,"3", "4")) 
   
   lower_56 = res56$summaries$quantiles[1,1]
   upper_56 = res56$summaries$quantiles[1,5]
   reject_56 = 1-as.numeric(0 >= lower_56 & 0 <= upper_56)
   
-  lower_24 = res24$summaries$quantiles[1,1]
-  upper_24 = res24$summaries$quantiles[1,5]
-  reject_24 = 1-as.numeric(0 >= lower_24 & 0 <= upper_24)
+  lower_23 = res23$summaries$quantiles[1,1]
+  upper_23 = res23$summaries$quantiles[1,5]
+  reject_23 = 1-as.numeric(0 >= lower_23 & 0 <= upper_23)
   
-  lower_13 = res13$summaries$quantiles[1,1]
-  upper_13 = res13$summaries$quantiles[1,5]
-  reject_13 = 1-as.numeric(0 >= lower_13 & 0 <= upper_13)
+  lower_14 = res14$summaries$quantiles[1,1]
+  upper_14 = res14$summaries$quantiles[1,5]
+  reject_14 = 1-as.numeric(0 >= lower_14 & 0 <= upper_14)
   
   lower_34 = res34$summaries$quantiles[1,1]
   upper_34 = res34$summaries$quantiles[1,5]
   reject_34 = 1-as.numeric(0 >= lower_34 & 0 <= upper_34)
   
-  reject_correct = c(reject_56, reject_24, reject_13, reject_34)
+  reject_correct = c(reject_56, reject_23, reject_14, reject_34)
   
   return(c(reject_correct))
 }
@@ -252,7 +252,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
 result_diabetes = result_diabetes/S
 
 result_diabetes = matrix(result_diabetes, nrow = 1)
-colnames(result_diabetes) <- c("Power.5-6","Power.2-4","Power.1-3","Power.3-4")
+colnames(result_diabetes) <- c("Power.5-6","Power.2-3","Power.1-4","Power.3-4")
 
 save(result_diabetes, file = "result_diabetes_4power_add56five.RData")
 
@@ -261,21 +261,21 @@ save(result_diabetes, file = "result_diabetes_4power_add56five.RData")
 
 
 
-# add 24
-diabetes_ab_24 = rbind(diabetes_ab, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(23, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(24, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(24, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(25, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(25, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(26, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(26, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(27, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
-diabetes_ab_24 = rbind(diabetes_ab_24, c(27, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+# add 23
+diabetes_ab_23 = rbind(diabetes_ab, c(23, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(23, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(24, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(24, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(25, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(25, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(26, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(26, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(27, "2", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_b)) )
+diabetes_ab_23 = rbind(diabetes_ab_23, c(27, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
 
-diabetes_ab_24$sampleSize = as.numeric(diabetes_ab_24$sampleSize)
-diabetes_ab_24$responders = as.numeric(diabetes_ab_24$responders)
-n_study = n_distinct(diabetes_ab_24$study)
+diabetes_ab_23$sampleSize = as.numeric(diabetes_ab_23$sampleSize)
+diabetes_ab_23$responders = as.numeric(diabetes_ab_23$responders)
+n_study = n_distinct(diabetes_ab_23$study)
 
 result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
@@ -289,7 +289,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   
   y_ik = c()
   for (i in 1:n_study){
-    study_data = diabetes_ab_24[diabetes_ab_24$study==i,]
+    study_data = diabetes_ab_23[diabetes_ab_23$study==i,]
     
     alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
     if (study_data$treatment[1] == "1") {
@@ -316,7 +316,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
     }
   }
   
-  sim_dat = diabetes_ab_24
+  sim_dat = diabetes_ab_23
   sim_dat$responders = y_ik
   
   network <- gemtc::mtc.network(data.ab=sim_dat)
@@ -326,27 +326,27 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
   
   res56 = summary(gemtc::relative.effect(cons.out,"5", "6"))
-  res24 = summary(gemtc::relative.effect(cons.out,"2", "4")) 
-  res13 = summary(gemtc::relative.effect(cons.out,"1", "3")) 
+  res23 = summary(gemtc::relative.effect(cons.out,"2", "3")) 
+  res14 = summary(gemtc::relative.effect(cons.out,"1", "4")) 
   res34 = summary(gemtc::relative.effect(cons.out,"3", "4")) 
   
   lower_56 = res56$summaries$quantiles[1,1]
   upper_56 = res56$summaries$quantiles[1,5]
   reject_56 = 1-as.numeric(0 >= lower_56 & 0 <= upper_56)
   
-  lower_24 = res24$summaries$quantiles[1,1]
-  upper_24 = res24$summaries$quantiles[1,5]
-  reject_24 = 1-as.numeric(0 >= lower_24 & 0 <= upper_24)
+  lower_23 = res23$summaries$quantiles[1,1]
+  upper_23 = res23$summaries$quantiles[1,5]
+  reject_23 = 1-as.numeric(0 >= lower_23 & 0 <= upper_23)
   
-  lower_13 = res13$summaries$quantiles[1,1]
-  upper_13 = res13$summaries$quantiles[1,5]
-  reject_13 = 1-as.numeric(0 >= lower_13 & 0 <= upper_13)
+  lower_14 = res14$summaries$quantiles[1,1]
+  upper_14 = res14$summaries$quantiles[1,5]
+  reject_14 = 1-as.numeric(0 >= lower_14 & 0 <= upper_14)
   
   lower_34 = res34$summaries$quantiles[1,1]
   upper_34 = res34$summaries$quantiles[1,5]
   reject_34 = 1-as.numeric(0 >= lower_34 & 0 <= upper_34)
   
-  reject_correct = c(reject_56, reject_24, reject_13, reject_34)
+  reject_correct = c(reject_56, reject_23, reject_14, reject_34)
   
   return(c(reject_correct))
 }
@@ -354,30 +354,30 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
 result_diabetes = result_diabetes/S
 
 result_diabetes = matrix(result_diabetes, nrow = 1)
-colnames(result_diabetes) <- c("Power.5-6","Power.2-4","Power.1-3","Power.3-4")
+colnames(result_diabetes) <- c("Power.5-6","Power.2-3","Power.1-4","Power.3-4")
 
-save(result_diabetes, file = "result_diabetes_4power_add24five.RData")
+save(result_diabetes, file = "result_diabetes_4power_add23five.RData")
 
 # stopCluster(cl)
 
 
 
-# add 13
-diabetes_ab_13 = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(23, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(24, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(24, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(25, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(25, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(26, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(26, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(27, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
-diabetes_ab_13 = rbind(diabetes_ab_13, c(27, "3", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_c)) )
+# add 14
+diabetes_ab_14 = rbind(diabetes_ab, c(23, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(23, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(24, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(24, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(25, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(25, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(26, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(26, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(27, "1", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_a)) )
+diabetes_ab_14 = rbind(diabetes_ab_14, c(27, "4", round(mean(diabetes_ab$sampleSize)), round(mean(diabetes_ab$sampleSize) * pi_d)) )
 
 
-diabetes_ab_13$sampleSize = as.numeric(diabetes_ab_13$sampleSize)
-diabetes_ab_13$responders = as.numeric(diabetes_ab_13$responders)
-n_study = n_distinct(diabetes_ab_13$study)
+diabetes_ab_14$sampleSize = as.numeric(diabetes_ab_14$sampleSize)
+diabetes_ab_14$responders = as.numeric(diabetes_ab_14$responders)
+n_study = n_distinct(diabetes_ab_14$study)
 
 result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %dopar% {
   library(R2jags)
@@ -391,7 +391,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   
   y_ik = c()
   for (i in 1:n_study){
-    study_data = diabetes_ab_13[diabetes_ab_13$study==i,]
+    study_data = diabetes_ab_14[diabetes_ab_14$study==i,]
     
     alpha_iB = rnorm(n=1, mean=logit(pi_a), sd=0.1)
     if (study_data$treatment[1] == "1") {
@@ -418,7 +418,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
     }
   }
   
-  sim_dat = diabetes_ab_13
+  sim_dat = diabetes_ab_14
   sim_dat$responders = y_ik
   
   network <- gemtc::mtc.network(data.ab=sim_dat)
@@ -428,27 +428,27 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
   
   res56 = summary(gemtc::relative.effect(cons.out,"5", "6"))
-  res24 = summary(gemtc::relative.effect(cons.out,"2", "4")) 
-  res13 = summary(gemtc::relative.effect(cons.out,"1", "3")) 
+  res23 = summary(gemtc::relative.effect(cons.out,"2", "3")) 
+  res14 = summary(gemtc::relative.effect(cons.out,"1", "4")) 
   res34 = summary(gemtc::relative.effect(cons.out,"3", "4")) 
   
   lower_56 = res56$summaries$quantiles[1,1]
   upper_56 = res56$summaries$quantiles[1,5]
   reject_56 = 1-as.numeric(0 >= lower_56 & 0 <= upper_56)
   
-  lower_24 = res24$summaries$quantiles[1,1]
-  upper_24 = res24$summaries$quantiles[1,5]
-  reject_24 = 1-as.numeric(0 >= lower_24 & 0 <= upper_24)
+  lower_23 = res23$summaries$quantiles[1,1]
+  upper_23 = res23$summaries$quantiles[1,5]
+  reject_23 = 1-as.numeric(0 >= lower_23 & 0 <= upper_23)
   
-  lower_13 = res13$summaries$quantiles[1,1]
-  upper_13 = res13$summaries$quantiles[1,5]
-  reject_13 = 1-as.numeric(0 >= lower_13 & 0 <= upper_13)
+  lower_14 = res14$summaries$quantiles[1,1]
+  upper_14 = res14$summaries$quantiles[1,5]
+  reject_14 = 1-as.numeric(0 >= lower_14 & 0 <= upper_14)
   
   lower_34 = res34$summaries$quantiles[1,1]
   upper_34 = res34$summaries$quantiles[1,5]
   reject_34 = 1-as.numeric(0 >= lower_34 & 0 <= upper_34)
   
-  reject_correct = c(reject_56, reject_24, reject_13, reject_34)
+  reject_correct = c(reject_56, reject_23, reject_14, reject_34)
   
   return(c(reject_correct))
 }
@@ -456,9 +456,9 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
 result_diabetes = result_diabetes/S
 
 result_diabetes = matrix(result_diabetes, nrow = 1)
-colnames(result_diabetes) <- c("Power.5-6","Power.2-4","Power.1-3","Power.3-4")
+colnames(result_diabetes) <- c("Power.5-6","Power.2-3","Power.1-4","Power.3-4")
 
-save(result_diabetes, file = "result_diabetes_4power_add13five.RData")
+save(result_diabetes, file = "result_diabetes_4power_add14five.RData")
 
 # stopCluster(cl)
 
@@ -530,27 +530,27 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
   cons.out <-gemtc::mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
   
   res56 = summary(gemtc::relative.effect(cons.out,"5", "6"))
-  res24 = summary(gemtc::relative.effect(cons.out,"2", "4")) 
-  res13 = summary(gemtc::relative.effect(cons.out,"1", "3")) 
+  res23 = summary(gemtc::relative.effect(cons.out,"2", "3")) 
+  res14 = summary(gemtc::relative.effect(cons.out,"1", "4")) 
   res34 = summary(gemtc::relative.effect(cons.out,"3", "4")) 
   
   lower_56 = res56$summaries$quantiles[1,1]
   upper_56 = res56$summaries$quantiles[1,5]
   reject_56 = 1-as.numeric(0 >= lower_56 & 0 <= upper_56)
   
-  lower_24 = res24$summaries$quantiles[1,1]
-  upper_24 = res24$summaries$quantiles[1,5]
-  reject_24 = 1-as.numeric(0 >= lower_24 & 0 <= upper_24)
+  lower_23 = res23$summaries$quantiles[1,1]
+  upper_23 = res23$summaries$quantiles[1,5]
+  reject_23 = 1-as.numeric(0 >= lower_23 & 0 <= upper_23)
   
-  lower_13 = res13$summaries$quantiles[1,1]
-  upper_13 = res13$summaries$quantiles[1,5]
-  reject_13 = 1-as.numeric(0 >= lower_13 & 0 <= upper_13)
+  lower_14 = res14$summaries$quantiles[1,1]
+  upper_14 = res14$summaries$quantiles[1,5]
+  reject_14 = 1-as.numeric(0 >= lower_14 & 0 <= upper_14)
   
   lower_34 = res34$summaries$quantiles[1,1]
   upper_34 = res34$summaries$quantiles[1,5]
   reject_34 = 1-as.numeric(0 >= lower_34 & 0 <= upper_34)
   
-  reject_correct = c(reject_56, reject_24, reject_13, reject_34)
+  reject_correct = c(reject_56, reject_23, reject_14, reject_34)
   
   return(c(reject_correct))
 }
@@ -558,7 +558,7 @@ result_diabetes = foreach (i = 1:S, .combine = "+", .errorhandling='remove') %do
 result_diabetes = result_diabetes/S
 
 result_diabetes = matrix(result_diabetes, nrow = 1)
-colnames(result_diabetes) <- c("Power.5-6","Power.2-4","Power.1-3","Power.3-4")
+colnames(result_diabetes) <- c("Power.5-6","Power.2-3","Power.1-4","Power.3-4")
 
 save(result_diabetes, file = "result_diabetes_4power_add34five.RData")
 stopCluster(cl)

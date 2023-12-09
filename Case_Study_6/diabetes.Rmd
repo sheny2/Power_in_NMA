@@ -37,14 +37,14 @@ nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes
 ```
 
 5-6
-2-4
-1-3
+2-3
+1-4
 3-4
 
 
 ```{r}
 cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
-cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=30000, thin=1)
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=3000, thin=1)
 summary(cons.out)
 gemtc::forest(cons.out)
 ```
@@ -127,11 +127,11 @@ load("result_diabetes_4power_add56one.RData")
 result_diabetes_all = rbind(result_diabetes_all, 
                                  result_diabetes %>% data.frame())
 
-load("result_diabetes_4power_add24one.RData")
+load("result_diabetes_4power_add23one.RData")
 result_diabetes_all = rbind(result_diabetes_all, 
                                  result_diabetes %>% data.frame())
 
-load("result_diabetes_4power_add13one.RData")
+load("result_diabetes_4power_add14one.RData")
 result_diabetes_all = rbind(result_diabetes_all, 
                                  result_diabetes %>% data.frame())
 
@@ -140,28 +140,138 @@ result_diabetes_all = rbind(result_diabetes_all,
                                  result_diabetes %>% data.frame())
 
 
-result_diabetes_all = cbind(c("Original", "Add one 56 study", "Add one 24 study", "Add one 13 study", "Add one 34 study"), result_diabetes_all)
+result_diabetes_all = cbind(c("Original", "Add one 5-6 study", "Add one 2-3 study", "Add one 1-4 study", "Add one 3-4 study"), result_diabetes_all)
 
 colnames(result_diabetes_all) <- c("Modification",
-                                    "Power 5-6","Power 2-4","Power 1-3","Power 3-4")
+                                    "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
 # result_diabetes_all
 
 
-result_diabetes_all %>%
+diabetes_p1 = result_diabetes_all %>%
   mutate(Modification = factor(
     Modification,
-    levels = c( "Original", "Add one 56 study", "Add one 24 study", "Add one 13 study", "Add one 34 study")
+    levels = c( "Original", "Add one 5-6 study", "Add one 2-3 study", "Add one 1-4 study", "Add one 3-4 study")
   )) %>%
   pivot_longer(cols = 2:5,
                names_to = "Comparison",
                values_to = "Power") %>%
   mutate(Comparison = factor(
     Comparison,
-    levels = c("Power 5-6","Power 2-4","Power 1-3","Power 3-4")
+    levels = c("Power 5-6","Power 2-3","Power 1-4","Power 3-4")
   )) %>% 
   ggplot() + geom_col(
     aes(x = Comparison, y = Power, fill = Modification),
-    position = position_dodge(0.8),
-    width = 0.75
-  )  + labs(x = " ")
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
 ```
+
+
+```{r}
+load("result_diabetes_4power_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("result_diabetes_4power_add56five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add23five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add14five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add34five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add five 5-6 studies", "Add five 2-3 studies", "Add five 1-4 studies", "Add five 3-4 studies"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
+# result_diabetes_all
+
+
+diabetes_p5 = result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c( "Original", "Add five 5-6 studies", "Add five 2-3 studies", "Add five 1-4 studies", "Add five 3-4 studies")
+  )) %>%
+  pivot_longer(cols = 2:5,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  mutate(Comparison = factor(
+    Comparison,
+    levels = c("Power 5-6","Power 2-3","Power 1-4","Power 3-4")
+  )) %>% 
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+```
+
+```{r}
+load("result_diabetes_4power_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("result_diabetes_4power_add56ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add23ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add14ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add34ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add ten 5-6 studies", "Add ten 2-3 studies", "Add ten 1-4 studies", "Add ten 3-4 studies"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
+# result_diabetes_all
+
+
+diabetes_p10 = result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c( "Original", "Add ten 5-6 studies", "Add ten 2-3 studies", "Add ten 1-4 studies", "Add ten 3-4 studies")
+  )) %>%
+  pivot_longer(cols = 2:5,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  mutate(Comparison = factor(
+    Comparison,
+    levels = c("Power 5-6","Power 2-3","Power 1-4","Power 3-4")
+  )) %>% 
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+```
+
+
+```{r, fig.height=5, fig.width=20}
+gridExtra::grid.arrange(diabetes_p1, diabetes_p5, diabetes_p10, nrow = 1)
+```
+
