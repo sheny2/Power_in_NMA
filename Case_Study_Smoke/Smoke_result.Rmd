@@ -100,7 +100,7 @@ colnames(result_smoke_all) <- c("Modification",
 # result_smoke_all
 
 
-result_smoke_all %>%
+p1 = result_smoke_all %>%
   mutate(Modification = factor(
     Modification,
     levels = c(
@@ -144,7 +144,7 @@ colnames(result_smoke_all) <- c("Modification",
 # result_smoke_all
 
 
-result_smoke_all %>%
+p5 = result_smoke_all %>%
   mutate(Modification = factor(
     Modification,
     levels = c(
@@ -189,7 +189,7 @@ colnames(result_smoke_all) <- c("Modification",
 # result_smoke_all
 
 
-result_smoke_all %>%
+p10 = result_smoke_all %>%
   mutate(Modification = factor(
     Modification,
     levels = c(
@@ -207,5 +207,9 @@ result_smoke_all %>%
     position = position_dodge(0.8),
     width = 0.75
   )  + labs(x = " ")
+```
+
+```{r, fig.height=6, fig.width=18}
+gridExtra::grid.arrange(p1, p5, p10, nrow = 1)
 ```
 
