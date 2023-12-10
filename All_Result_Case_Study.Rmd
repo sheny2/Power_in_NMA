@@ -354,7 +354,7 @@ result_diabetes_all %>%
 
 
 
-```{r, out.width="60%"}
+```{r, out.width="60%", include=F}
 load("Case_Study_6/result_diabetes_original.RData")
 result_diabetes_all = result_diabetes %>% data.frame()
 
