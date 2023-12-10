@@ -124,6 +124,8 @@ p1 = result_smoke_all %>%
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5,  size = 2 )+
   labs(x = " ") + ylim(0,1)
+
+saveRDS(p1, "p1.rds")
 ```
 
 
@@ -171,6 +173,8 @@ p5 = result_smoke_all %>%
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5,  size = 2 )+
   labs(x = " ") + ylim(0,1)
+
+saveRDS(p5, "p5.rds")
 ```
 
 
@@ -219,6 +223,8 @@ p10 = result_smoke_all %>%
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5,  size = 2 )+
   labs(x = " ") + ylim(0,1) 
+
+saveRDS(p10, "p10.rds")
 ```
 
 ```{r, fig.height=5, fig.width=18}

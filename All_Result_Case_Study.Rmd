@@ -13,6 +13,10 @@ library(kableExtra)
 library(latex2exp)
 library(pcnetmeta)
 library(gemtc)
+library(gridExtra)
+library(viridis)
+library(RColorBrewer)
+
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
@@ -48,7 +52,7 @@ eff.binary(smoke_eff)
 
 
 
-```{r, fig.width = 6, fig.height = 7, out.width="80%"}
+```{r, fig.width = 6, fig.height = 3.5, out.width="80%"}
 Gemtc_Result = readRDS("Arm-based/smoke_Gemtc_Result.rds")
 LAresults = readRDS("Arm-based/smoke_LAresults.rds")
 CBresults = readRDS("Arm-based/smoke_CBresults.rds")
@@ -58,51 +62,51 @@ ABresults = readRDS("Arm-based/smoke_ABresults.rds")
 ##plot in OR scale, not log OR! 
 four_model_smoking = 
 gridExtra::grid.arrange(
-ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
-  scale_y_discrete(limits=rev) + 
-  geom_point(shape = 18, size = 5) +  
-  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0,8) + 
-  theme(panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+# ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+#   scale_y_discrete(limits=rev) + 
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   xlim(0,8) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
 ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   scale_y_discrete(limits=rev) + 
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   xlim(0,8) + 
   labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
-ggplot(CBresults, aes(y = drug_list, x =mean )) +
-  geom_point(shape = 18, size = 5) +  
-  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  scale_y_discrete(limits=rev) + 
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  theme(panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  xlim(0,8) + 
-  labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+# ggplot(CBresults, aes(y = drug_list, x =mean )) +
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   scale_y_discrete(limits=rev) + 
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   xlim(0,8) + 
+#   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
 ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   scale_y_discrete(limits=rev) + 
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   xlim(0,8)+ 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
-nrow = 4
+nrow = 2
 )
 ```
 
@@ -167,6 +171,31 @@ result_smoke_all %>%
 ```
 
 
+```{r, fig.height=5, fig.width=18}
+p1 = readRDS("Case_Study_Smoke/p1.rds")
+p5 = readRDS("Case_Study_Smoke/p5.rds")
+p10 = readRDS("Case_Study_Smoke/p10.rds")
+
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+grid.arrange(
+  arrangeGrob(
+    p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
+    p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
+    p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    nrow = 1
+  ),
+  lemon::g_legend(
+    p1 +  scale_fill_manual(values = color_palette) + 
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+```
+
 
 # Diabetes
 
@@ -198,58 +227,58 @@ diabetes_eff = data.frame(sid = as.numeric(diabetes_ab$study),
 eff.binary(diabetes_eff)
 ```
 
-```{r, fig.width = 6, fig.height = 7, out.width="80%"}
+```{r, fig.width = 6, fig.height = 3.5, out.width="80%"}
 Gemtc_Result = readRDS("Arm-based/diabetes_Gemtc_Result.rds")
 LAresults = readRDS("Arm-based/diabetes_LAresults.rds")
 CBresults = readRDS("Arm-based/diabetes_CBresults.rds")
 ABresults = readRDS("Arm-based/diabetes_ABresults.rds")
 
 gridExtra::grid.arrange(
-ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
-  scale_y_discrete(limits=rev) + 
-  geom_point(shape = 18, size = 5) +  
-  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  xlim(0.2,1.5)+ 
-  theme(panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+# ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+#   scale_y_discrete(limits=rev) + 
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   xlim(0.2,1.5)+ 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
 ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   scale_y_discrete(limits=rev) + 
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   xlim(0.2,1.5)+ 
   labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
-ggplot(CBresults, aes(y = drug_list, x =mean )) +
-  geom_point(shape = 18, size = 5) +  
-  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
-  scale_y_discrete(limits=rev) + 
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
-  theme(panel.border = element_blank(),
-        panel.background = element_blank(),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank())+
-  xlim(0.2,1.5)+  
-  labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+# ggplot(CBresults, aes(y = drug_list, x =mean )) +
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   scale_y_discrete(limits=rev) + 
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   xlim(0.2,1.5)+  
+#   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
 ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   geom_point(shape = 18, size = 5) +  
   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
   scale_y_discrete(limits=rev) + 
-  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
   xlim(0.2,1.5)+ 
   theme(panel.border = element_blank(),
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank())+
   labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
-nrow = 4
+nrow = 2
 )
 ```
 
@@ -363,4 +392,29 @@ result_diabetes_all %>%
     position = position_dodge(0.8),
     width = 0.75
   )  + labs(x = " ")
+```
+
+```{r, fig.height=5, fig.width=18}
+diabetes_p1 = readRDS("Case_Study_6/diabetes_p1.rds")
+diabetes_p5 = readRDS("Case_Study_6/diabetes_p5.rds")
+diabetes_p10 = readRDS("Case_Study_6/diabetes_p10.rds")
+
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+grid.arrange(
+  arrangeGrob(
+    diabetes_p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
+    diabetes_p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
+    diabetes_p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    nrow = 1
+  ),
+  lemon::g_legend(
+    diabetes_p1 +  scale_fill_manual(values = color_palette) +
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
 ```
