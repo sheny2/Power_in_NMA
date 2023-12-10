@@ -218,15 +218,32 @@ p10 = result_smoke_all %>%
     aes(x = Comparison, y = Power, label = round(Power, 2)),
     position = position_dodge2(width = 0.75, preserve = "single"),
     vjust = -0.5,  size = 2 )+
-  labs(x = " ") + ylim(0,1)
+  labs(x = " ") + ylim(0,1) 
 ```
 
 ```{r, fig.height=5, fig.width=18}
 library(gridExtra)
-grid.arrange(arrangeGrob(p1 + theme(legend.position="none") + labs(title = "Add one more study"),
-                         p5 + theme(legend.position="none") + labs(title = "Add five more studies"),
-                         p10 + theme(legend.position="none") + labs(title = "Add ten more studies"), nrow = 1),
-             lemon::g_legend(diabetes_p1 +  theme(legend.position="bottom") + guides(colour = guide_legend(nrow = 1))),
-             nrow = 2, heights = c(10, 1))
+library(viridis)
+
+# Set the color palette to viridis
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+grid.arrange(
+  arrangeGrob(
+    p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
+    p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
+    p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    nrow = 1
+  ),
+  lemon::g_legend(
+    p1 +  scale_fill_manual(values = color_palette) + 
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+
 ```
 
