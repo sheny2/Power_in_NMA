@@ -100,7 +100,7 @@ result_smoke_all = cbind(c("Original", "Add AB study", "Add AC study", "Add AD s
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
-# result_smoke_all
+result_smoke_all
 
 
 p1 = result_smoke_all %>%
@@ -149,7 +149,8 @@ result_smoke_all = cbind(c("Original", "Add five AB studies", "Add five AC studi
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
-# result_smoke_all
+
+result_smoke_all
 
 
 p5 = result_smoke_all %>%
@@ -199,7 +200,7 @@ result_smoke_all = cbind(c("Original", "Add ten AB studies", "Add ten AC studies
 
 colnames(result_smoke_all) <- c("Modification",
                                     "Power AB","Power AC","Power AD")
-# result_smoke_all
+result_smoke_all
 
 
 p10 = result_smoke_all %>%

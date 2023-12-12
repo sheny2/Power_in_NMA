@@ -148,7 +148,7 @@ result_diabetes_all = cbind(c("Original", "Add 5-6 study", "Add 2-3 study", "Add
 
 colnames(result_diabetes_all) <- c("Modification",
                                     "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
-# result_diabetes_all
+result_diabetes_all
 
 
 diabetes_p1 = result_diabetes_all %>%
@@ -201,7 +201,7 @@ result_diabetes_all = cbind(c("Original", "Add five 5-6 studies", "Add five 2-3 
 
 colnames(result_diabetes_all) <- c("Modification",
                                     "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
-# result_diabetes_all
+result_diabetes_all
 
 
 diabetes_p5 = result_diabetes_all %>%
@@ -253,7 +253,7 @@ result_diabetes_all = cbind(c("Original", "Add ten 5-6 studies", "Add ten 2-3 st
 
 colnames(result_diabetes_all) <- c("Modification",
                                     "Power 5-6","Power 2-3","Power 1-4","Power 3-4")
-# result_diabetes_all
+result_diabetes_all
 
 
 diabetes_p10 = result_diabetes_all %>%

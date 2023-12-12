@@ -11,7 +11,7 @@ pi_a = 0.5
 OR_ab = 1.2
 OR_ac = 1.8
 
-tau = 0.2
+tau = 0.4
 
 
 # simulate k_ab studies (indirect)
@@ -127,26 +127,26 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=3)))
 inits_AB<- list(list(mu=rep(0,3)),
                 list(mu=rep(0,3)))
-para_AB<-c( "or", "tau")
+para_AB<-c( "or", "lor", "tau")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish.het.cor)
 
 
 # output data
 AB_trt_results_old<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results_old <- tibble::rownames_to_column(AB_trt_results_old, "drug_list")
-AB_trt_results_old_lor<-AB_trt_results_old%>%
+AB_trt_results_old_core <-AB_trt_results_old%>%
   filter(drug_list %in% c("or[1]", "or[2]", "or[3]"))
-AB_trt_results_old
+# AB_trt_results_old
 
 
 
 
 
-system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-                         n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
-                         DIC=TRUE, model.file=ABWish.het.cor))
+# system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+#                          n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+#                          DIC=TRUE, model.file=ABWish.het.cor))
 
 
 
@@ -158,28 +158,21 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=3)))
 inits_AB<- list(list(mu=rep(0,3)),
                 list(mu=rep(0,3)))
-para_AB<-c( "lor", "rho", "sigma")
+para_AB<-c( "lor", "or", "rho", "sigma")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish.het.eqcor)
 
 
 AB_trt_results_new<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results_new <- tibble::rownames_to_column(AB_trt_results_new, "drug_list")
-AB_trt_results_new_lor<-AB_trt_results_new%>%
+AB_trt_results_new_core<-AB_trt_results_new%>%
   filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]"))
 
 
-system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-                         n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
-                         DIC=TRUE, model.file=ABWish.het.eqcor))
-
-
-
-AB_trt_results_old
-
-exp(AB_trt_results_old$mean)
-AB_trt_results_new
+# system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+#                          n.iter = 5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+#                          DIC=TRUE, model.file=ABWish.het.eqcor))
 
 
 
@@ -188,6 +181,43 @@ AB_trt_results_new
 #                                  model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2))
 
 
+
+
+
+study<-unique(all_data$study)
+for (i in 1:NS){
+  n.obs[i,1:Narm[i]] <- all_data$sampleSize[all_data$study==study[i]]
+  n.eve[i,1:Narm[i]] <- all_data$responders[all_data$study==study[i]]
+  dr[i,1:Narm[i]] <- match(all_data$treatment[all_data$study==study[i]],drug_list)
+}
+
+
+##putting data into list form
+data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs) 
+init_LA <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))),
+                list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+para_LA <- c('d', "or", 'tau')
+fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
+               n.iter=10000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+               DIC=TRUE, model.file=LARE)
+#output data 
+fit_LA$BUGSoutput$summary[,c(1, 3, 7)]
+
+#saving treatment effect output
+LA_trt_results<-data.frame(fit_LA$BUGSoutput$summary[,c(1, 3, 7)])
+LA_trt_results <- tibble::rownames_to_column(LA_trt_results, "drug_list")
+LA_trt_results_core <-LA_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "tau"))
+
+
+AB_trt_results_old
+AB_trt_results_new
+LA_trt_results
+
+
+
+
+###### pcnetmeta
 
 AB_Result_het_cor = nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR", link="logit",
                                model = "het_cor", n.adapt = 2000, n.iter = 5000, n.chains = 2)

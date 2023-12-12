@@ -65,6 +65,7 @@ ABWish.het.eqcor <-function(){
   
   for (k in 1:Ndrug) { mu[k] ~ dnorm(0, 0.001) }  
   for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] }
+  for (k in 1:Ndrug) { or[k] <- exp(lor[k])}
 }
 
 
@@ -99,8 +100,12 @@ LARE<-function(){
   for (k in 2:Ndrug) { 
     d[k] ~ dnorm(0, 0.01)
   }
+  
+  for (k in 1:Ndrug) { or[k] <- exp(d[k])}
+  
   tau ~ dunif(0.01, 10)
   inv.d <- 1/pow(tau, 2)
+  
   # ranking
   mp <- mean(mu[])
   for (k in 1:Ndrug) { G[k] <- exp(mp + d[k])/(1+exp(mp + d[k])) }

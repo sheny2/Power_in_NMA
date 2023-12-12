@@ -46,13 +46,13 @@ smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
 smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
                        r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
 
-dir.binary(smoke_eff)
+# dir.binary(smoke_eff)
 eff.binary(smoke_eff)
 ```
 
 
 
-```{r, fig.width = 6, fig.height = 3.5, out.width="80%"}
+```{r, fig.width = 6, fig.height = 3.5, out.width="70%"}
 Gemtc_Result = readRDS("Arm-based/smoke_Gemtc_Result.rds")
 LAresults = readRDS("Arm-based/smoke_LAresults.rds")
 CBresults = readRDS("Arm-based/smoke_CBresults.rds")
@@ -111,7 +111,7 @@ nrow = 2
 ```
 
 
-```{r, out.width="60%"}
+```{r, out.width="50%"}
 load("Arm-based/result_smoke_all2.RData")
 result_smoke_all %>% 
   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
@@ -128,7 +128,7 @@ result_smoke_all %>%
 ```
 
 
-```{r, out.width="60%"}
+```{r, out.width="50%"}
 load("Case_Study_Smoke/result_smoke_original.RData")
 result_smoke_all = result_smoke %>% data.frame()
 
@@ -171,7 +171,7 @@ result_smoke_all %>%
 ```
 
 
-```{r, fig.height=5, fig.width=18}
+```{r, fig.height=5, fig.width=18, out.width="120%"}
 p1 = readRDS("Case_Study_Smoke/p1.rds")
 p5 = readRDS("Case_Study_Smoke/p5.rds")
 p10 = readRDS("Case_Study_Smoke/p10.rds")
@@ -182,9 +182,12 @@ color_palette <- brewer.pal(9, "Set1")
 
 grid.arrange(
   arrangeGrob(
-    p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
-    p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
-    p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    p1 + theme(legend.position = "none") + 
+      labs(title = "Add one more study") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    p5 + theme(legend.position = "none") + 
+      labs(title = "Add five more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    p10 + theme(legend.position = "none") + 
+      labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
     nrow = 1
   ),
   lemon::g_legend(
@@ -224,10 +227,11 @@ nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes
 diabetes_eff = data.frame(sid = as.numeric(diabetes_ab$study), 
                           tid = as.numeric(diabetes_ab$treatment), 
                        r = diabetes_ab$responders, n = diabetes_ab$sampleSize)
+dir.binary(diabetes_eff)
 eff.binary(diabetes_eff)
 ```
 
-```{r, fig.width = 6, fig.height = 3.5, out.width="80%"}
+```{r, fig.width = 6, fig.height = 3.5, out.width="70%"}
 Gemtc_Result = readRDS("Arm-based/diabetes_Gemtc_Result.rds")
 LAresults = readRDS("Arm-based/diabetes_LAresults.rds")
 CBresults = readRDS("Arm-based/diabetes_CBresults.rds")
@@ -283,7 +287,7 @@ nrow = 2
 ```
 
 
-```{r, out.width="60%"}
+```{r, out.width="50%"}
 load("Arm-based/result_diabetes_all.RData")
 result_diabetes_all %>% 
   mutate(Model = factor(Model,levels = c("LA", "AB"))) %>%
@@ -297,7 +301,7 @@ result_diabetes_all %>%
 ```
 
 
-```{r, out.width="60%"}
+```{r, out.width="50%"}
 load("Case_Study_6/result_diabetes_original.RData")
 result_diabetes_all = result_diabetes %>% data.frame()
 
@@ -391,10 +395,10 @@ result_diabetes_all %>%
     aes(x = Comparison, y = Power, fill = Modification),
     position = position_dodge(0.8),
     width = 0.75
-  )  + labs(x = " ")
+  )  + labs(x = " ") 
 ```
 
-```{r, fig.height=5, fig.width=18}
+```{r, fig.height=5, fig.width=18, out.width="120%"}
 diabetes_p1 = readRDS("Case_Study_6/diabetes_p1.rds")
 diabetes_p5 = readRDS("Case_Study_6/diabetes_p5.rds")
 diabetes_p10 = readRDS("Case_Study_6/diabetes_p10.rds")
@@ -405,9 +409,12 @@ color_palette <- brewer.pal(9, "Set1")
 
 grid.arrange(
   arrangeGrob(
-    diabetes_p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
-    diabetes_p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
-    diabetes_p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    diabetes_p1 + theme(legend.position = "none") + 
+      labs(title = "Add one more study") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"),
+    diabetes_p5 + theme(legend.position = "none") + 
+      labs(title = "Add five more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"),
+    diabetes_p10 + theme(legend.position = "none") + 
+      labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
     nrow = 1
   ),
   lemon::g_legend(
