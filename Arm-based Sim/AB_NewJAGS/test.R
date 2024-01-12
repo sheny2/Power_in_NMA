@@ -134,11 +134,11 @@ fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
 
 
 # output data
-AB_trt_results_old<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
-AB_trt_results_old <- tibble::rownames_to_column(AB_trt_results_old, "drug_list")
-AB_trt_results_old_core <-AB_trt_results_old%>%
+AB_trt_results_het<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_het <- tibble::rownames_to_column(AB_trt_results_het, "drug_list")
+AB_trt_results_het_core <-AB_trt_results_het%>%
   filter(drug_list %in% c("or[1]", "or[2]", "or[3]"))
-# AB_trt_results_old
+# AB_trt_results_het
 
 
 
@@ -161,13 +161,13 @@ inits_AB<- list(list(mu=rep(0,3)),
 para_AB<-c( "lor", "or", "rho", "sigma")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
              n.iter=10000, n.burnin = 5000, n.chains = 2, n.thin = 1,
-             DIC=TRUE, model.file=ABWish.het.eqcor)
+             DIC=TRUE, model.file=NMA.het.eqcor)
 
 
-AB_trt_results_new<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
-AB_trt_results_new <- tibble::rownames_to_column(AB_trt_results_new, "drug_list")
-AB_trt_results_new_core<-AB_trt_results_new%>%
-  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]"))
+AB_trt_results_het_eqcor<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_het_eqcor <- tibble::rownames_to_column(AB_trt_results_het_eqcor, "drug_list")
+AB_trt_results_het_eqcor_core<-AB_trt_results_het_eqcor%>%
+  filter(drug_list %in% c("or[1]", "or[2]", "or[3]"))
 
 
 # system.time(fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
@@ -176,14 +176,30 @@ AB_trt_results_new_core<-AB_trt_results_new%>%
 
 
 
+
+
 ### Running Arm Based  Model 3 ########
-# system.time(nma.ab.bin(s.id, t.id, r, n, data = all_data_pc, param= "LOR",
-#                                  model = "het_eqcor", n.adapt = 2000, n.iter = 5000, n.chains = 2))
+data_AB <- list('Narm'=N, 'Nstudy'=NS,
+                'Ndrug'=NT, 'study'= s, 'drug'=t,
+                'y'=y, 'n'=n ,
+                'zero.AB' = (rep(0, times=3)))
+inits_AB<- list(list(mu=rep(0,3)),
+                list(mu=rep(0,3)))
+para_AB<-c( "lor", "or", "rho", "sigma")
+fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=10000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=NMA.homo.eqcor)
+
+
+AB_trt_results_homo_eqcor<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_homo_eqcor <- tibble::rownames_to_column(AB_trt_results_homo_eqcor, "drug_list")
+AB_trt_results_homo_eqcor_core<-AB_trt_results_homo_eqcor%>%
+  filter(drug_list %in% c("or[1]", "or[2]", "or[3]"))
 
 
 
 
-
+### Running LA Model ########
 study<-unique(all_data$study)
 for (i in 1:NS){
   n.obs[i,1:Narm[i]] <- all_data$sampleSize[all_data$study==study[i]]
@@ -210,12 +226,21 @@ LA_trt_results_core <-LA_trt_results%>%
   filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "tau"))
 
 
-AB_trt_results_old
-AB_trt_results_new
+AB_trt_results_het
+AB_trt_results_het_eqcor
+AB_trt_results_homo_eqcor
 LA_trt_results
 
 
 
+
+
+
+
+
+
+
+########################################################################
 
 ###### pcnetmeta
 

@@ -18,8 +18,8 @@ ABWish.het.cor<-function(){
     }
   }
   for (k in 1:Ndrug) { mu[k] ~ dnorm(0, 0.001) }  
-  for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] }
-  for (k in 1:Ndrug) { or[k] <- exp(lor[k])}
+  for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] } # record LOR
+  for (k in 1:Ndrug) { or[k] <- exp(lor[k])} # record OR
 
 }
 
@@ -27,6 +27,8 @@ ABWish.het.cor<-function(){
 
 
 
+# old name ABWish.het.eqcor
+# new name NMA.het.eqcor
 
 ABWish.het.eqcor <-function(){
   for (i in 1:Narm){
@@ -70,7 +72,76 @@ ABWish.het.eqcor <-function(){
 
 
 
+
+NMA.het.eqcor <-function(){
+  for (i in 1:Narm){
+    y[i] ~ dbinom(mean[i],n[i])
+    logit(mean[i]) <- mu[drug[i]] + v[study[i],drug[i]]
+  }
+  for (j in 1:Nstudy) { 
+    v[j,1:Ndrug] ~ dmnorm(zero.AB[1:Ndrug], COV_mat[1:Ndrug, 1:Ndrug]) }
+  
+  
+  for(j in 1:Ndrug){
+    sigma[j] <- 1/sqrt(inv.sig.sq[j])
+    inv.sig.sq[j] ~ dgamma(0.001, 0.001)
+  }
+  
+  for(j in 1:Ndrug){
+    for(k in 1:Ndrug){ 
+      COV_mat[j,k] <- 1/sigma[j]*1/sigma[k]*ifelse(j == k, diag, offdiag)
+    }
+  }
+  
+  diag <- (1 + (Ndrug - 2)*rho)/(1 + (Ndrug - 2)*rho - (Ndrug - 1)*rho^2)
+  offdiag <- (-rho/(1 + (Ndrug - 2)*rho - (Ndrug - 1)*rho^2))
+  rho ~ dunif(-1/(Ndrug - 1), 0.9999)
+  
+  for (k in 1:Ndrug) { mu[k] ~ dnorm(0, 0.001) }  
+  for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] } # record OR
+  for (k in 1:Ndrug) { or[k] <- exp(lor[k])} # record LOR
+}
+
+
+
+
+NMA.homo.eqcor <-function(){
+  for (i in 1:Narm){
+    y[i] ~ dbinom(mean[i],n[i])
+    logit(mean[i]) <- mu[drug[i]] + v[study[i],drug[i]]
+  }
+  for (j in 1:Nstudy) { 
+    v[j,1:Ndrug] ~ dmnorm(zero.AB[1:Ndrug], COV_mat[1:Ndrug, 1:Ndrug]) }
+  
+  sigma <- 1/sqrt(inv.sig.sq)
+  inv.sig.sq ~ dgamma(0.001, 0.001)
+  
+  for(j in 1:Ndrug){
+    for(k in 1:Ndrug){ 
+      COV_mat[j,k] <- 1/sigma^2*ifelse(j == k, diag, offdiag)
+    }
+  }
+  
+  diag <- (1 + (Ndrug - 2)*rho)/(1 + (Ndrug - 2)*rho - (Ndrug - 1)*rho^2)
+  offdiag <- (-rho/(1 + (Ndrug - 2)*rho - (Ndrug - 1)*rho^2))
+  rho ~ dunif(-1/(Ndrug - 1), 0.9999)
+  
+  for (k in 1:Ndrug) { mu[k] ~ dnorm(0, 0.001) }  
+  for (k in 1:Ndrug) { lor[k] <- mu[k] - mu[1] }
+  for (k in 1:Ndrug) { or[k] <- exp(lor[k])}
+}
+
+
 ##############################################################################
+
+
+
+
+
+
+
+
+
 
 
 LARE<-function(){
