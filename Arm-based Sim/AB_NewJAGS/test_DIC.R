@@ -3,7 +3,7 @@ library(R2jags)
 library(doMC)
 library(doParallel)
 
-S = 1000
+S = 500
 
 k_ab = 6
 k_ac = 6
@@ -17,7 +17,7 @@ OR_ac = 1.8
 tau = 0.4
 
 
-N_cores = detectCores()-1
+N_cores = detectCores()
 
 # Initialize parallel backend
 cl <- makeCluster(N_cores)
@@ -238,49 +238,6 @@ result_four_model = foreach::foreach (i = 1:S, .combine = "rbind") %dopar% {
 stopCluster(cl)
 
 
-save(result_four_model, file = "result_four_model.RData")
-load("result_four_model.RData")
 
-
-result_four_model = result_four_model %>% data.frame()
-result_four_model$index = rep(1:S, each = 38)
-
-result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
-result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
-
-
-
-result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
-  group_by(index) %>% 
-  mutate(order = rank(DIC, ties.method = "min")) %>% 
-  ggplot(aes(factor(order), fill = Model)) +
-  geom_bar(position = "fill", color = "Black") +
-  geom_text(aes(x = factor(order), 
-                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
-                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
-  scale_y_continuous(labels = scales::percent) + 
-  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
-
-result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
-  ggplot() +   
-  geom_point(aes(x = index, y = mean), size = 0.5)  + 
-  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
-  geom_hline(yintercept = tau)
-
-
-# OR_ab
-result_four_model %>% filter(drug_list == "or[2]") %>% 
-  ggplot() +   
-  geom_point(aes(x = index, y = mean), size = 0.5)  + 
-  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
-  geom_hline(yintercept = OR_ab) + 
-  facet_wrap(~Model)
-
-# OR_ac
-result_four_model %>% filter(drug_list == "or[3]") %>% 
-  ggplot() +   
-  geom_point(aes(x = index, y = mean), size = 0.5)  + 
-  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
-  geom_hline(yintercept = OR_ac) + 
-  facet_wrap(~Model)
+save(result_four_model, file = "result_four_model_tau_0.4.RData")
 
