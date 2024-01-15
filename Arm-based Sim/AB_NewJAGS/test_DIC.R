@@ -14,10 +14,10 @@ pi_a = 0.5
 OR_ab = 1.2
 OR_ac = 1.8
 
-tau = 0.4
+tau = 0.1
 
 
-N_cores = detectCores()
+N_cores = detectCores() - 1
 
 # Initialize parallel backend
 cl <- makeCluster(N_cores)
@@ -239,5 +239,6 @@ stopCluster(cl)
 
 
 
-save(result_four_model, file = "result_four_model_tau_0.4.RData")
+save(result_four_model, file = "result_four_model_tau_0.1.RData")
+
 
