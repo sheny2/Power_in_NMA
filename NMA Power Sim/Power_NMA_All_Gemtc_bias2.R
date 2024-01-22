@@ -6,7 +6,7 @@ library(gemtc)
 
 set.seed(123456)
 
-N_cores = 20
+N_cores = detectCores()
 N_sim = 1000
 
 source("power_sim_all.R")
@@ -159,3 +159,4 @@ df_BNMA_bias <- expand_grid(pi_a, OR_ab, OR_ac, tau, k_ab, DR_INDR) %>%
 stopCluster(cl)
 
 save(df_BNMA_bias, file = "df_overall_BNMA_bias3.RData")
+
