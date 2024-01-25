@@ -239,7 +239,7 @@ complete_p5 = df_BNMA_bias0.1 %>% filter(k_ab == 12, k_bc == 2) %>%
   geom_hline(size = 1.3, aes(yintercept = power, color = factor(OR_bc))) +
   facet_wrap(~tau) + 
  labs(title = TeX("Complete NMA with Doubled Indirect Evidence, $pi_A = 0.1$"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
-  geom_hline(linetype = "dashed", data = df_BNMA_bias0.1 %>% filter(k_ab == 6, k_bc == 2), aes(yintercept = power, color = factor(OR_bc))) + ylim(0,1)
+  geom_hline(linetype = "dashed", data = df_BNMA_bias0.1 %>% filter(k_ab == 6, k_bc == 1), aes(yintercept = power, color = factor(OR_bc))) + ylim(0,1)
 
 complete_p6 = df_BNMA_bias0.5 %>% filter(k_ab == 12, k_bc == 2)  %>% 
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + 
@@ -247,7 +247,7 @@ complete_p6 = df_BNMA_bias0.5 %>% filter(k_ab == 12, k_bc == 2)  %>%
   facet_wrap(~tau) + 
  labs(title = TeX("Complete NMA with Doubled Indirect Evidence, $pi_A = 0.5$"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
   scale_x_continuous(breaks = seq(1, 12, 1), labels = as.character(seq(1, 12, 1))) + 
-  geom_hline(linetype = "dashed", data = df_BNMA_bias0.5 %>% filter(k_ab == 6, k_bc == 2), aes(yintercept = power, color = factor(OR_bc))) + ylim(0,1) 
+  geom_hline(linetype = "dashed", data = df_BNMA_bias0.5 %>% filter(k_ab == 6, k_bc == 1), aes(yintercept = power, color = factor(OR_bc))) + ylim(0,1) 
 
 
 grid.arrange(
