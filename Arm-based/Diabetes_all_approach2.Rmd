@@ -13,6 +13,8 @@ library(tibble)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 source('Models.R')
+source('Model2.R')
+
 
 library(pcnetmeta)
 data(diabetes)
@@ -33,12 +35,6 @@ plot(gemtc::smoking, main = "smoking")
 plot(gemtc::depression, main = "depression")
 plot(gemtc::certolizumab, main = "certolizumab")
 plot(gemtc::atrialFibrillation, main = "atrialFibrillation")
-
-# Baker2009$treatment = ifelse(Baker2009$treatment == "Fluticasone+Salmeterol", "FS", Baker2009$treatment)
-# Baker2009$treatment = ifelse(Baker2009$treatment == "Budesonide+Formoterol", "BF", Baker2009$treatment)
-# Baker2009_ab = data.frame(study = Baker2009$study, treatment = Baker2009$treatment, 
-#                          sampleSize = Baker2009$total, responders = Baker2009$exac)
-# plot(mtc.network(Baker2009_ab), main = "Baker2009")
 
 
 # nma.networkplot(study, treatment, data = Gurusamy_ab, 
@@ -205,6 +201,89 @@ AB_trt_results
 
 
 ```{r}
+######## Fit AB model 2
+data_AB <- list('Narm'=N, 'Nstudy'=NS, 
+                'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                'y'=y, 'n'=n ,
+                'zero.AB' = (rep(0, times=6)))
+inits_AB<- list(list(mu=rep(0,6)),
+                list(mu=rep(0,6)))
+para_AB<-c( "lor", "rho", "sigma")
+fit_AB_het.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=NMA.het.eqcor)
+  
+#output data 
+fit_AB_het.eqcor$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+AB_trt_results_het.eqcor <-data.frame(fit_AB_het.eqcor$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_het.eqcor <- tibble::rownames_to_column(AB_trt_results_het.eqcor, "drug_list")
+AB_trt_results_het.eqcor<-AB_trt_results_het.eqcor%>%
+  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]", "lor[6]"))
+
+
+AB_het.eqcor<-AB_trt_results_het.eqcor%>%
+  mutate(LL = as.numeric(X2.5.), 
+         UL = as.numeric(X97.5.), 
+         mean = as.numeric(mean))%>%
+  filter(!(drug_list==1))
+ggplot(AB_het.eqcor, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments LOR")
+
+########
+
+AB_trt_results_het.eqcor
+```
+
+
+```{r}
+######## Fit AB model 3
+data_AB <- list('Narm'=N, 'Nstudy'=NS, 
+                'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                'y'=y, 'n'=n ,
+                'zero.AB' = (rep(0, times=6)))
+inits_AB<- list(list(mu=rep(0,6)),
+                list(mu=rep(0,6)))
+para_AB<-c( "lor", "rho", "sigma")
+fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=NMA.homo.eqcor)
+  
+#output data 
+fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+AB_trt_results_homo.eqcor <-data.frame(fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results_homo.eqcor <- tibble::rownames_to_column(AB_trt_results_homo.eqcor, "drug_list")
+AB_trt_results_homo.eqcor<-AB_trt_results_homo.eqcor%>%
+  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]", "lor[6]"))
+
+
+AB_homo.eqcor<-AB_trt_results_homo.eqcor%>%
+  mutate(LL = as.numeric(X2.5.), 
+         UL = as.numeric(X97.5.), 
+         mean = as.numeric(mean))%>%
+  filter(!(drug_list==1))
+ggplot(AB_homo.eqcor, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments LOR")
+
+########
+
+AB_trt_results_homo.eqcor
+```
+
+```{r}
 #Lu and Ades Model with Random Effects Model Function
 
 ### Running the LARE Model ### 
@@ -271,6 +350,9 @@ gemtc_trt_results
 AB_trt_results
 LA_trt_results
 CB_trt_results
+
+AB_trt_results_het.eqcor
+AB_trt_results_homo.eqcor
 ```
 
 
@@ -303,9 +385,26 @@ LAresults<-LA_trt_results%>%
          mean = as.numeric(exp(mean)))%>%
   filter(!(drug_list=="d[1]"))
 
+
+AB_het.eqcor<-AB_trt_results_het.eqcor%>%
+  mutate(LL = as.numeric(exp(X2.5.)), 
+         UL = as.numeric(exp(X97.5.)), 
+         mean = as.numeric(exp(mean)))%>%
+  filter(!(drug_list=="lor[1]"))
+
+AB_homo.eqcor<-AB_trt_results_homo.eqcor%>%
+  mutate(LL = as.numeric(exp(X2.5.)), 
+         UL = as.numeric(exp(X97.5.)), 
+         mean = as.numeric(exp(mean)))%>%
+  filter(!(drug_list=="lor[1]"))
+
+
+
 LAresults$drug_list = Gemtc_Result$drug_list
 CBresults$drug_list = Gemtc_Result$drug_list
 ABresults$drug_list = Gemtc_Result$drug_list
+AB_het.eqcor$drug_list = Gemtc_Result$drug_list
+AB_homo.eqcor$drug_list = Gemtc_Result$drug_list
 ```
 
 
@@ -368,7 +467,55 @@ nrow = 4
 # saveRDS(ABresults, "diabetes_ABresults.rds")
 ```
 
-
+```{r, fig.width = 6, fig.height = 7}
+gridExtra::grid.arrange(
+ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0.2,1.5)+ 
+  labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  xlim(0.2,1.5)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
+ggplot(AB_het.eqcor, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  xlim(0.2,1.5)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based (heter.eqcor) NMA Treatments Effects"),
+ggplot(AB_homo.eqcor, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0.2,1.5)+  
+  labs(y = "", x="", title = "Arm-Based (homo.eqcor) NMA Treatments Effects") ,
+nrow = 4
+)
+```
 
 ```{r}
 load("result_diabetes_all.RData")
