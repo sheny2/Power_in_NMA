@@ -116,7 +116,7 @@ inits_AB<- list(list(mu=rep(0,4)),
                 list(mu=rep(0,4)))
 para_AB<-c( "lor", "rho", "sigma")
 fit_AB_het.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 3000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.het.eqcor)
 
   
@@ -159,7 +159,7 @@ inits_AB<- list(list(mu=rep(0,4)),
                 list(mu=rep(0,4)))
 para_AB<-c( "lor", "rho", "sigma")
 fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 3000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.homo.eqcor)
   
 #output data 
@@ -255,6 +255,16 @@ CB_trt_results
 AB_trt_results_het.eqcor
 AB_trt_results_homo.eqcor
 ```
+
+```{r}
+fit_LA$BUGSoutput$DIC
+fit_CB$BUGSoutput$DIC
+fit_AB$BUGSoutput$DIC
+fit_AB_het.eqcor$BUGSoutput$DIC
+fit_AB_homo.eqcor$BUGSoutput$DIC
+```
+
+
 
 ```{r}
 gemtc::forest(relative.effect(cons.out, "A", c("B","C","D")))

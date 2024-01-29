@@ -29,6 +29,14 @@ data(Dong2013)
 set.seed(2023)
 ```
 
+```{r}
+plogit <- function(X){
+  return(1/(1+exp(-X)))
+}
+
+plogit(-2.57523867)
+```
+
 ```{r, fig.width=8, warning=F}
 plot(gemtc::thrombolytic, main = "thrombolytic")
 plot(gemtc::smoking, main = "smoking")
@@ -90,6 +98,8 @@ diabetes_ab = diabetes_ab %>%
 # diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "2", "placebo", diabetes_ab$treatment)
 # diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "1", "2", diabetes_ab$treatment)
 # diabetes_ab$treatment = ifelse(diabetes_ab$treatment == "placebo", "1", diabetes_ab$treatment)
+
+diabetes_ab %>% filter(treatment == "6") %>% mutate(responders/sampleSize)
 
 network <- mtc.network(diabetes_ab)
 plot(network)
@@ -167,7 +177,7 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=6)))
 inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
-para_AB<-c( "lor", "tau", "best1", "best2", "best3")
+para_AB<-c( "lor", "tau", "mu", "R", "rho")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
              n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish)
@@ -210,7 +220,7 @@ inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
 para_AB<-c( "lor", "rho", "sigma")
 fit_AB_het.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.het.eqcor)
   
 #output data 
@@ -250,9 +260,9 @@ data_AB <- list('Narm'=N, 'Nstudy'=NS,
                 'zero.AB' = (rep(0, times=6)))
 inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
-para_AB<-c( "lor", "rho", "sigma")
+para_AB<-c( "lor", "or", "rho", "sigma", "mu", "COV_mat")
 fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.homo.eqcor)
   
 #output data 
@@ -260,6 +270,10 @@ fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)]
 #saving treatment effect output
 AB_trt_results_homo.eqcor <-data.frame(fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results_homo.eqcor <- tibble::rownames_to_column(AB_trt_results_homo.eqcor, "drug_list")
+AB_trt_results_homo.eqcor_AB<-AB_trt_results_homo.eqcor%>%
+  filter(drug_list %in% c("mu[1]", "mu[2]", "mu[3]", "mu[4]", "mu[5]", "mu[6]"))
+AB_trt_results_homo.eqcor_COV<-AB_trt_results_homo.eqcor%>%
+  filter(grepl("COV_mat", drug_list))
 AB_trt_results_homo.eqcor<-AB_trt_results_homo.eqcor%>%
   filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]", "lor[6]"))
 
@@ -281,6 +295,10 @@ ggplot(AB_homo.eqcor, aes(y = drug_list, x =mean )) +
 ########
 
 AB_trt_results_homo.eqcor
+
+plogit(AB_trt_results_homo.eqcor_AB$mean)
+
+COV_mat_T = solve(matrix(AB_trt_results_homo.eqcor_COV$mean, 6, 6))
 ```
 
 ```{r}
@@ -342,9 +360,6 @@ CB_trt_results
 ```
 
 
-
-
-
 ```{r}
 gemtc_trt_results
 AB_trt_results
@@ -353,6 +368,13 @@ CB_trt_results
 
 AB_trt_results_het.eqcor
 AB_trt_results_homo.eqcor
+```
+```{r}
+fit_LA$BUGSoutput$DIC
+fit_CB$BUGSoutput$DIC
+fit_AB$BUGSoutput$DIC
+fit_AB_het.eqcor$BUGSoutput$DIC
+fit_AB_homo.eqcor$BUGSoutput$DIC
 ```
 
 

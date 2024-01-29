@@ -80,6 +80,17 @@ result_diabetes_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
   Log_OR_dat = c(0, -0.23834311, 0.02570665, -0.13496070, -0.30540779, -0.49401317)
   tau_AB = c(0.568964683, 0.767673995, 0.630069285, 0.660131261, 0.685801466, 0.825769537)
   
+  AB_prob = c(0.07518647, 0.05815792, 0.07139945, 0.06098828, 0.05228425, 0.04874757)
+  
+  RHO = 0.972
+  TAU = 0.644
+  
+  cov_matrix = matrix(rep(TAU^2, 36), 6, 6) - diag(TAU*TAU, 6) +   diag(RHO*TAU*TAU, 6)
+  
+  # Generate the random draws
+  random_draws <- MASS::mvrnorm(1, AB_prob, COV_mat_T)
+  
+  
   y_ik = c()
   for (i in 1:n_study){
     study_data = diabetes_ab[diabetes_ab$study==i,]
@@ -301,7 +312,7 @@ result_diabetes_all = result_diabetes_all %>% as.data.frame()
 result_diabetes_all$Model = c("LA", "AB")
 result_diabetes_all
 
-save(result_diabetes_all, file = "result_diabetes_all.RData")
+save(result_diabetes_all, file = "result_diabetes_all_new.RData")
 
 stopCluster(cl)
 
