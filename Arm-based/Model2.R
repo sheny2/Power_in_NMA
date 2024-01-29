@@ -138,7 +138,39 @@ NMA.homo.eqcor <-function(){
 
 
 
-
+CBWish<-function(){
+  for (i in 1:Narm){
+    y[i] ~ dbinom(mean[i],n[i])
+    logit(mean[i]) <- mu[study[i]] + delta[study[i],drug[i]]*(1-equals(drug[i],1))
+  }
+  for (j in 1:Nstudy){
+    delta[j,1:Ndrug] ~ dmnorm(d[1:Ndrug], invR[1:Ndrug, 1:Ndrug])
+  }
+  invR[1:Ndrug, 1:Ndrug] ~ dwish(Omega[1:Ndrug,1:Ndrug], Ndrug)
+  R[1:Ndrug, 1:Ndrug] <- inverse(invR[ , ])
+  for (k in 1:Ndrug){
+    tau[k] <- sqrt(R[k,k])
+  }
+  for (j in 1:Ndrug){
+    for (k in (j+1):Ndrug){
+      rho[j,k] <- R[j,k]/(tau[j]*tau[k])
+    }
+  }
+  for (j in 1:Nstudy) { mu[j] ~ dnorm(0, 0.01) }
+  d[1] <- 0
+  for (k in 2:Ndrug) { d[k] ~ dnorm(0, 0.01) }
+  # ranking
+  mp <- mean(mu[])
+  for (k in 1:Ndrug) { T[k] <- exp(mp + d[k])/(1+exp(mp + d[k])) }
+  T.rank <- rank(T)
+  for (k in 1:Ndrug) {
+    rk[k] <- T.rank[k]
+    best1[k] <- equals(rk[k],1)
+    best2[k] <- equals(rk[k],2)
+    best3[k]<-equals(rk[k],3)
+    best12[k] <- best1[k] + best2[k]
+  }
+}
 
 
 
