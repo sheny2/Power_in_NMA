@@ -387,9 +387,9 @@ AB_trt_results_het.eqcor
 AB_trt_results_homo.eqcor
 ```
 ```{r}
+# fit_CB$BUGSoutput$DIC
+# fit_AB$BUGSoutput$DIC
 fit_LA$BUGSoutput$DIC
-fit_CB$BUGSoutput$DIC
-fit_AB$BUGSoutput$DIC
 fit_AB_het.eqcor$BUGSoutput$DIC
 fit_AB_homo.eqcor$BUGSoutput$DIC
 ```
@@ -570,15 +570,18 @@ result_diabetes_all %>%
 #   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 
 
+
+
+load("result_diabetes_all_new2.RData")
+result_diabetes_all %>% 
+  mutate(Model = factor(Model,levels = c("LA", "AB_het"))) %>%
+  pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
 load("result_diabetes_all_new.RData")
 result_diabetes_all %>% 
   mutate(Model = factor(Model,levels = c("LA", "AB_homo"))) %>%
   pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
   ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 
-
-# result_diabetes_all %>% 
-#   mutate(Model = factor(Model,levels = c("LA", "AB_homo"))) %>%
-#   pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
-#   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
 ```

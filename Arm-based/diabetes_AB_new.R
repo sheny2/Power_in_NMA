@@ -48,7 +48,7 @@ cl <- makeCluster(detectCores())
 # Register the parallel backend
 registerDoParallel(cl)
 
-S = 20
+S = 300
 
 Log_OR_dat = c(log(1), estimates$summaries$statistics[,1][1:5])
 OR_dat = exp(Log_OR_dat)
@@ -156,7 +156,7 @@ result_diabetes_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
                   list(mu=rep(0,6)))
   para_AB<-c( "lor", "or", "rho", "sigma", "mu", "COV_mat")
   fit_AB_het.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-                          n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                          n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                           DIC=TRUE, model.file=NMA.het.eqcor)
   
   #output data 
@@ -266,7 +266,7 @@ result_diabetes_all = foreach (i = 1:S, .combine = "+", .errorhandling='remove')
                   list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
   para_LA <- c('d','tau','best1', 'best2', 'best3')
   fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
-                 n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+                 n.iter=5000, n.burnin = 2000, n.chains = 2, n.thin = 1,
                  DIC=TRUE, model.file=LARE)
   #output data 
   fit_LA$BUGSoutput$summary[,c(1, 3, 7)]

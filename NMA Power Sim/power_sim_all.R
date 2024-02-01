@@ -784,5 +784,7 @@ power.sim.NMA4 <- function(S = 3, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5, OR_a
 # test
 # power.sim.NMA2(S = 100, k_ab = 6, k_ac = 6, k_bc = 3, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.4, tau = 0.1)
 
-# power.sim.NMA4(k_ab = 6, k_ac = 6, k_bc = 3, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.4, tau = 0.1)
+# power.sim.NMA4(k_ab = 2, k_ac = 2, k_bc = 0, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.4, tau = 0.1)
+
+# power.sim.NMA4(k_ab = 2, k_ac = 2, k_bc = 0, pi_a = 0.1, OR_ab = 1.2, OR_ac = 1.4, tau = 0.1)
 

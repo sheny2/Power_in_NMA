@@ -257,9 +257,9 @@ AB_trt_results_homo.eqcor
 ```
 
 ```{r}
+# fit_CB$BUGSoutput$DIC
+# fit_AB$BUGSoutput$DIC
 fit_LA$BUGSoutput$DIC
-fit_CB$BUGSoutput$DIC
-fit_AB$BUGSoutput$DIC
 fit_AB_het.eqcor$BUGSoutput$DIC
 fit_AB_homo.eqcor$BUGSoutput$DIC
 ```
