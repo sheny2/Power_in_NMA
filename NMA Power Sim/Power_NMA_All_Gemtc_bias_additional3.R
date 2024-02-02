@@ -7,24 +7,26 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores()
-N_sim = 1000
+N_sim = 700
 
 source("power_sim_all.R")
 
-load("df_indirect_BNMA_bias2.RData")
+load("df_overall_BNMA_bias2.RData")
 
-df_indirect_bias_example = df_indirect_bias %>% filter(k_ab == 12)
+prepare0 = df_BNMA_bias[19:36,-(11:14)]
+prepare0$k_ab = prepare0$k_ac = 1
 
-pre0 = df_indirect_bias_example[1:9]
-pre0$k_ab = 2; pre0$k_ac = 2
+prepare1 = df_BNMA_bias[19:36,-(11:14)]
+prepare1$k_ab = prepare1$k_ac = 2
 
-pre1 = df_indirect_bias_example[1:9]
-pre1$k_ab = 3; pre1$k_ac = 3
+prepare2 = df_BNMA_bias[19:36,-(11:14)]
+prepare2$k_ab = prepare2$k_ac = 3
 
-pre2 = df_indirect_bias_example[1:9]
-pre2$k_ab = 4; pre2$k_ac = 4
+prepare3 = df_BNMA_bias[19:36,-(11:14)]
+prepare3$k_ab = prepare3$k_ac = 4
 
-df_indirect_bias_newpre = rbind(pre0, pre1, pre2)
+
+df_BNMA_bias_pre = rbind(prepare0, prepare1, prepare2, prepare3)
 
 
 ### Indirect Evidence Only
@@ -41,18 +43,13 @@ power_mutate <- function(df) {
 }
 
 # Apply the function in parallel using foreach
-df_indirect_bias_additional2 <- df_indirect_bias_newpre %>% 
+df_BNMA_bias_additional <- df_BNMA_bias_pre %>% 
   group_by(k_ab, k_ac, pi_a, OR_ab, OR_ac, tau) %>%
   do(power_mutate(.))%>% separate(power, c("power", "rank_correct", "avg_bias", "avg_bias_abs"), " ", convert = TRUE)
 
 # Stop the parallel backend
 stopCluster(cl)
 
-save(df_indirect_bias_additional2, file = "df_indirect_BNMA_bias_2_additional2.RData")
-
-
-
-
-
+save(df_BNMA_bias_additional, file = "df_overall_BNMA_bias2_additional.RData")
 
 
