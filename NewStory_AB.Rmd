@@ -29,10 +29,6 @@ load("Arm-based Simulation New/df_indirect_additional_AB.RData")
 df_indirect_BNMA_bias_2_additional_new_0.1 = df_indirect_additional_AB[which(df_indirect_additional_AB$pi_a==0.1),]
 df_indirect_BNMA_bias_2_additional_new_0.5 = df_indirect_additional_AB[which(df_indirect_additional_AB$pi_a==0.5),]
 
-# df_indirect_bias0.1 = rbind(df_indirect_bias0.1, df_indirect_BNMA_bias_2_additional_new_0.1)
-# df_indirect_bias0.5 = rbind(df_indirect_bias0.5, df_indirect_BNMA_bias_2_additional_new_0.5)
-
-
 
 load("Arm-based Simulation New/df_direct_AB.RData")
 df_direct_bias0.1 = df_direct_AB[which(df_direct_AB$pi_a==0.1),] 
@@ -41,6 +37,12 @@ df_direct_bias0.5 = df_direct_AB[which(df_direct_AB$pi_a==0.5),]
 load("Arm-based Simulation New/df_BNMA_AB.RData")
 df_BNMA_bias0.1 = df_BNMA_AB[which(df_BNMA_AB$pi_a==0.1),]
 df_BNMA_bias0.5 = df_BNMA_AB[which(df_BNMA_AB$pi_a==0.5),]
+
+
+load("Arm-based Simulation New/df_BNMA_AB_additional.RData")
+
+df_BNMA_bias0.5 = rbind(df_BNMA_bias0.5[-c(10:18),], df_BNMA_AB_additional)
+
 
 
 # Replace values in the tau variable with specified strings
@@ -79,7 +81,7 @@ df_indirect_BNMA_bias_2_additional_new_0.5 <- df_indirect_BNMA_bias_2_additional
 
 
 
-```{r, fig.width=8, fig.height=4, error = F}
+```{r, fig.width=8, fig.height=4, error = F, eval = F}
 df_direct_bias0.5 %>% filter(pi_a == 0.5, k_bc < 12) %>% 
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + 
   geom_point(size = 2) + facet_wrap(~tau) + 
@@ -100,7 +102,7 @@ df_direct_bias0.5 %>% filter(pi_a == 0.5, k_bc <= 12) %>%
 df_BNMA_bias0.5 %>% filter(k_ab == 6) %>% 
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
     geom_point(size = 2) +
-  facet_wrap(~tau) + labs(title = TeX("Complete NMA vs. Only Direct Evidence"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "F1", data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+  facet_wrap(~tau) + labs(title = TeX("Complete NMA vs. Only Direct Evidence"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "twodash", data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
 
 
 
@@ -114,7 +116,7 @@ df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>%
     geom_point(size = 2) +
   facet_wrap(~tau) + 
   labs(title = TeX("Complete NMA vs. Only Direct Evidence vs. Only Indirect Evidence"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
-  geom_line(linetype = "F1", data = df_direct_bias0.5_sub[which(df_direct_bias0.5_sub$k_bc %in% c(1,2,3,4,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ 
+  geom_line(linetype = "twodash", data = df_direct_bias0.5_sub[which(df_direct_bias0.5_sub$k_bc %in% c(1,2,3,4,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ 
   geom_line(linetype = "dashed", data = df_indirect_bias0.5_sub[which(df_indirect_bias0.5_sub$k_ab %in% c(1,2,3,4,6)),], aes(y = power, x = k_ab, color = factor(OR_bc))) +
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
 
@@ -126,18 +128,19 @@ df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>%
   facet_wrap(~tau) + 
   labs(title = TeX("Complete NMA vs. Only Direct Evidence vs. Only Indirect Evidence"), 
        color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
-  geom_line(linetype = "F1", data = df_direct_bias0.5_sub[which(df_direct_bias0.5_sub$k_bc %in% c(1,2,3,4,6)),], 
+  geom_line(linetype = "twodash", data = df_direct_bias0.5_sub[which(df_direct_bias0.5_sub$k_bc %in% c(1,2,3,4,6)),], 
             aes(y = power, x = k_bc, color = factor(OR_bc), linetype = "Direct NMA"))+ 
   geom_line(linetype = "dashed", data = df_indirect_bias0.5_sub[which(df_indirect_bias0.5_sub$k_ab %in% c(1,2,3,4,6)),], 
             aes(y = power, x = k_ab, color = factor(OR_bc), linetype = "Indirect NMA")) + 
   ylim(0,1)+ 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
   ylim(0,1) +
-  scale_linetype_manual(name = "Analysis Type", values = c("Complete NMA" = "solid", "Direct NMA" = "F1", "Indirect NMA" = "dashed"))
+  scale_linetype_manual(name = "Analysis Type", values = c("Complete NMA" = "solid", "Direct NMA" = "twodash", "Indirect NMA" = "dashed"))
 ```
 
+
 ```{r, fig.width=10, fig.height=4}
-new_power1 = df_BNMA_bias0.5 %>% filter(k_ab == 6) %>% 
+new_power1 = df_BNMA_bias0.5 %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + 
   geom_line(aes(linetype = "Complete NMA"), size = 0.5) +
   geom_point(size = 2) + facet_wrap(~tau) + 
@@ -145,7 +148,7 @@ new_power1 = df_BNMA_bias0.5 %>% filter(k_ab == 6) %>%
        color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
   geom_line(data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], alpha = 0.75, aes(y = power, x = k_bc, linetype = "Direct Evidence", color = factor(OR_bc))) + 
   geom_line(data = df_indirect_bias0.5[which(df_indirect_bias0.5$k_ab %in% c(1,2,3,4,6)),], aalpha = 0.75, aes(y = power, x = k_ab, linetype = "Indirect Evidence", color = factor(OR_bc))) + 
-  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","F1","dashed")) + 
+  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","twodash","dashed")) + 
     guides(linetype = guide_legend(keywidth = 2.5, keyheight = 0.1))  + 
   # scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
   ylim(0,1) + scale_color_brewer(palette="Set1")
@@ -160,7 +163,7 @@ new_power2 = df_BNMA_bias0.5 %>% filter(k_bc == 2, k_ab < 12) %>%
        color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + 
   geom_line(data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], alpha = 0.75, aes(y = power, x = k_bc, linetype = "Direct Evidence", color = factor(OR_bc))) + 
   geom_line(data = df_indirect_bias0.5[which(df_indirect_bias0.5$k_ab %in% c(1,2,3,4,6)),], alpha = 0.75, aes(y = power, x = k_ab, linetype = "Indirect Evidence", color = factor(OR_bc))) + 
-  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","F1","dashed")) + 
+  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","twodash","dashed")) + 
     guides(linetype = guide_legend(keywidth = 2.5, keyheight = 0.1))  + 
   # scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
   ylim(0,1)+ scale_color_brewer(palette="Set1")
@@ -176,7 +179,7 @@ df_indirect_BNMA_bias_2_additional_new_0.5_sub = df_indirect_BNMA_bias_2_additio
   filter(OR_bc == 1.17, k_ab == 2, k_ac < 12)
 
 
-df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>% 
+df_BNMA_bias0.5_sub %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = power)) + 
   geom_line(aes(color = "Complete NMA (Add Direct)"), size = 1) +
   facet_wrap(~tau) + 
@@ -198,7 +201,7 @@ df_indirect_BNMA_bias_2_additional_new_0.5_sub = df_indirect_BNMA_bias_2_additio
   filter(OR_bc == 1.17, k_ab == 2, k_ac < 12)
 
 
-df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>% 
+df_BNMA_bias0.5_sub %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = power)) + 
   geom_line(aes(color = "Complete NMA (Add Direct)"), size = 1) +
   facet_wrap(~tau) + 
@@ -222,7 +225,7 @@ df_indirect_BNMA_bias_2_additional_new_0.5_sub = df_indirect_BNMA_bias_2_additio
   filter(OR_bc == 1.5, k_ab == 2, k_ac < 12)
 
 
-simple_1 = df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>% 
+simple_1 = df_BNMA_bias0.5_sub %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = power)) + 
   geom_line(aes(color = "Complete NMA (Add Direct)"), size = 1) +
   facet_wrap(~tau) + 
@@ -234,12 +237,12 @@ simple_1 = df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>%
   geom_line(data = df_indirect_bias0.5_sub[which(df_indirect_bias0.5_sub$k_ab %in% c(1,2,3,4,6)),], size = 1, aes(y = power, x = k_ab, color = "Indirect Evidence (Two arm)")) + 
     geom_line(data = df_indirect_BNMA_bias_2_additional_new_0.5_sub, size = 1, aes(y = power, x = k_ac, color = "Indirect Evidence (One arm)")) + 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
-  ylim(0,1)+ scale_color_brewer(palette="Dark2")
+  ylim(0,1)+ scale_color_brewer(palette="Set1")
 ```
 
 
 ```{r, fig.width=10, fig.height=4}
-new_bias1 = df_BNMA_bias0.5 %>% filter(k_ab == 6) %>% 
+new_bias1 = df_BNMA_bias0.5 %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + 
   geom_line(aes(linetype = "Complete NMA"), size = 0.5) +
   geom_point(size = 2) +
@@ -248,10 +251,10 @@ new_bias1 = df_BNMA_bias0.5 %>% filter(k_ab == 6) %>%
        color = TeX("True $OR_{BC}$"), y = "Magnitude of Bias", x = "Number of Studies") + 
   geom_line(data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], aes(y = avg_bias_abs, x = k_bc, linetype = "Direct Evidence", color = factor(OR_bc))) + 
   geom_line(data = df_indirect_bias0.5[which(df_indirect_bias0.5$k_ab %in% c(1,2,3,4,6)),], aes(y = avg_bias_abs, x = k_ab, linetype = "Indirect Evidence", color = factor(OR_bc))) + 
-  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","F1","dashed")) + 
+  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","twodash","dashed")) + 
   guides(linetype = guide_legend(keywidth = 2.5, keyheight = 0.1))  + 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
-  ylim(1,5)  + scale_color_brewer(palette="Set1")
+  ylim(0,0.6)  + scale_color_brewer(palette="Set1")
 
 
 new_bias2 = df_BNMA_bias0.5 %>% filter(k_bc == 2, k_ab < 12) %>% 
@@ -263,10 +266,10 @@ new_bias2 = df_BNMA_bias0.5 %>% filter(k_bc == 2, k_ab < 12) %>%
        color = TeX("True $OR_{BC}$"), y = "Magnitude of Bias", x = "Number of Studies") + 
   geom_line(data = df_direct_bias0.5[which(df_direct_bias0.5$k_bc %in% c(1,2,3,4,6)),], aes(y = avg_bias_abs, x = k_bc, linetype = "Direct Evidence", color = factor(OR_bc))) + 
   geom_line(data = df_indirect_bias0.5[which(df_indirect_bias0.5$k_ab %in% c(1,2,3,4,6)),], aes(y = avg_bias_abs, x = k_ab, linetype = "Indirect Evidence", color = factor(OR_bc))) + 
-  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","F1","dashed")) + 
+  scale_linetype_manual(name = "Types of Evidence Cycle", values = c("solid","twodash","dashed")) + 
   guides(linetype = guide_legend(keywidth = 2.5, keyheight = 0.1))  + 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
-  ylim(1,5)    + scale_color_brewer(palette="Set1")
+  ylim(0,0.6)  +scale_color_brewer(palette="Set1")
 
 
 
@@ -277,7 +280,7 @@ df_indirect_BNMA_bias_2_additional_new_0.5_sub = df_indirect_BNMA_bias_2_additio
   filter(OR_bc == 1.17, k_ab == 2, k_ac < 12)
 
 
-simple_2 = df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>% 
+simple_2 = df_BNMA_bias0.5_sub %>% filter(k_ab == 2) %>% 
   ggplot(aes(x = k_bc, y = avg_bias_abs)) + 
   geom_line(aes(color = "Complete NMA (Add Direct)"), size = 1) +
   facet_wrap(~tau) + 
@@ -289,7 +292,7 @@ simple_2 = df_BNMA_bias0.5_sub %>% filter(k_ab == 6) %>%
   geom_line(data = df_indirect_bias0.5_sub[which(df_indirect_bias0.5_sub$k_ab %in% c(1,2,3,4,6)),], size = 1, aes(y = avg_bias_abs, x = k_ab, color = "Indirect Evidence (Two arm)")) + 
     geom_line(data = df_indirect_BNMA_bias_2_additional_new_0.5_sub, size = 1, aes(y = avg_bias_abs, x = k_ac, color = "Indirect Evidence (One arm)")) + 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
-  ylim(0,0.6)+ scale_color_brewer(palette="Dark2")
+  ylim(0,0.6)+ scale_color_brewer(palette="Set1")
 ```
 
 

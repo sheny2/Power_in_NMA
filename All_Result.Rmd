@@ -11,6 +11,7 @@ library(metafor)
 library(tidyverse)
 library(kableExtra)
 library(latex2exp)
+library(gridExtra)
 ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
@@ -187,9 +188,23 @@ d <- df_BNMA_bias %>% filter(k_ab == 12) %>%
     geom_point(size = 2) +
   facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
 
-gridExtra::grid.arrange(a,b,c,d,ncol = 2)
+grid.arrange(
+  arrangeGrob(
+    a + theme(legend.position = "none"),
+    b + theme(legend.position = "none"),
+    c + theme(legend.position = "none"),
+    d + theme(legend.position = "none"),
+    nrow = 2
+  ),
+  lemon::g_legend(
+    a + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
 
 ```
+
 
 # Overall evidence powers in comparison, with pi_a=0.5 -- LARE
 

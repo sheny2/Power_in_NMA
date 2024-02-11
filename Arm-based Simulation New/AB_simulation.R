@@ -8,7 +8,7 @@ library(gemtc)
 set.seed(123456)
 
 N_cores = detectCores() 
-N_sim = 800
+N_sim = 500
 
 
 load("df_indirect_blank.RData")
@@ -122,7 +122,7 @@ power_mutate <- function(df) {
 
 # Apply the function in parallel using foreach
 df_BNMA_AB <- df_BNMA_blank %>%
-  # mutate(tau = readr::parse_number(tau)) %>% 
+  mutate(tau = readr::parse_number(tau)) %>% 
   group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
   do(power_mutate(.)) %>% separate(power, c("power", "avg_bias_abs"), " ", convert = TRUE)
 
@@ -130,6 +130,38 @@ df_BNMA_AB <- df_BNMA_blank %>%
 stopCluster(cl)
 
 save(df_BNMA_AB, file = "df_BNMA_AB.RData")
+
+
+
+
+df_BNMA_additional = df_BNMA_blank %>% filter(k_ab == 6)
+df_BNMA_additional$k_ab = 2
+df_BNMA_additional$k_ac = 2
+
+
+### BNMA Evidence 
+
+# Initialize parallel backend
+cl <- makeCluster(N_cores)
+
+# Register the parallel backend
+registerDoParallel(cl)
+
+# Define a function to be applied in parallel
+power_mutate <- function(df) {
+  df %>%  mutate(power = power.sim.AB_full(N_sim, k_ab, k_ac, k_bc, pi_a, OR_ab, OR_ac, tau))
+}
+
+# Apply the function in parallel using foreach
+df_BNMA_AB_additional <- df_BNMA_additional %>%
+  mutate(tau = readr::parse_number(tau)) %>% 
+  group_by(k_ab, k_bc, pi_a, OR_ab, OR_ac, tau) %>% 
+  do(power_mutate(.)) %>% separate(power, c("power", "avg_bias_abs"), " ", convert = TRUE)
+
+# Stop the parallel backend
+stopCluster(cl)
+
+save(df_BNMA_AB_additional, file = "df_BNMA_AB_additional.RData")
 
 
 

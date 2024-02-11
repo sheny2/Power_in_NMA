@@ -191,7 +191,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
     AB_trt_results<-AB_trt_results%>%
       filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "or[1]", "or[2]", "or[3]"))
     
-    point_estimate = AB_trt_results$mean[6]
+    point_estimate = AB_trt_results$mean[3]
     lower_95 = AB_trt_results$X2.5.[3]
     upper_95 = AB_trt_results$X97.5.[3]
     
@@ -422,7 +422,7 @@ power.sim.AB_direct <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.
     AB_trt_results<-AB_trt_results%>%
       filter(drug_list %in% c("lor[1]", "lor[2]", "or[1]", "or[2]"))
     
-    point_estimate = AB_trt_results$mean[4]
+    point_estimate = AB_trt_results$mean[2]
     lower_95 = AB_trt_results$X2.5.[2]
     upper_95 = AB_trt_results$X97.5.[2]
     
