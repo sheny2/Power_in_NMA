@@ -27,6 +27,9 @@ df_BNMA_blank = df_BNMA_blank[1:9,1:10]
 NMA_Net4 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
 NMA_Net5 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
 NMA_Net6 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
+NMA_Net3 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
+NMA_Net2 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
+NMA_Net1 = do.call(rbind, replicate(6, df_BNMA_blank, simplify = FALSE))
 
 
 NMA_Net4$k_ab = 2
@@ -42,5 +45,23 @@ NMA_Net5$k_bc = 2
 NMA_Net6$k_ab = 2
 NMA_Net6$k_ac = 2
 NMA_Net6$k_bc = c(rep(1,9),rep(2,9),rep(3,9),rep(6,9),rep(9,9),rep(12,9))
+
+
+NMA_Net3$k_ab = 0
+NMA_Net3$k_ac = 0
+NMA_Net3$k_bc = c(rep(1,9),rep(2,9),rep(3,9),rep(6,9),rep(9,9),rep(12,9))
+
+
+NMA_Net2$k_ab = c(rep(1,9),rep(2,9),rep(3,9),rep(6,9),rep(9,9),rep(12,9))
+NMA_Net2$k_ac = c(rep(1,9),rep(2,9),rep(3,9),rep(6,9),rep(9,9),rep(12,9))
+NMA_Net2$k_bc = 0
+
+
+NMA_Net1$k_ab = c(rep(1,9),rep(2,9),rep(3,9),rep(6,9),rep(9,9),rep(12,9))
+NMA_Net1$k_ac = 2
+NMA_Net1$k_bc = 0
+
+
+
 
 
