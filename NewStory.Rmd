@@ -378,12 +378,12 @@ new_bias2 = df_BNMA_bias0.5 %>% filter(k_bc == 2, k_ab < 12) %>%
 
 
 
-df_BNMA_bias_additional_Net5_sub = df_BNMA_bias_additional_Net5 %>% filter(OR_bc == 1.33)
-df_BNMA_bias0.5_sub = df_BNMA_bias0.5 %>% filter(OR_bc == 1.33)
-df_direct_summ0.5_sub = df_direct_summ0.5 %>% filter(OR_bc == 1.33)
-df_indirect_summ0.5_sub = df_indirect_summ0.5 %>% filter(OR_bc == 1.33)
+df_BNMA_bias_additional_Net5_sub = df_BNMA_bias_additional_Net5 %>% filter(OR_bc == 1.5)
+df_BNMA_bias0.5_sub = df_BNMA_bias0.5 %>% filter(OR_bc == 1.5)
+df_direct_summ0.5_sub = df_direct_summ0.5 %>% filter(OR_bc == 1.5)
+df_indirect_summ0.5_sub = df_indirect_summ0.5 %>% filter(OR_bc == 1.5)
 df_indirect_BNMA_bias_2_additional_new_0.5_sub = df_indirect_BNMA_bias_2_additional_new_0.5 %>% 
-  filter(OR_bc == 1.33, k_ab == 2, k_ac < 12)
+  filter(OR_bc == 1.5, k_ab == 2, k_ac < 12)
 
 
 simple_2 = df_BNMA_bias_additional_Net5_sub %>% filter(k_ab == 2) %>% 
@@ -399,6 +399,8 @@ simple_2 = df_BNMA_bias_additional_Net5_sub %>% filter(k_ab == 2) %>%
     geom_line(data = df_indirect_BNMA_bias_2_additional_new_0.5_sub, size = 1, aes(y = avg_bias_abs, x = k_ac, color = "Indirect Evidence (partial) - Network 1")) + 
   scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
   ylim(0,0.6)+ scale_color_brewer(palette="Set1")
+
+simple_2
 ```
 
 
@@ -431,6 +433,21 @@ grid.arrange(
   ),
   nrow = 2,
   heights = c(6, 1)
+)
+```
+
+
+```{r, fig.width=10.5, fig.height=6}
+grid.arrange(
+  arrangeGrob(
+    simple_1 + theme(legend.position = "none") + labs(title = "(a) Power of Closed Loop vs. Direct Evidence only vs. Indirect Evidence only"),
+    simple_2 + theme(legend.position = "none") + labs(title = "(b) Bias of Closed Loop vs. Direct Evidence only vs. Indirect Evidence only")
+  ),
+  lemon::g_legend(
+    simple_1 
+    # + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 1
 )
 ```
 

@@ -314,14 +314,15 @@ grid.arrange(
 ```
 
 
-```{r, fig.width=11.2, fig.height=5}
+```{r, fig.width=10.5, fig.height=6}
 grid.arrange(
   arrangeGrob(
-    simple_1 + theme(legend.position = "none") + labs(title = "(a) Powers of Complete NMA vs. Only Direct Evidence vs. Only Indirect Evidence"),
-    simple_2 + theme(legend.position = "none") + labs(title = "(b) Bias of Complete NMA vs. Only Direct Evidence vs. Only Indirect Evidence")
+    simple_1 + theme(legend.position = "none") + labs(title = "(a) Power of Closed Loop vs. Direct Evidence only vs. Indirect Evidence only"),
+    simple_2 + theme(legend.position = "none") + labs(title = "(b) Bias of Closed Loop vs. Direct Evidence only vs. Indirect Evidence only")
   ),
   lemon::g_legend(
     simple_1 
+    # + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
   ),
   nrow = 1
 )
