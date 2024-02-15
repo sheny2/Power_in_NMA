@@ -16,9 +16,6 @@ ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
 
-
-
-# Story 1
 ```{r}
 Network1 = readRDS("NMA_Net1_res.rds")
 Network2 = readRDS("NMA_Net2_res.rds")
@@ -26,7 +23,25 @@ Network3 = readRDS("NMA_Net3_res.rds")
 Network4 = readRDS("NMA_Net4_res.rds")
 Network5 = readRDS("NMA_Net5_res.rds")
 Network6 = readRDS("NMA_Net6_res.rds")
+
+
+Network1_AB = readRDS("NMA_Net1_res_AB.rds")
+Network2_AB = readRDS("NMA_Net2_res_AB.rds")
+Network3_AB = readRDS("NMA_Net3_res_AB.rds")
+Network4_AB = readRDS("NMA_Net4_res_AB.rds")
+Network5_AB = readRDS("NMA_Net5_res_AB.rds")
+Network6_AB = readRDS("NMA_Net6_res_AB.rds")
+
+
+
+Network1_0.1 = readRDS("NMA_Net1_res_0.1.rds")
+Network2_0.1 = readRDS("NMA_Net2_res_0.1.rds")
+Network3_0.1 = readRDS("NMA_Net3_res_0.1.rds")
+Network4_0.1 = readRDS("NMA_Net4_res_0.1.rds")
+Network5_0.1 = readRDS("NMA_Net5_res_0.1.rds")
+Network6_0.1 = readRDS("NMA_Net6_res_0.1.rds")
 ```
+
 
 ```{r}
 Network1 <- Network1 %>%
@@ -46,10 +61,51 @@ Network5 <- Network5 %>%
 
 Network6 <- Network6 %>%
   mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+
+
+Network1_AB <- Network1_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network2_AB <- Network2_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network3_AB <- Network3_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network4_AB <- Network4_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network5_AB <- Network5_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network6_AB <- Network6_AB %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+
+
+
+Network1_0.1 <- Network1_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network2_0.1 <- Network2_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network3_0.1 <- Network3_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network4_0.1 <- Network4_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network5_0.1 <- Network5_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+Network6_0.1 <- Network6_0.1 %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
 ```
 
 
-```{r, fig.width=12, fig.height=4}
+```{r}
 Network6_sub = Network6 %>% filter(OR_bc == 1.5)
 Network5_sub = Network5 %>% filter(OR_bc == 1.5)
 Network4_sub = Network4 %>% filter(OR_bc == 1.5)
@@ -57,6 +113,24 @@ Network3_sub = Network3 %>% filter(OR_bc == 1.5)
 Network2_sub = Network2 %>% filter(OR_bc == 1.5)
 Network1_sub = Network1 %>% filter(OR_bc == 1.5)
 
+Network6_ABsub = Network6_AB %>% filter(OR_bc == 1.5)
+Network5_ABsub = Network5_AB %>% filter(OR_bc == 1.5)
+Network4_ABsub = Network4_AB %>% filter(OR_bc == 1.5)
+Network3_ABsub = Network3_AB %>% filter(OR_bc == 1.5)
+Network2_ABsub = Network2_AB %>% filter(OR_bc == 1.5)
+Network1_ABsub = Network1_AB %>% filter(OR_bc == 1.5)
+
+Network6_01sub = Network6_0.1 %>% filter(OR_bc == 1.5)
+Network5_01sub = Network5_0.1 %>% filter(OR_bc == 1.5)
+Network4_01sub = Network4_0.1 %>% filter(OR_bc == 1.5)
+Network3_01sub = Network3_0.1 %>% filter(OR_bc == 1.5)
+Network2_01sub = Network2_0.1 %>% filter(OR_bc == 1.5)
+Network1_01sub = Network1_0.1 %>% filter(OR_bc == 1.5)
+```
+
+
+
+```{r, fig.width=12, fig.height=4}
 simple_power = Network6_sub %>% 
   ggplot() + facet_wrap(~tau) + 
   geom_line(data = Network1_sub, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
@@ -66,15 +140,15 @@ simple_power = Network6_sub %>%
   geom_line(data = Network5_sub, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
   geom_line(aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)"), size = 1) + 
   scale_color_manual(name = "Types of Evidence Cycle", values = c(1,2,3,4,5,6)) +
-  labs(title = TeX("(a) Closed Loop vs. Only Direct Evidence vs. Only Indirect Evidence"), y = "Power", x = "Number of Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) 
+  labs(title = TeX("(a) Power of Closed Loop vs. Only Direct Evidence vs. Only Indirect Evidence"), y = "Power", x = "Numbers of Additional Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) 
 
 
-Network6_sub = Network6 %>% filter(OR_bc == 1.33)
-Network5_sub = Network5 %>% filter(OR_bc == 1.33)
-Network4_sub = Network4 %>% filter(OR_bc == 1.33)
-Network3_sub = Network3 %>% filter(OR_bc == 1.33)
-Network2_sub = Network2 %>% filter(OR_bc == 1.33)
-Network1_sub = Network1 %>% filter(OR_bc == 1.33)
+# Network6_sub = Network6 %>% filter(OR_bc == 1.33)
+# Network5_sub = Network5 %>% filter(OR_bc == 1.33)
+# Network4_sub = Network4 %>% filter(OR_bc == 1.33)
+# Network3_sub = Network3 %>% filter(OR_bc == 1.33)
+# Network2_sub = Network2 %>% filter(OR_bc == 1.33)
+# Network1_sub = Network1 %>% filter(OR_bc == 1.33)
 
 simple_bias = Network6_sub %>% 
   ggplot() + facet_wrap(~tau) + 
@@ -85,43 +159,10 @@ simple_bias = Network6_sub %>%
   geom_line(data = Network5_sub, aes(x = k_ac, y = avg_bias_abs, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
   geom_line(aes(x = k_bc, y = avg_bias_abs, color = "Network 6: Closed loop (add direct)"), size = 1) + 
   scale_color_manual(name = "Types of Evidence Cycle", values = c(1,2,3,4,5,6)) + 
-  labs(title = TeX("(b) Closed Loop vs. Only Direct Evidence vs. Only Indirect Evidence"),  y = "Magnitude of Bias", x = "Number of Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) 
+  labs(title = TeX("(b) Bias of Closed Loop vs. Only Direct Evidence vs. Only Indirect Evidence"),  y = "Magnitude of Bias", x = "Numbers of Additional Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) 
 
 simple_power
 simple_bias
-```
-
-```{r}
-Network6 %>% 
-  ggplot() + facet_wrap(~tau) + 
-  geom_line(data = Network1_sub, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
-  geom_line(data = Network4_sub, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)"), size = 1) + 
-  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +
-  labs(y = "Power", x = "Number of Studies") +
-  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
-  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
-
-
-Network6_sub %>% 
-  ggplot() + facet_wrap(~tau) + 
-  geom_line(data = Network3_sub, aes(x = k_bc, y = power, color = "Network 3: Open loop (add direct)"), size = 1) + 
-  geom_line(data = Network6_sub, aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)"), size = 1) + 
-  scale_color_manual(name = "Types of Evidence Cycle", values = c(3,6)) +
-  labs(y = "Power", x = "Number of Studies") +
-  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
-  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
-
-
-
-Network6_sub %>% 
-  ggplot() + facet_wrap(~tau) + 
-  geom_line(data = Network2_sub, aes(x = k_ac, y = power, color = "Network 2: Open loop (add full direct)"), size = 1) + 
-  geom_line(data = Network5_sub, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
-  scale_color_manual(name = "Types of Evidence Cycle", values = c(2,5)) +
-  labs(y = "Power", x = "Number of Studies") +
-  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
-  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
- 
 ```
 
 
@@ -130,20 +171,19 @@ Network6_sub %>%
   ggplot() + facet_wrap(~tau) + 
   geom_line(data = Network1, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)", size = factor(OR_bc))) + 
   geom_line(data = Network4, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)", size = factor(OR_bc))) + 
-  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +  scale_size_manual(name = TeX("$OR_{BC}$"), values = c(1,1.5,2)) +
-  labs(y = "Power", x = "Number of Studies") +
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +  
+  scale_size_manual(name = TeX("$OR_{BC}$"), values = c(0.8,1.2,1.5)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
   scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
   ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))+ guides(size = guide_legend(nrow = 2))
 
 
-
-
 Network6_sub %>% 
   ggplot() + facet_wrap(~tau) + 
-  geom_line(data = Network1, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial direct)", linetype = factor(OR_bc))) + 
-  geom_line(data = Network4, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)", linetype = factor(OR_bc))) + 
+  geom_line(data = Network1, size = 0.75, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial direct)", linetype = factor(OR_bc))) + 
+  geom_line(data = Network4, size = 0.75, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)", linetype = factor(OR_bc))) +
   scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +  scale_linetype_manual(name = TeX("$OR_{BC}$"), values = c(3,2,1)) +
-  labs(y = "Power", x = "Number of Studies") +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
   scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
   ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2)) + guides(linetype = guide_legend(nrow = 2))
 ```
@@ -162,7 +202,7 @@ grid.arrange(
 ```
 
 
-```{r, fig.width=8, fig.height=8}
+```{r, fig.width=10, fig.height=8}
 grid.arrange(
   arrangeGrob(
     simple_power + theme(legend.position = "none"),
@@ -174,3 +214,142 @@ grid.arrange(
   nrow = 2, heights = c(5, 1)
 )
 ```
+
+
+
+
+-------------
+
+# Appendix plots
+
+```{r, fig.width=10, fig.height=6}
+grid.arrange(
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network1_sub, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network4_sub, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1)  + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
+,
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network3_sub, aes(x = k_bc, y = power, color = "Network 3: Open loop (add direct)"), size = 1) + 
+  geom_line(data = Network6_sub, aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(3,6)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
+,
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network2_sub, aes(x = k_ac, y = power, color = "Network 2: Open loop (add full indirect)"), size = 1) + 
+  geom_line(data = Network5_sub, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(2,5)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2))
+, nrow = 2
+)
+```
+
+# Effect size
+
+```{r, fig.width=15, fig.height=8}
+grid.arrange(
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network1, size = 0.85, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial direct)", linetype = factor(OR_bc))) + 
+  geom_line(data = Network4, size = 0.85, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)", linetype = factor(OR_bc))) +
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,4)) +  scale_linetype_manual(name = TeX("$OR_{BC}$"), values = c(3,2,1)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2)) + guides(linetype = guide_legend(nrow = 2))
+,
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network3, size = 0.85, aes(x = k_bc, y = power, color = "Network 3: Open loop (add direct)", linetype = factor(OR_bc))) + 
+  geom_line(data = Network6, size = 0.85, aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)", linetype = factor(OR_bc)))+ 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(3,6)) +  scale_linetype_manual(name = TeX("$OR_{BC}$"), values = c(3,2,1)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2)) + guides(linetype = guide_legend(nrow = 2))
+,
+Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network2, size = 0.85, aes(x = k_ac, y = power, color = "Network 2: Open loop (add full indirect)", linetype = factor(OR_bc))) + 
+  geom_line(data = Network5, size = 0.85, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)", linetype = factor(OR_bc)))+ 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(2,5)) +  scale_linetype_manual(name = TeX("$OR_{BC}$"), values = c(3,2,1)) +
+  labs(y = "Power", x = "Numbers of Additional Studies") +
+  scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + 
+  ylim(0,1) + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 2)) + guides(linetype = guide_legend(nrow = 2))
+, nrow = 2
+)
+
+```
+
+# power and prob of correct ranking 
+```{r, fig.width=15, fig.height=5}
+grid.arrange(
+  arrangeGrob(
+    simple_power + theme(legend.position = "none") + labs(title = TeX("(a) Power"))
+  ,
+  Network6_sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network1_sub, aes(x = k_ab, y = rank_correct, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network2_sub, aes(x = k_ab, y = rank_correct, color = "Network 2: Open loop (add full indirect)"), size = 1) +
+  geom_line(data = Network3_sub, aes(x = k_bc, y = rank_correct, color = "Network 3: Open loop (add direct)"), size = 1) + 
+  geom_line(data = Network4_sub, aes(x = k_ac, y = rank_correct, color = "Network 4: Closed loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network5_sub, aes(x = k_ac, y = rank_correct, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
+  geom_line(aes(x = k_bc, y = rank_correct, color = "Network 6: Closed loop (add direct)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,2,3,4,5,6)) +
+  labs(title = TeX("(b) Probability of Achieving Correct Ranking Order"), y = "Prob of Correct Ranking", x = "Numbers of Additional Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + theme(legend.position = "none") 
+  , nrow = 1),   
+  nrow = 2, heights = c(5, 1),
+  lemon::g_legend(simple_power + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 3))))
+```
+
+# LA power and AB power
+```{r, fig.width=15, fig.height=5}
+grid.arrange(
+  arrangeGrob(
+    simple_power + theme(legend.position = "none") + labs(title = TeX("(a) LARE Power"))
+  ,
+  Network6_ABsub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network1_ABsub, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network2_ABsub, aes(x = k_ab, y = power, color = "Network 2: Open loop (add full indirect)"), size = 1) +
+  geom_line(data = Network3_ABsub, aes(x = k_bc, y = power, color = "Network 3: Open loop (add direct)"), size = 1) + 
+  geom_line(data = Network4_ABsub, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network5_ABsub, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
+  geom_line(aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,2,3,4,5,6)) +
+  labs(title = TeX("(b) ABRE Power"), y = "Prob of Correct Ranking", x = "Numbers of Additional Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + theme(legend.position = "none") 
+  , nrow = 1),   
+  nrow = 2, heights = c(5, 1),
+  lemon::g_legend(simple_power + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 3))))
+```
+
+# frequent and rare
+```{r, fig.width=15, fig.height=5}
+grid.arrange(
+  arrangeGrob(
+    simple_power + theme(legend.position = "none") + labs(title = TeX("(a) Power at $pi_A$ = 0.5"))
+  ,
+  Network6_01sub %>% 
+  ggplot() + facet_wrap(~tau) + 
+  geom_line(data = Network1_01sub, aes(x = k_ab, y = power, color = "Network 1: Open loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network2_01sub, aes(x = k_ab, y = power, color = "Network 2: Open loop (add full indirect)"), size = 1) +
+  geom_line(data = Network3_01sub, aes(x = k_bc, y = power, color = "Network 3: Open loop (add direct)"), size = 1) + 
+  geom_line(data = Network4_01sub, aes(x = k_ac, y = power, color = "Network 4: Closed loop (add partial indirect)"), size = 1) + 
+  geom_line(data = Network5_01sub, aes(x = k_ac, y = power, color = "Network 5: Closed loop (add full indirect)"), size = 1) + 
+  geom_line(aes(x = k_bc, y = power, color = "Network 6: Closed loop (add direct)"), size = 1) + 
+  scale_color_manual(name = "Types of Evidence Cycle", values = c(1,2,3,4,5,6)) +
+  labs(title = TeX("(b) Power at $pi_A$ = 0.1"), y = "Prob of Correct Ranking", x = "Numbers of Additional Studies") + scale_x_continuous(breaks = seq(1, 12, 2), labels = as.character(seq(1, 12, 2))) + theme(legend.position = "none") 
+  , nrow = 1),   
+  nrow = 2, heights = c(5, 1),
+  lemon::g_legend(simple_power + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 3))))
+
+```
+

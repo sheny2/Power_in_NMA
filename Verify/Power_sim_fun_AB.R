@@ -182,7 +182,7 @@ power.sim.AB_full <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.5,
                     list(mu=rep(0,3)))
     para_AB<-c( "lor","rho", "sigma", "or")
     fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-                            n.iter=2000, n.burnin = 1000, n.chains = 2, n.thin = 1,
+                            n.iter=2000, n.burnin = 500, n.chains = 2, n.thin = 1,
                             DIC=TRUE, model.file=NMA.homo.eqcor)
     
     
@@ -413,7 +413,7 @@ power.sim.AB_direct <- function(S = 500, k_ab = 0, k_ac = 0, k_bc = 0, pi_a = 0.
                     list(mu=rep(0,2)))
     para_AB<-c( "lor","rho", "sigma", "or")
     fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-                            n.iter=2000, n.burnin = 1000, n.chains = 2, n.thin = 1,
+                            n.iter=2000, n.burnin = 500, n.chains = 2, n.thin = 1,
                             DIC=TRUE, model.file=NMA.homo.eqcor)
     
     
