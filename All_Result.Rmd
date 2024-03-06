@@ -1,0 +1,985 @@
+---
+title: "Result"
+author: "Yicheng Shen"
+date: "2023-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, cache = F, warning = F, eval = T, message = F)
+library(metafor)
+library(tidyverse)
+library(kableExtra)
+library(latex2exp)
+library(gridExtra)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+# Part 1: Simulation of power / correct ranking probability
+## Indirect Evidence, Power -- LARE
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+
+gridExtra::grid.arrange(
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + 
+  labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power")  + ylim(0,1)
+,
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + 
+  labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+
+,
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) +
+  labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power")  + ylim(0,1)
+,
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) +
+  labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+)
+```
+
+# Indirect Evidence, Probability of Correct Ranking Order -- LARE
+
+```{r, fig.height=5.5, fig.width=12}
+# ranking correct in indirect evidence
+
+gridExtra::grid.arrange(
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Probability of Correct Ranking")  + ylim(0.5,1)
+,
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Probability of Correct Ranking") + ylim(0.5,1)
+
+,
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Probability of Correct Ranking")  + ylim(0.5,1)
+,
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Probability of Correct Ranking") + ylim(0.5,1)
+)
+```
+
+# Direct Evidence, Power -- GEMTC (LARE)
+
+```{r, fig.height=5.5, fig.width=12}
+### Power Direct
+
+gridExtra::grid.arrange(
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + 
+  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + ylim(0,1)
+
+,
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(2,4,6,12), pi_a = 0.1", color = "True OR_bc") +
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+,
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+
+,
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  geom_point(size = 2) + 
+  facet_wrap(~tau) + labs(title = "Direct Evi:  k_bc in c(2,4,6,12), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+)
+
+```
+
+
+# Direct Evidence, Probability of Correct Ranking Order
+## GEMTC (LARE)
+```{r, fig.height=5.5, fig.width=12}
+### Rank Correct Direct
+
+gridExtra::grid.arrange(
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + ylim(0.5,1)
+
+,
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(2,4,6,12), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + ylim(0.5,1)
+
+,
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + ylim(0.5,1)
+
+,
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi:  k_bc in c(2,4,6,12), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + ylim(0.5,1)
+)
+```
+
+
+# Overall evidence powers in comparison, with pi_a=0.1 -- LARE
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+
+df_indirect_bias = df_indirect_bias[which(df_indirect_bias$pi_a==0.1),]
+df_direct_bias = df_direct_bias[which(df_direct_bias$pi_a==0.1),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.1),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 6)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Direct Evidence ($k_{BC}$ = 1, 2, 3, 6)"), color = TeX("True $OR_{BC}$"),  y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+grid.arrange(
+  arrangeGrob(
+    a + theme(legend.position = "none"),
+    b + theme(legend.position = "none"),
+    c + theme(legend.position = "none"),
+    d + theme(legend.position = "none"),
+    nrow = 2
+  ),
+  lemon::g_legend(
+    a + theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+
+```
+
+
+# Overall evidence powers in comparison, with pi_a=0.5 -- LARE
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+
+df_indirect_bias = df_indirect_bias[which(df_indirect_bias$pi_a==0.5),]
+df_direct_bias = df_direct_bias[which(df_direct_bias$pi_a==0.5),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.5),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 6)", color = "True OR_bc") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 12)", color = "True OR_bc") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 2, 4, 6, 12)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+gridExtra::grid.arrange(a,b,c,d,ncol = 2)
+```
+
+
+# Part 2: Absolute average bias (magnitude of bias)
+
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias.RData")
+load("NMA Power Sim/df_direct_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias3.RData")
+
+df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_direct_summ = df_direct_bias %>% group_by(pi_a, OR_bc, tau, k_bc) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+# df_BNMA_summ = df_BNMA_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac, k_bc) %>%
+#    summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+#              bias_avg = (mean(point_est - point_true)))
+
+
+gridExtra::grid.arrange(
+
+df_indirect_summ %>% filter(k_ab == 6, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = bias_avg, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = bias_avg, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Bias")  + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+,
+df_indirect_summ %>% filter(k_ab == 12, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = bias_avg, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = bias_avg, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Bias")  + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+
+,
+
+df_indirect_summ %>% filter(k_ab == 6, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = bias_avg, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = bias_avg, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Bias")  + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+,
+df_indirect_summ %>% filter(k_ab == 12, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = bias_avg, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = bias_avg, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Bias")   + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+)
+
+
+gridExtra::grid.arrange(
+
+df_direct_summ %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = bias_avg, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+
+,
+df_direct_summ %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = bias_avg, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(2,4,6,12), pi_a = 0.1", color = "True OR_bc") +
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+
+,
+
+df_direct_summ %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = bias_avg, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+
+,
+df_direct_summ %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = bias_avg, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evi:  k_bc in c(2,4,6,12), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + 
+  # ylim(-0.05,0.05) + 
+  geom_hline(yintercept = 0)
+)
+```
+
+## Absolute bias of overall evidence in comparison, pi_a = 0.1
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias.RData")
+load("NMA Power Sim/df_direct_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias3.RData")
+
+df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_direct_summ = df_direct_bias %>% group_by(pi_a, OR_bc, tau, k_bc) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+
+
+df_indirect_summ = df_indirect_summ[which(df_indirect_summ$pi_a==0.1),]
+df_direct_summ = df_direct_summ[which(df_direct_summ$pi_a==0.1),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.1),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 6)", color = "True OR_bc") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==6),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 12)", color = "True OR_bc") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==12),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0) 
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(1,2,3,6)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 2, 4, 6, 12)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(2,4,6,12)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+gridExtra::grid.arrange(a,b,c,d,ncol = 2)
+```
+
+## Absolute bias of overall evidence in comparison, pi_a = 0.5
+
+```{r, fig.height=5.5, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias.RData")
+load("NMA Power Sim/df_direct_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+
+df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_direct_summ = df_direct_bias %>% group_by(pi_a, OR_bc, tau, k_bc) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+
+df_indirect_summ = df_indirect_summ[which(df_indirect_summ$pi_a==0.5),]
+df_direct_summ = df_direct_summ[which(df_direct_summ$pi_a==0.5),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.5),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 6)", color = "True OR_bc") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==6),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Indirect (k_ab = k_ac = 12)", color = "True OR_bc") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==12),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0) 
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(1,2,3,6)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "Overall vs. Only Direct (k_bc = 2, 4, 6, 12)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(2,4,6,12)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+gridExtra::grid.arrange(a,b,c,d,ncol = 2)
+```
+
+
+# Part 3: LARE vs ABRE 
+# Indirect Evidence, Power 
+
+```{r, fig.height=11, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+load("Arm-based Sim/df_indirect_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_direct_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_overall_BNMA_AB_bias.RData")
+
+gridExtra::grid.arrange(
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + 
+  labs(title = TeX("LARE: Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power")  + ylim(0,1)
+,
+
+df_indirect_new %>% filter(k_ab == 6, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+,
+
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + 
+  labs(title = TeX("LARE: Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+,
+
+df_indirect_new %>% filter(k_ab == 12, pi_a == 0.1) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.1$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+,
+
+df_indirect_bias %>% filter(k_ab == 6, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) +
+  labs(title = TeX("LARE: Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power")  + ylim(0,1),
+
+df_indirect_new %>% filter(k_ab == 6, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Indirect Evidence: $k_{AB} = k_{AC} = 6, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power")  + ylim(0,1)
+,
+
+df_indirect_bias %>% filter(k_ab == 12, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + 
+  geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) +
+  labs(title = TeX("LARE: Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+,
+
+df_indirect_new %>% filter(k_ab == 12, pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Indirect Evidence: $k_{AB} = k_{AC} = 12, pi_A = 0.5$"), color = TeX("True: $OR_{BC}$"), x = "", y = "Power") + ylim(0,1)
+
+,nrow = 4
+)
+```
+
+
+
+# Direct Evidence, Power -- LARE vs ABRE
+
+```{r, fig.height=11, fig.width=12}
+### Power Direct
+
+gridExtra::grid.arrange(
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + ylim(0,1)
+,
+df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.1", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + ylim(0,1)
+,
+
+
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Direct Evi: k_bc in c(2,4,6,12), pi_a = 0.1", color = "True OR_bc") +
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+,
+df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.1) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Direct Evi: k_bc in c(2,4,6,12), pi_a = 0.1", color = "True OR_bc") +
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+,
+
+
+df_direct_bias %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+,
+df_direct_new %>% filter(k_bc %in% c(1,2,3,6), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Direct Evi: k_bc in c(1,2,3,6), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+,
+
+
+df_direct_bias %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Direct Evi:  k_bc in c(2,4,6,12), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+,
+df_direct_new %>% filter(k_bc %in% c(2,4,6,12), pi_a == 0.5) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+    geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Direct Evi:  k_bc in c(2,4,6,12), pi_a = 0.5", color = "True OR_bc") + 
+  scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+,
+
+nrow = 4
+)
+```
+
+
+# Overall evidence powers in comparison, with pi_a=0.1 -- LARE
+
+```{r, fig.height=11, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+load("Arm-based Sim/df_indirect_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_direct_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_overall_BNMA_AB_bias.RData")
+
+df_indirect_bias = df_indirect_bias[which(df_indirect_bias$pi_a==0.1),]
+df_direct_bias = df_direct_bias[which(df_direct_bias$pi_a==0.1),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.1),]
+df_indirect_new = df_indirect_new[which(df_indirect_new$pi_a==0.1),]
+df_direct_new = df_direct_new[which(df_direct_new$pi_a==0.1),]
+df_BNMA_new =  df_BNMA_new[which(df_BNMA_new$pi_a==0.1),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 6)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Direct Evidence ($k_{BC}$ = 1, 2, 3, 6)"), color = TeX("True $OR_{BC}$"),  y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+a1 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 6)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b1 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c1 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Direct Evidence ($k_{BC}$ = 1, 2, 3, 6)"), color = TeX("True $OR_{BC}$"),  y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d1 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+gridExtra::grid.arrange(a,a1, b,b1, c,c1, d,d1, nrow = 4)
+
+```
+
+# Overall evidence powers in comparison, with pi_a=0.5 -- LARE
+```{r, fig.height=11, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias2.RData")
+load("NMA Power Sim/df_direct_BNMA_bias2.RData")
+load("NMA Power Sim/df_overall_BNMA_bias2.RData")
+load("Arm-based Sim/df_indirect_BNMA_AB.RData")
+load("Arm-based Sim/df_direct_BNMA_AB.RData")
+load("Arm-based Sim/df_overall_BNMA_AB.RData")
+
+df_indirect_bias = df_indirect_bias[which(df_indirect_bias$pi_a==0.5),]
+df_direct_bias = df_direct_bias[which(df_direct_bias$pi_a==0.5),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.5),]
+df_indirect_new = df_indirect_new[which(df_indirect_new$pi_a==0.5),]
+df_direct_new = df_direct_new[which(df_direct_new$pi_a==0.5),]
+df_BNMA_new =  df_BNMA_new[which(df_BNMA_new$pi_a==0.5),]
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 6)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_bias[which(df_indirect_bias$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Direct Evidence ($k_{BC}$ = 1, 2, 3, 6)"), color = TeX("True $OR_{BC}$"),  y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_bias[which(df_direct_bias$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+a1 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 6)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==6),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+b1 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Indirect Evidence ($k_{AB}$ = $k_{AC}$ = 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==12),], aes(yintercept = power, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+c1 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Direct Evidence ($k_{BC}$ = 1, 2, 3, 6)"), color = TeX("True $OR_{BC}$"),  y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(1,2,3,6)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ ylim(0,1)
+  
+
+d1 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = power, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Direct Evidence ($k_{BC}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{BC}$"), y = "Power", x = "Number of Studies") + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(2,4,6,12)),], aes(y = power, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ ylim(0,1)
+
+
+gridExtra::grid.arrange(a, a1, b, b1, c, c1, d, d1, nrow = 4)
+```
+
+
+# Bias in comparison: LARE - ABRE
+
+## Absolute bias of overall evidence in comparison, pi_a = 0.1
+
+```{r, fig.height=11, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias.RData")
+load("NMA Power Sim/df_direct_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias3.RData")
+
+df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_direct_summ = df_direct_bias %>% group_by(pi_a, OR_bc, tau, k_bc) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_indirect_summ = df_indirect_summ[which(df_indirect_summ$pi_a==0.1),]
+df_direct_summ = df_direct_summ[which(df_direct_summ$pi_a==0.1),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.1),]
+
+
+load("Arm-based Sim/df_indirect_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_direct_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_overall_BNMA_AB_bias.RData")
+
+
+df_indirect_new = df_indirect_new[which(df_indirect_new$pi_a==0.1),]
+df_direct_new = df_direct_new[which(df_direct_new$pi_a==0.1),]
+df_BNMA_new =  df_BNMA_new[which(df_BNMA_new$pi_a==0.1),]
+
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Indirect (k_ab = k_ac = 6)", color = "True OR_bc") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==6),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Indirect (k_ab = k_ac = 12)", color = "True OR_bc") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==12),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0) 
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(1,2,3,6)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Direct (k_bc = 2, 4, 6, 12)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(2,4,6,12)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+
+a2 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Indirect (k_ab = k_ac = 6)", color = "True OR_bc") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==6),], aes(yintercept = avg_bias_abs, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ geom_hline(yintercept = 0)
+  
+
+b2 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Indirect (k_ab = k_ac = 12)", color = "True OR_bc") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==12),], aes(yintercept = avg_bias_abs, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ geom_hline(yintercept = 0) + ylim(0, 0.2)
+
+
+c2 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(1,2,3,6)),], aes(y = avg_bias_abs, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d2 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Direct (k_bc = 2, 4, 6, 12)", color = "True OR_bc") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(2,4,6,12)),], aes(y = avg_bias_abs, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+gridExtra::grid.arrange(a, a2, b, b2, c, c2, d, d2, nrow = 4)
+```
+
+
+
+## Absolute bias of overall evidence in comparison, pi_a = 0.5
+
+```{r, fig.height=11, fig.width=12}
+load("NMA Power Sim/df_indirect_BNMA_bias.RData")
+load("NMA Power Sim/df_direct_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias.RData")
+load("NMA Power Sim/df_overall_BNMA_bias3.RData")
+
+df_indirect_summ = df_indirect_bias %>% group_by(pi_a, OR_bc, tau, k_ab, k_ac) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_direct_summ = df_direct_bias %>% group_by(pi_a, OR_bc, tau, k_bc) %>%
+  summarise(power_prob = mean(power), rank_prob = mean(rank_correct),
+            bias_avg = (mean(abs(point_est - point_true))))
+
+df_indirect_summ = df_indirect_summ[which(df_indirect_summ$pi_a==0.5),]
+df_direct_summ = df_direct_summ[which(df_direct_summ$pi_a==0.5),]
+df_BNMA_bias =  df_BNMA_bias[which(df_BNMA_bias$pi_a==0.5),]
+
+
+load("Arm-based Sim/df_indirect_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_direct_BNMA_AB_bias.RData")
+load("Arm-based Sim/df_overall_BNMA_AB_bias.RData")
+
+
+df_indirect_new = df_indirect_new[which(df_indirect_new$pi_a==0.5),]
+df_direct_new = df_direct_new[which(df_direct_new$pi_a==0.5),]
+df_BNMA_new =  df_BNMA_new[which(df_BNMA_new$pi_a==0.5),]
+
+
+a <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Indirect (k_ab = k_ac = 6)", color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==6),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)+ ylim(0, 0.25)
+  
+
+b <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Indirect ($K_{AB}$ = $K_{AC}$ = 12)"), color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_summ[which(df_indirect_summ$k_ab==12),], aes(yintercept = bias_avg, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)  + ylim(0, 0.2)
+
+
+c <- df_BNMA_bias %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "LARE: Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(1,2,3,6)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d <- df_BNMA_bias %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("LARE: Overall vs. Only Direct ($K_{bc}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_summ[which(df_direct_summ$k_bc %in% c(2,4,6,12)),], aes(y = bias_avg, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+
+a2 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Indirect (k_ab = k_ac = 6)", color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==6),], aes(yintercept = avg_bias_abs, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1)))+ geom_hline(yintercept = 0)+ ylim(0, 0.25)
+  
+
+b2 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Indirect ($K_{AB}$ = $K_{AC}$ = 12)"), color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw()  + geom_hline(linetype = "dashed", data = df_indirect_new[which(df_indirect_new$k_ab==12),], aes(yintercept = avg_bias_abs, color = factor(OR_bc))) + scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2)))+ geom_hline(yintercept = 0) + ylim(0, 0.2)
+
+
+c2 <- df_BNMA_new %>% filter(k_ab == 6) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = "ABRE: Overall vs. Only Direct (k_bc = 1, 2, 3, 6)", color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(1,2,3,6)),], aes(y = avg_bias_abs, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(1, 6, 1), labels = as.character(seq(1, 6, 1))) + geom_hline(yintercept = 0)
+  
+
+d2 <- df_BNMA_new %>% filter(k_ab == 12) %>% 
+  ggplot(aes(x = k_bc, y = avg_bias_abs, color = factor(OR_bc))) + geom_line(size = 1.2) +  geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("ABRE: Overall vs. Only Direct ($K_{bc}$ = 2, 4, 6, 12)"), color = TeX("True $OR_{bc}$"), y = "Average Absolute Bias", x = "Number of Studies") + theme_bw() + geom_line(linetype = "dotdash", data = df_direct_new[which(df_direct_new$k_bc %in% c(2,4,6,12)),], aes(y = avg_bias_abs, x = k_bc, color = factor(OR_bc)))+ scale_x_continuous(breaks = seq(2, 12, 2), labels = as.character(seq(2, 12, 2))) + geom_hline(yintercept = 0)
+
+gridExtra::grid.arrange(a, a2, b, b2, c, c2, d, d2, nrow = 4)
+```
+
+
+
+```{r, fig.height=5.5, fig.width=12}
+gridExtra::grid.arrange(b, b2, d, d2, nrow = 2)
+```
+
+
+
+# Part 4: Big vs Small Studies
+
+
+# Total sample size 3000
+
+```{r, fig.height=8, fig.width=16}
+load("big_small/result_extreme_small3000/overall_result_big_small_new.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + 
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+, nrow = 3)
+```
+
+```{r, fig.height=5.5, fig.width=16, eval = F, echo = F}
+gridExtra::grid.arrange(
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +geom_point(size = 2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+, nrow = 2)
+```
+
+
+
+
+
+# Total sample size 30000
+
+```{r, fig.height=8, fig.width=16}
+load("big_small/result_extreme_small30000/overall_result_big_small_new.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + theme_bw()
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = avg_bias_abs, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Average Absolute Bias") + theme_bw()
+, nrow = 3)
+```

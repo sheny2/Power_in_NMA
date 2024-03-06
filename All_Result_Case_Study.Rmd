@@ -1,0 +1,433 @@
+---
+title: "Result"
+author: "Yicheng Shen"
+date: "2023-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, cache = F, warning = F, eval = T, message = F)
+library(metafor)
+library(tidyverse)
+library(kableExtra)
+library(latex2exp)
+library(pcnetmeta)
+library(gemtc)
+library(gridExtra)
+library(viridis)
+library(RColorBrewer)
+
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+
+# Smoking secession
+
+### 24 studies
+
+```{r, fig.height=7, fig.width=22}
+load("Arm-based/smokingcessation_ab.RData")
+par(mfrow = c(1, 2))
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation Treatments", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation", node.col = "orange")
+```
+
+```{r}
+library("igraph")
+source("Arm-based/functions.R")
+mapping <- c('A' = 1, 'B' = 2, 'C' = 3, 'D' = 4)
+
+smokingcessation_eff = smokingcessation_ab
+smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
+
+smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
+                       r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
+
+# dir.binary(smoke_eff)
+eff.binary(smoke_eff)
+```
+
+
+
+```{r, fig.width = 6, fig.height = 3.5, out.width="70%"}
+Gemtc_Result = readRDS("Arm-based/smoke_Gemtc_Result.rds")
+LAresults = readRDS("Arm-based/smoke_LAresults.rds")
+CBresults = readRDS("Arm-based/smoke_CBresults.rds")
+ABresults = readRDS("Arm-based/smoke_ABresults.rds")
+
+##Runnning forest plots##
+##plot in OR scale, not log OR! 
+four_model_smoking = 
+gridExtra::grid.arrange(
+# ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+#   scale_y_discrete(limits=rev) + 
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   xlim(0,8) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0,8) + 
+  labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
+# ggplot(CBresults, aes(y = drug_list, x =mean )) +
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   scale_y_discrete(limits=rev) + 
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   xlim(0,8) + 
+#   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  xlim(0,8)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
+nrow = 2
+)
+```
+
+
+```{r, out.width="50%"}
+load("Arm-based/result_smoke_all2.RData")
+result_smoke_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  filter(!Model %in%  c("GEMTC", "CB"))%>% 
+  pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+# 
+# result_smoke_all %>% 
+#   mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+#   filter(!Model %in%  c("GEMTC", "CB"))%>%  
+#   pivot_longer(cols = 1:3, names_to = "Comparison", values_to = "Power") %>% 
+#   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
+
+```{r, out.width="50%"}
+load("Case_Study_Smoke/result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
+
+load("Case_Study_Smoke/result_smoke_AB.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("Case_Study_Smoke/result_smoke_AC.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("Case_Study_Smoke/result_smoke_AD.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+
+
+
+result_smoke_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+result_smoke_all
+
+result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one AB study",
+      "Add one AC study",
+      "Add one AD study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
+
+
+```{r, fig.height=5, fig.width=18, out.width="120%"}
+p1 = readRDS("Case_Study_Smoke/p1.rds")
+p5 = readRDS("Case_Study_Smoke/p5.rds")
+p10 = readRDS("Case_Study_Smoke/p10.rds")
+
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+p = grid.arrange(
+  arrangeGrob(
+    p1 + theme(legend.position = "none") + 
+      labs(title = "Add one more study") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    p5 + theme(legend.position = "none") + 
+      labs(title = "Add five more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    p10 + theme(legend.position = "none") + 
+      labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    nrow = 1
+  ),
+  lemon::g_legend(
+    p1 +  scale_fill_manual(values = color_palette) + 
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+
+ggsave(plot = p, filename = "smoking_add.png", width = 18, height = 5, device='tiff', dpi=100)
+```
+
+
+# Diabetes
+
+### 22 studies
+
+```{r, fig.height=7, fig.width=22}
+library(pcnetmeta)
+data(diabetes)
+
+par(mfrow = c(1, 2))
+diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabetes$t.id), 
+                         sampleSize = diabetes$n, responders = diabetes$r)
+
+nma.networkplot(study, treatment, data = diabetes_ab, 
+                title = "Incident Diabetes", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+                trtname = c("1: diuretic", 
+                            "2: placebo", 
+                            "3: β-blocker", 
+                            "4: CCB","5: ACE", "6: ARB"))
+
+nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange",  
+                edge.col = "gray", adjust.thick = 10)
+```
+
+```{r}
+diabetes_eff = data.frame(sid = as.numeric(diabetes_ab$study), 
+                          tid = as.numeric(diabetes_ab$treatment), 
+                       r = diabetes_ab$responders, n = diabetes_ab$sampleSize)
+dir.binary(diabetes_eff)
+eff.binary(diabetes_eff)
+```
+
+```{r, fig.width = 6, fig.height = 3.5, out.width="70%"}
+Gemtc_Result = readRDS("Arm-based/diabetes_Gemtc_Result.rds")
+LAresults = readRDS("Arm-based/diabetes_LAresults.rds")
+CBresults = readRDS("Arm-based/diabetes_CBresults.rds")
+ABresults = readRDS("Arm-based/diabetes_ABresults.rds")
+
+gridExtra::grid.arrange(
+# ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+#   scale_y_discrete(limits=rev) + 
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   xlim(0.2,1.5)+ 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0.2,1.5)+ 
+  labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
+# ggplot(CBresults, aes(y = drug_list, x =mean )) +
+#   geom_point(shape = 18, size = 5) +  
+#   geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+#   scale_y_discrete(limits=rev) + 
+#   geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+#   theme(panel.border = element_blank(),
+#         panel.background = element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank())+
+#   xlim(0.2,1.5)+  
+#   labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  xlim(0.2,1.5)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
+nrow = 2
+)
+```
+
+
+```{r, out.width="50%"}
+load("Arm-based/result_diabetes_all.RData")
+result_diabetes_all %>% 
+  mutate(Model = factor(Model,levels = c("LA", "AB"))) %>%
+  pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+# result_diabetes_all %>% 
+#   mutate(Model = factor(Model,levels = c("LA", "AB"))) %>%
+#   pivot_longer(cols = 1:5, names_to = "Comparison", values_to = "Power") %>% 
+#   ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
+
+```{r, out.width="50%"}
+load("Case_Study_6/result_diabetes_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("Case_Study_6/result_diabetes_AB.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("Case_Study_6/result_diabetes_AC.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("Case_Study_6/result_diabetes_AD.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("Case_Study_6/result_diabetes_AE.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("Case_Study_6/result_diabetes_AF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("Case_Study_6/result_diabetes_EF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study", "Add one AE study","Add one AF study","Add one EF study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power AE","Power AF")
+# result_diabetes_all
+
+
+result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one AB study",
+      "Add one AC study",
+      "Add one AD study",
+      "Add one AE study",
+      "Add one AF study",
+      "Add one EF study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:6,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
+
+
+
+```{r, out.width="60%", include=F}
+load("Case_Study_6/result_diabetes_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("Case_Study_6/result_diabetes_EF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("Case_Study_6/result_diabetes_EF2.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original","Add one EF study","Add one wrong EF study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power AE","Power AF")
+# result_diabetes_all
+
+
+result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one EF study",
+      "Add one wrong EF study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:6,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ") 
+```
+
+```{r, fig.height=5, fig.width=18, out.width="120%"}
+diabetes_p1 = readRDS("Case_Study_6/diabetes_p1.rds")
+diabetes_p5 = readRDS("Case_Study_6/diabetes_p5.rds")
+diabetes_p10 = readRDS("Case_Study_6/diabetes_p10.rds")
+
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+p = grid.arrange(
+  arrangeGrob(
+    diabetes_p1 + theme(legend.position = "none") + 
+      labs(title = "Add one more study") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"),
+    diabetes_p5 + theme(legend.position = "none") + 
+      labs(title = "Add five more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"),
+    diabetes_p10 + theme(legend.position = "none") + 
+      labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette) + geom_hline(yintercept = 0.8, linetype = "dashed"), 
+    nrow = 1
+  ),
+  lemon::g_legend(
+    diabetes_p1 +  scale_fill_manual(values = color_palette) +
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+
+ggsave(plot = p, filename = "diabete_add.png", width = 18, height = 5, device='tiff', dpi=100)
+```
+
+
