@@ -1,3 +1,0 @@
-#### d.G.A = A - G 
-#### relative.effect shows column - row format for a league table 
-#### Rank probability 
