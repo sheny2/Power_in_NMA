@@ -1,0 +1,256 @@
+---
+title: "Smoke_Result"
+author: "Yicheng Shen"
+date: "2023-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(gemtc)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+## Treatment: 
+##  A = no intervention, 
+##  B = self-help, 
+##  C = individual counseling,
+##  D = group counseling.
+
+```{r}
+load("smokingcessation_ab.RData")
+network <- mtc.network(smokingcessation_ab)
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
+```
+
+
+```{r}
+load("result_smoke.RData")
+result_smoke
+```
+
+
+
+```{r}
+mapping <- c('A' = 1, 'B' = 2, 'C' = 3, 'D' = 4)
+
+smokingcessation_eff = smokingcessation_ab
+smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
+
+
+smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
+                       r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
+library("igraph")
+source("functions.R")
+dir.binary(smoke_eff)
+eff.binary(smoke_eff)
+```
+
+```{r, fig.width=10, fig.height=6}
+load("smokingcessation_ab.RData")
+
+replace_values <- function(x) {
+  x <- gsub("A", "A_no_intervention", x)
+  x <- gsub("B", "B_self_help", x)
+  x <- gsub("C", "C_individual_counseling", x)
+  x <- gsub("D", "D_group_counseling", x)
+  return(x)
+}
+
+# Apply the function to the 'treatment' variable
+smokingcessation_ab$treatment <- replace_values(smokingcessation_ab$treatment)
+
+network <- mtc.network(smokingcessation_ab)
+plot(network)
+```
+
+
+```{r, fig.height=7, fig.width=10.75}
+load("smokingcessation_ab.RData")
+library(pcnetmeta)
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation Treatments", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation", node.col = "orange")
+```
+
+
+```{r}
+load("result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
+
+load("result_smoke_AB.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AC.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AD.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+
+
+
+result_smoke_all = cbind(c("Original", "Add AB study", "Add AC study", "Add AD study"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+result_smoke_all
+
+
+p1 = result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add AB study",
+      "Add AC study",
+      "Add AD study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+
+saveRDS(p1, "p1.rds")
+```
+
+
+```{r}
+load("result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
+
+load("result_smoke_AB_add5.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AC_add5.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AD_add5.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+
+
+
+result_smoke_all = cbind(c("Original", "Add five AB studies", "Add five AC studies", "Add five AD studies"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+
+result_smoke_all
+
+
+p5 = result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add five AB studies",
+      "Add five AC studies",
+      "Add five AD studies"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+
+saveRDS(p5, "p5.rds")
+```
+
+
+
+```{r}
+load("result_smoke_original.RData")
+result_smoke_all = result_smoke %>% data.frame()
+
+load("result_smoke_AB_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AC_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+load("result_smoke_AD_add10.RData")
+result_smoke_all = rbind(result_smoke_all, 
+                                 result_smoke %>% data.frame())
+
+
+
+result_smoke_all = cbind(c("Original", "Add ten AB studies", "Add ten AC studies", "Add ten AD studies"), result_smoke_all)
+
+colnames(result_smoke_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD")
+result_smoke_all
+
+
+p10 = result_smoke_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add ten AB studies",
+      "Add ten AC studies",
+      "Add ten AD studies"
+    )
+  )) %>%
+  pivot_longer(cols = 2:4,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1) 
+
+saveRDS(p10, "p10.rds")
+```
+
+```{r, fig.height=5, fig.width=18}
+library(gridExtra)
+library(viridis)
+
+# Set the color palette to viridis
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+grid.arrange(
+  arrangeGrob(
+    p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
+    p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
+    p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    nrow = 1
+  ),
+  lemon::g_legend(
+    p1 +  scale_fill_manual(values = color_palette) + 
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+
+```
+

@@ -1,0 +1,309 @@
+---
+title: "Smoke_Result"
+author: "Yicheng Shen"
+date: "2023-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gemtc)
+library(tidyverse)
+library(RColorBrewer)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+
+This network meta-analysis is reported by Elliott and Meyer (2007) to assess the effects of antihypertensive agents on incident diabetes. Treatment IDs represent 1) diuretic; 2) placebo; 3) beta-blocker; 4) calcium-channel blocker (CCB); 5) angiotensin-converting-enzyme (ACE) inhibitor;
+and 6) angiotensin-receptor blocker (ARB).
+
+```{r, fig.height=7, fig.width=10}
+library(pcnetmeta)
+data(diabetes)
+
+diabetes_ab = data.frame(study = factor(diabetes$s.id), treatment = factor(diabetes$t.id), 
+                         sampleSize = diabetes$n, responders = diabetes$r)
+
+network <- mtc.network(diabetes_ab)
+plot(network)
+
+nma.networkplot(study, treatment, data = diabetes_ab, 
+                title = "Incident Diabetes", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+                trtname = c("A: diuretic", 
+                            "B: placebo", 
+                            "C: β-blocker", 
+                            "D: CCB","E: ACE", "F: ARB"))
+
+nma.networkplot(study, treatment, data = diabetes_ab, title = "Incident Diabetes", node.col = "orange",  
+                edge.col = "gray", adjust.thick = 10)
+
+```
+
+No link: 5-6
+Very weak link: 2-3
+Weak link: 1-4
+Strong link: 3-4
+
+
+```{r}
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=3000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
+```
+
+
+
+```{r}
+diabetes_eff = data.frame(sid = as.numeric(diabetes_ab$study), 
+                          tid = as.numeric(diabetes_ab$treatment), 
+                       r = diabetes_ab$responders, n = diabetes_ab$sampleSize)
+library("igraph")
+source("functions.R")
+dir.binary(diabetes_eff)
+eff.binary(diabetes_eff)
+```
+
+
+
+
+
+```{r}
+load("result_diabetes_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+load("result_diabetes_AB.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AC.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AD.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AE.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_AF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+load("result_diabetes_EF.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add one AB study", "Add one AC study", "Add one AD study", "Add one AE study","Add one AF study","Add one EF study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power AB","Power AC","Power AD",
+                                    "Power AE","Power AF")
+result_diabetes_all
+
+
+result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c(
+      "Original",
+      "Add one AB study",
+      "Add one AC study",
+      "Add one AD study",
+      "Add one AE study",
+      "Add one AF study",
+      "Add one EF study"
+    )
+  )) %>%
+  pivot_longer(cols = 2:6,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8),
+    width = 0.75
+  )  + labs(x = " ")
+```
+
+```{r}
+load("result_diabetes_4power_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("result_diabetes_4power_add56one.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add23one.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add14one.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add34one.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add 5-6 study", "Add 2-3 study", "Add 1-4 study", "Add 3-4 study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power E-F","Power B-C","Power A-D","Power C-D")
+result_diabetes_all$Modification = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+
+
+diabetes_p1 = result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+  )) %>%
+  pivot_longer(cols = 2:5,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  mutate(Comparison = factor(
+    Comparison,
+    levels = c("Power E-F","Power B-C","Power A-D","Power C-D")
+  )) %>% 
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+
+saveRDS(diabetes_p1, "diabetes_p1.rds")
+```
+
+
+```{r}
+load("result_diabetes_4power_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("result_diabetes_4power_add56five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add23five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add14five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add34five.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add 5-6 study", "Add 2-3 study", "Add 1-4 study", "Add 3-4 study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power E-F","Power B-C","Power A-D","Power C-D")
+result_diabetes_all$Modification = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+
+
+diabetes_p5 = result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+  )) %>%
+  pivot_longer(cols = 2:5,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  mutate(Comparison = factor(
+    Comparison,
+    levels = c("Power E-F","Power B-C","Power A-D","Power C-D")
+  )) %>% 
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+
+saveRDS(diabetes_p5, "diabetes_p5.rds")
+```
+
+```{r}
+load("result_diabetes_4power_original.RData")
+result_diabetes_all = result_diabetes %>% data.frame()
+
+load("result_diabetes_4power_add56ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add23ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add14ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+load("result_diabetes_4power_add34ten.RData")
+result_diabetes_all = rbind(result_diabetes_all, 
+                                 result_diabetes %>% data.frame())
+
+
+result_diabetes_all = cbind(c("Original", "Add 5-6 study", "Add 2-3 study", "Add 1-4 study", "Add 3-4 study"), result_diabetes_all)
+
+colnames(result_diabetes_all) <- c("Modification",
+                                    "Power E-F","Power B-C","Power A-D","Power C-D")
+result_diabetes_all$Modification = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+
+
+diabetes_p10 = result_diabetes_all %>%
+  mutate(Modification = factor(
+    Modification,
+    levels = c( "Original", "Add E-F study", "Add B-C study", "Add A-D study", "Add C-D study")
+  )) %>%
+  pivot_longer(cols = 2:5,
+               names_to = "Comparison",
+               values_to = "Power") %>%
+  mutate(Comparison = factor(
+    Comparison,
+    levels = c("Power E-F","Power B-C","Power A-D","Power C-D")
+  )) %>% 
+  ggplot() + geom_col(
+    aes(x = Comparison, y = Power, fill = Modification),
+    position = position_dodge(0.8), width = 0.75)  +  
+    geom_text(
+    aes(x = Comparison, y = Power, label = round(Power, 2)),
+    position = position_dodge2(width = 0.75, preserve = "single"),
+    vjust = -0.5,  size = 2 )+
+  labs(x = " ") + ylim(0,1)
+
+
+saveRDS(diabetes_p10, "diabetes_p10.rds")
+```
+
+
+```{r, fig.height=5, fig.width=18}
+library(gridExtra)
+library(viridis)
+
+# Set the color palette to viridis
+viridis_pal <- viridis::viridis_pal(option = "D", begin = 0, end = 0.9)
+color_palette <- brewer.pal(9, "Set1")
+
+
+grid.arrange(
+  arrangeGrob(
+    diabetes_p1 + theme(legend.position = "none") + labs(title = "Add one more study") + scale_fill_manual(values = color_palette),
+    diabetes_p5 + theme(legend.position = "none") + labs(title = "Add five more studies") + scale_fill_manual(values = color_palette),
+    diabetes_p10 + theme(legend.position = "none") + labs(title = "Add ten more studies") + scale_fill_manual(values = color_palette),
+    nrow = 1
+  ),
+  lemon::g_legend(
+    diabetes_p1 +  scale_fill_manual(values = color_palette) +
+      theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 1))
+  ),
+  nrow = 2,
+  heights = c(10, 1)
+)
+```
+

@@ -1,0 +1,160 @@
+---
+title: "Continuous_result"
+author: "Yicheng Shen"
+date: "2023-06-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gemtc)
+library(netmeta)
+set.seed(8848)
+```
+
+```{r}
+data(Franchini2012)
+data(parkinson)
+parkinson
+Franchini2012
+```
+
+# trt name 
+# 1: Placebo
+# 2: Pramipexole
+# 3: Ropinirole
+# 4: Bromocriptine
+# 5: Cabergoline
+
+
+```{r}
+parkinson_rn = as.data.frame(parkinson)
+colnames(parkinson_rn) = c("study", "treatment", "mean", "std.dev", "sampleSize", 
+                           "treatment", "mean", "std.dev", "sampleSize",
+                           "treatment", "mean", "std.dev", "sampleSize")
+
+parkinson_ab <- data.frame(matrix(ncol = 5, nrow = 0))
+colnames(parkinson_ab) <- c("study", "treatment", "mean", "std.dev", "sampleSize")
+
+for (i in 1:7) {
+  if (!is.na(parkinson_rn[i,10])){
+    treatment = as.character(parkinson_rn[i,c(2,6,10)])
+    event_n = rbind(parkinson_rn[i,3:5],parkinson_rn[i,7:9],parkinson_rn[i,11:13])
+    study = rep(i, length(treatment))
+    parkinson_ab = rbind(parkinson_ab, cbind(study, treatment, event_n))
+  } else{ 
+    treatment = as.character(parkinson_rn[i,c(2,6)])
+    event_n = rbind(parkinson_rn[i,3:5],parkinson_rn[i,7:9])
+    study = rep(i, length(treatment))
+    parkinson_ab = rbind(parkinson_ab, cbind(study, treatment, event_n))
+  }
+}
+# save(parkinson_ab, file = "parkinson_ab.RData")
+# load("parkinson_ab.RData")
+```
+
+
+
+```{r}
+parkinson_eff = data.frame(sid = as.numeric(parkinson_ab$study), tid = as.numeric(parkinson_ab$treatment), 
+                            n = as.numeric(parkinson_ab$sampleSize))
+
+library("igraph")
+source("functions.R")
+
+dir.cont(parkinson_eff)
+eff.cont(parkinson_eff)
+```
+
+
+```{r}
+parkinson_net <- mtc.network(parkinson_ab)
+plot(parkinson_net)
+```
+
+
+
+```{r}
+cons.model <- mtc.model(parkinson_net, type="consistency", 
+                        likelihood="normal", link="identity", linearModel="random")
+cons.out <- mtc.run(cons.model, n.adapt=20000, n.iter=50000, thin=1)
+
+# summary(cons.out)
+
+summary(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+
+relative.effect.table(cons.out)
+
+# gelman.plot(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+gemtc::forest(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+```
+
+
+```{r}
+load("result_pk.RData")
+result_pk
+```
+
+
+
+
+
+
+```{r}
+data(Franchini2012)
+parkinson_rn = Franchini2012
+colnames(parkinson_rn) = c("study", "treatment", "mean", "std.dev", "sampleSize", 
+                           "treatment", "mean", "std.dev", "sampleSize",
+                           "treatment", "mean", "std.dev", "sampleSize")
+
+parkinson_ab <- data.frame(matrix(ncol = 5, nrow = 0))
+colnames(parkinson_ab) <- c("study", "treatment", "mean", "std.dev", "sampleSize")
+
+for (i in 1:7) {
+  if (!is.na(parkinson_rn[i,10])){
+    treatment = as.character(parkinson_rn[i,c(2,6,10)])
+    event_n = rbind(parkinson_rn[i,3:5],parkinson_rn[i,7:9],parkinson_rn[i,11:13])
+    study = rep(i, length(treatment))
+    parkinson_ab = rbind(parkinson_ab, cbind(study, treatment, event_n))
+  } else{ 
+    treatment = as.character(parkinson_rn[i,c(2,6)])
+    event_n = rbind(parkinson_rn[i,3:5],parkinson_rn[i,7:9])
+    study = rep(i, length(treatment))
+    parkinson_ab = rbind(parkinson_ab, cbind(study, treatment, event_n))
+  }
+}
+
+
+
+# 
+# replace_values <- function(x) {
+#   x <- gsub("Placebo", "1_Placebo", x)
+#   return(x)
+# }
+# 
+# # Apply the function to the 'treatment' variable
+# parkinson_ab$treatment <- replace_values(parkinson_ab$treatment)
+
+parkinson_net <- mtc.network(parkinson_ab)
+plot(parkinson_net)
+```
+
+# trt name 
+# 1: Placebo
+# 2: Pramipexole
+# 3: Ropinirole
+# 4: Bromocriptine
+# 5: Cabergoline
+
+```{r}
+library(pcnetmeta)
+nma.networkplot(study, treatment, data = parkinson_ab, title = "Parkinson Treatments", 
+                trtname = c("4: Bromocriptine", "5: Cabergoline", "1: Placebo", "2: Pramipexole", "3: Cabergoline"),
+                node.col = "orange", 
+                edge.col = "gray", adjust.thick = 8)
+
+nma.networkplot(study, treatment, data = parkinson_ab, title = "Parkinson Treatment", 
+                node.col = "orange", 
+                edge.col = "gray", adjust.thick = 8)
+```
+

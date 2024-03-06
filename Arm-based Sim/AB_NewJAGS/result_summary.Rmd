@@ -1,0 +1,706 @@
+---
+title: "Result"
+author: "Yicheng Shen"
+date: "2024-1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, cache = F, warning = F, eval = T, message = F)
+library(tidyverse)
+library(kableExtra)
+library(latex2exp)
+library(gridExtra)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+
+# tau 0.8
+
+```{r}
+load("result_four_model_tau_0.8.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.8)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+```
+
+
+# tau 0.4
+
+```{r}
+load("result_four_model_tau_0.4.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.4)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+```
+
+
+# tau 0.2
+
+```{r}
+load("result_four_model_tau_0.2.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.2)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+```
+
+
+# tau 0.1
+
+```{r}
+load("result_four_model_tau_0.1.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.1)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+```
+
+# tau 0.04
+
+```{r}
+load("result_four_model_tau_0.04.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.04)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+```
+
+# tau 0.01
+
+```{r}
+load("result_four_model_tau_0.01.RData")
+
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% ggplot() + geom_boxplot(aes(Model, DIC, color = Model)) 
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% mutate(index = 1:S) %>% ggplot() + geom_point(aes(index, DIC, color = Model))
+
+
+
+result_four_model %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = "Model DIC ranking")
+
+
+# rho
+result_four_model %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of rho") + 
+  facet_wrap(~Model)
+
+# sigma
+result_four_model %>% filter(Model %in%  c("AB_homo_eqcor"), drug_list == "sigma") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = "Est. of sigma") + 
+  facet_wrap(~Model)
+
+
+# tau for LA
+result_four_model %>% filter(Model == "LA_results", drug_list == "tau") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  labs(title = "Est. of tau for LA") + 
+  geom_hline(yintercept = 0.01)
+
+
+# OR_ab
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ab) + 
+  labs(title = "Est. of OR_ab") + 
+  facet_wrap(~Model)
+
+
+# OR_ac
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) + 
+  geom_hline(yintercept = OR_ac) + 
+  labs(title = "Est. of OR_ac") + 
+  facet_wrap(~Model)
+
+
+result_four_model %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+result_four_model %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  group_by(Model) %>% 
+  summarise(`Avg Bias` = mean(bias))
+
+
+```
+
+
+
+## Summarize all
+
+```{r}
+load("result_four_model_tau_0.8.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.8 = result_four_model
+load("result_four_model_tau_0.4.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.4 = result_four_model
+load("result_four_model_tau_0.2.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.2 = result_four_model
+load("result_four_model_tau_0.1.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.1 = result_four_model
+load("result_four_model_tau_0.04.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.04 = result_four_model
+load("result_four_model_tau_0.01.RData")
+result_four_model = result_four_model %>% data.frame()
+result_four_model$index = rep(1:S, each = 38)
+result_four_model_tau_0.01 = result_four_model
+```
+
+```{r, fig.width=12}
+grid.arrange(
+result_four_model_tau_0.8 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.8")) + 
+  facet_wrap(~Model)
+,
+result_four_model_tau_0.4 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.4")) + 
+  facet_wrap(~Model)
+,
+result_four_model_tau_0.2 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.2")) + 
+  facet_wrap(~Model)
+,
+result_four_model_tau_0.1 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.1")) + 
+  facet_wrap(~Model)
+,
+result_four_model_tau_0.04 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.04")) + 
+  facet_wrap(~Model)
+,
+result_four_model_tau_0.01 %>% filter(Model %in%  c("AB_het_eqcor",  "AB_homo_eqcor"), drug_list == "rho") %>% 
+  ggplot() +   
+  geom_point(aes(x = index, y = mean), size = 0.5)  + 
+  geom_ribbon(aes(x = index, ymin = X2.5., ymax = X97.5.), alpha = 0.3) +   
+  labs(title = TeX("Est. $rho$ under true $tau$ = 0.01")) + 
+  facet_wrap(~Model)
+, ncol = 2)
+```
+
+
+```{r, fig.width=12}
+grid.arrange(
+result_four_model_tau_0.8 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.8"))
+,
+result_four_model_tau_0.4 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.4"))
+,
+result_four_model_tau_0.2 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.2"))
+,
+result_four_model_tau_0.1 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.1"))
+,
+result_four_model_tau_0.04 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.04"))
+,
+result_four_model_tau_0.01 %>% filter(drug_list == "deviance") %>% group_by(Model) %>% 
+  group_by(index) %>% 
+  mutate(order = rank(DIC, ties.method = "min")) %>% 
+  ggplot(aes(factor(order), fill = Model)) +
+  geom_bar(position = "fill", color = "Black") +
+  geom_text(aes(x = factor(order), 
+                label = scales::percent(after_stat(count / tapply(count, x, sum)[x]), accuracy = 0.01), 
+                group = Model), size = 3, position = position_fill(vjust = 0.5), stat = "count") + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "DIC ranking (1 meaning lowest)", y = "proportion", title = TeX("Model DIC ranking under true $tau$ = 0.01"))
+)
+```
+```{r, fig.width=12}
+grid.arrange(
+result_four_model_tau_0.8 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,2),
+result_four_model_tau_0.4 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,2),
+result_four_model_tau_0.2 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,2),
+result_four_model_tau_0.1 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,2),
+result_four_model_tau_0.04 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,2),
+result_four_model_tau_0.01 %>% filter(drug_list == "or[2]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model)) + ylim(0,2)
+)
+
+
+
+grid.arrange(
+result_four_model_tau_0.8 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,4),
+result_four_model_tau_0.4 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,4),
+result_four_model_tau_0.2 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,4),
+result_four_model_tau_0.1 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,4),
+result_four_model_tau_0.04 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model))  + ylim(0,4),
+result_four_model_tau_0.01 %>% filter(drug_list == "or[3]") %>% 
+  mutate(bias = abs(mean-OR_ab)) %>% 
+  ggplot() + geom_boxplot(aes(Model, bias, color = Model)) + ylim(0,4)
+)
+```
+

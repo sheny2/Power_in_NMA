@@ -1,0 +1,286 @@
+---
+title: "Smoking_all_approach"
+author: "Yicheng Shen"
+date: "2023-06-23"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(R2jags)
+library(gemtc)
+library(tibble)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+source('Models.R')
+set.seed(2023)
+```
+
+```{r, fig.width=8, fig.height=6, warning=F}
+library(netmeta)
+data(Dong2013)
+
+Dong2013_ab = data.frame(study = Dong2013$id, treatment = Dong2013$treatment, 
+                         sampleSize = Dong2013$randomized, responders = Dong2013$death)
+
+nma.networkplot(study, treatment, data = Dong2013_ab, 
+                title = "Risk of inhaled medications for COPD", node.col = "orange", edge.col = "gray", adjust.thick = 10)
+
+Dong2013_dat = Dong2013 %>% 
+  dplyr::mutate(treatment = recode(
+    treatment,
+    "Placebo"   = "A",
+    "TIO-SMI"   = "B",
+    "TIO-HH"    = "C",
+    "LABA"      = "D",
+    "LABA-ICS"  = "E",
+    "ICS"       = "F"
+  ))
+  
+Dong2013_ab = data.frame(study = Dong2013_dat$id, treatment = Dong2013_dat$treatment, 
+                         sampleSize = Dong2013_dat$randomized, responders = Dong2013_dat$death)
+
+nma.networkplot(study, treatment, data = Dong2013_ab, 
+                title = "Risk of inhaled medications for COPD", node.col = "orange", edge.col = "gray", adjust.thick = 10)
+
+plot(mtc.network(Dong2013_ab), main = "Dong2013")
+```
+
+
+```{r}
+network = mtc.network(Dong2013_ab)
+cons.model <- mtc.model(network, type="consistency", likelihood="binom", link="logit", linearModel="random",
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
+cons.out <- mtc.run(cons.model, n.adapt=2000, n.iter=5000, thin=1)
+summary(cons.out)
+gemtc::forest(cons.out)
+
+gemtc_trt_results = cbind(mean = summary(cons.out)$summaries$statistics[1:5,1], 
+                        summary(cons.out)$summaries$quantiles[1:5,c(1,5)]) %>% as.data.frame()
+
+gemtc_trt_results
+```
+
+
+
+
+
+```{r}
+# data pre for jags
+NS = 41
+NT = 6
+N = nrow(Dong2013_ab)
+s = as.numeric(Dong2013_ab$study)
+# t = as.numeric(Dong2013_ab$treatment)
+t = as.integer(factor(Dong2013_ab$treatment, 
+                      levels = c("A", "B", "C", "D", "E", "F"), labels = c(1, 2, 3, 4, 5, 6)))
+y = Dong2013_ab$responders
+n = Dong2013_ab$sampleSize
+# drug_list<-unique(Dong2013_ab$treatment)
+drug_list<-  c("A","B","C","D", "E", "F")
+Narm <- as.numeric(table(Dong2013_ab$study))
+n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
+n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
+dr <- matrix(NA,nrow=NS, ncol=max(Narm))
+```
+
+
+```{r}
+######## Fit AB model
+data_AB <- list('Narm'=N, 'Nstudy'=NS, 
+                'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=6)),
+                'zero.AB' = (rep(0, times=6)))
+inits_AB<- list(list(mu=rep(0,6)),
+                list(mu=rep(0,6)))
+para_AB<-c( "lor", "tau")
+fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=ABWish)
+#output data 
+fit_AB$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+AB_trt_results<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
+AB_trt_results<-AB_trt_results%>%
+  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]", "lor[6]"))
+
+
+ABresults<-AB_trt_results%>%
+  mutate(LL = as.numeric(X2.5.), 
+         UL = as.numeric(X97.5.), 
+         mean = as.numeric(mean))%>%
+  filter(!(drug_list==1))
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments LOR")
+
+########
+
+AB_trt_results
+```
+
+
+```{r}
+#Lu and Ades Model with Random Effects Model Function
+
+### Running the LARE Model ### 
+##Additional data preparation for this model 
+study<-unique(Dong2013_ab$study)
+for (i in 1:NS){
+  n.obs[i,1:Narm[i]] <- Dong2013_ab$sampleSize[Dong2013_ab$study==study[i]]
+  n.eve[i,1:Narm[i]] <- Dong2013_ab$responders[Dong2013_ab$study==study[i]]
+  dr[i,1:Narm[i]] <- match(Dong2013_ab$treatment[Dong2013_ab$study==study[i]],drug_list)
+}
+
+
+##putting data into list form
+data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs) 
+init_LA <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+para_LA <- c('d','tau')
+fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
+                     n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+                     DIC=TRUE, model.file=LARE)
+#output data 
+fit_LA$BUGSoutput$summary[,c(1, 3, 7)]
+
+#saving treatment effect output
+LA_trt_results<-data.frame(fit_LA$BUGSoutput$summary[,c(1, 3, 7)])
+LA_trt_results <- tibble::rownames_to_column(LA_trt_results, "drug_list")
+LA_trt_results<-LA_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]", "d[5]", "d[6]"))
+LA_trt_results
+```
+
+
+
+
+```{r}
+### Running Contrast Based  Model  ########
+data_CB <- list('Narm'=N, 'Nstudy'=NS, 
+                  'Ndrug'=NT, 'study'= s, 'drug'=t, 
+                  'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=6)))
+inits_CB <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(1,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+
+para_CB<-c( "d", "tau")
+fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
+                n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
+                DIC=TRUE, model.file=CBWish)
+
+#output data 
+fit_CB$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+CB_trt_results<-data.frame(fit_CB$BUGSoutput$summary[,c(1, 3, 7)])
+CB_trt_results <- tibble::rownames_to_column(CB_trt_results, "drug_list")
+CB_trt_results<-CB_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]", "d[5]", "d[6]"))
+CB_trt_results
+```
+
+
+
+
+
+```{r}
+gemtc_trt_results
+AB_trt_results
+LA_trt_results
+CB_trt_results
+```
+
+
+```{r}
+gemtc::forest(cons.out)
+gemtc_trt_results <- rownames_to_column(gemtc_trt_results, var = "drug_list")
+```
+
+
+```{r}
+#### Cleaning the data before running the forest plot #### 
+Gemtc_Result<-gemtc_trt_results%>%
+  mutate(LL = as.numeric(exp(`2.5%`)), 
+         UL = as.numeric(exp(`97.5%`)), 
+         mean = as.numeric(exp(mean)))
+
+ABresults<-AB_trt_results%>%
+  mutate(LL = as.numeric(exp(X2.5.)), 
+         UL = as.numeric(exp(X97.5.)), 
+         mean = as.numeric(exp(mean)))%>%
+  filter(!(drug_list=="lor[1]"))
+CBresults<-CB_trt_results%>%
+  mutate(LL = as.numeric(exp(X2.5.)), 
+         UL = as.numeric(exp(X97.5.)), 
+         mean = as.numeric(exp(mean)))%>%
+  filter(!(drug_list=="d[1]"))
+LAresults<-LA_trt_results%>%
+  mutate(LL = as.numeric(exp(X2.5.)), 
+         UL = as.numeric(exp(X97.5.)), 
+         mean = as.numeric(exp(mean)))%>%
+  filter(!(drug_list=="d[1]"))
+
+LAresults$drug_list = Gemtc_Result$drug_list
+CBresults$drug_list = Gemtc_Result$drug_list
+ABresults$drug_list = Gemtc_Result$drug_list
+```
+
+
+````{r, fig.width = 6, fig.height = 7}
+##Runnning forest plots##
+##plot in OR scale, not log OR! 
+
+gridExtra::grid.arrange(
+ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  xlim(0.5,4)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0.5,4)+ 
+  labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
+ggplot(CBresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(0.5,4)+ 
+  labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 1, color = "blue", linewidth=1.5) + 
+  xlim(0.5,4)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
+nrow = 4
+)
+```

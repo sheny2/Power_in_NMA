@@ -1,0 +1,317 @@
+---
+title: "Parkinson_all_approach"
+author: "Yicheng Shen"
+date: "2023-06-23"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(R2jags)
+library(gemtc)
+library(tibble)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+source('Models.R')
+```
+
+```{r}
+set.seed(2023)
+
+######## Import data
+load("parkinson_ab.RData")
+parkinson_ab$treatment = as.numeric(parkinson_ab$treatment)
+```
+
+# 1: Placebo
+# 2: Pramipexole
+# 3: Ropinirole
+# 4: Bromocriptine
+# 5: Cabergoline
+
+```{r}
+parkinson_net <- mtc.network(parkinson_ab)
+cons.model <- mtc.model(parkinson_net, type="consistency", 
+                        likelihood="normal", link="identity", linearModel="random" ,                       
+                        hy.prior =  mtc.hy.prior(type="std.dev", distr="dunif", 0.01, 10),
+                        re.prior.sd = 10)
+
+cons.out <- mtc.run(cons.model, n.adapt=5000, n.iter=2000, thin=1)
+
+
+summ = summary(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+
+summ$summaries
+```
+
+
+```{r}
+gemtc_trt_results = cbind(mean = summ$summaries$statistics[1:4,1], 
+                        summ$summaries$quantiles[1:4,c(1,5)]) %>% as.data.frame()
+
+gemtc_trt_results
+
+gemtc::forest(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+```
+
+
+```{r}
+# data pre for jags
+NS = 7
+NT = 5
+N = nrow(parkinson_ab)
+s = parkinson_ab$study
+t = parkinson_ab$treatment
+y = parkinson_ab$mean
+sigma = parkinson_ab$std.dev
+n = parkinson_ab$sampleSize
+drug_list<- c(1,2,3,4,5)
+Narm <- as.numeric(table(parkinson_ab$study))
+n.obs <- matrix(NA,nrow=NS, ncol=max(Narm))
+n.eve <- matrix(NA,nrow=NS, ncol=max(Narm))
+n.sd <- matrix(NA,nrow=NS, ncol=max(Narm))
+dr <- matrix(NA,nrow=NS, ncol=max(Narm))
+```
+
+
+```{r}
+######## Fit AB model
+data_AB <- list('Narm'=N, 'Nstudy'=NS, 
+                'Ndrug'=NT, 'study'= s, 'drug'=t, "sigma" = sigma, 
+                'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=5)),
+                'zero.AB' = (rep(0, times=5)))
+inits_AB<- list(list(mu=rep(0,5)),
+                list(mu=rep(0,5)))
+para_AB<-c( "lor", "tau")
+fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
+             n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
+             DIC=TRUE, model.file=ABWish_C)
+#output data 
+fit_AB$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+AB_trt_results<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
+AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
+AB_trt_results<-AB_trt_results%>%
+  filter(drug_list %in% c("lor[1]", "lor[2]", "lor[3]", "lor[4]", "lor[5]"))
+
+
+ABresults<-AB_trt_results%>%
+  mutate(LL = as.numeric(X2.5.), 
+         UL = as.numeric(X97.5.), 
+         mean = as.numeric(mean))%>%
+  filter(!(drug_list==1))
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments LOR")
+
+########
+
+AB_trt_results
+```
+
+
+```{r}
+#Lu and Ades Model with Random Effects Model Function
+
+### Running the LARE Model ### 
+##Additional data preparation for this model 
+study<-unique(parkinson_ab$study)
+for (i in 1:NS){
+  n.obs[i,1:Narm[i]] <- parkinson_ab$sampleSize[parkinson_ab$study==study[i]]
+  n.eve[i,1:Narm[i]] <- parkinson_ab$mean[parkinson_ab$study==study[i]]
+  n.sd[i,1:Narm[i]] <- parkinson_ab$std.dev[parkinson_ab$study==study[i]]
+  dr[i,1:Narm[i]] <- match(parkinson_ab$treatment[parkinson_ab$study==study[i]],drug_list)
+}
+
+
+##putting data into list form
+data_LA <- list('Narm'=Narm, 'Nstudy'=NS,'Ndrug'=NT, 'drug'=dr,'y'=n.eve,'n'=n.obs, "sigma" = n.sd) 
+init_LA <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+para_LA <- c('d','tau')
+fit_LA <- jags(data=data_LA, inits=init_LA, para_LA,
+                     n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
+                     DIC=TRUE, model.file=LARE_C)
+#output data 
+fit_LA$BUGSoutput$summary[,c(1, 3, 7)]
+
+#saving treatment effect output
+LA_trt_results<-data.frame(fit_LA$BUGSoutput$summary[,c(1, 3, 7)])
+LA_trt_results <- tibble::rownames_to_column(LA_trt_results, "drug_list")
+LA_trt_results<-LA_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]", "d[5]"))
+LA_trt_results
+```
+
+
+```{r}
+### Running Contrast Based  Model  ########
+data_CB <- list('Narm'=N, 'Nstudy'=NS, 
+                  'Ndrug'=NT, 'study'= s, 'drug'=t, "sigma" = sigma,
+                  'y'=y, 'n'=n ,'Omega'=diag(rep(0.2,times=5)))
+inits_CB <- list(list(mu=rep(0,max(NS)), d=c(NA,rep(1,max(t)-1))),
+             list(mu=rep(0,max(NS)), d=c(NA,rep(0,max(t)-1))))
+
+para_CB<-c( "d", "tau")
+fit_CB<-jags(data=data_CB, inits=inits_CB, para_CB,
+                n.iter=50000, n.burnin = 20000, n.chains = 2, n.thin = 1,
+                DIC=TRUE, model.file=CBWish_C)
+
+#output data 
+fit_CB$BUGSoutput$summary[,c(1, 3, 7)]
+#saving treatment effect output
+CB_trt_results<-data.frame(fit_CB$BUGSoutput$summary[,c(1, 3, 7)])
+CB_trt_results <- tibble::rownames_to_column(CB_trt_results, "drug_list")
+CB_trt_results<-CB_trt_results%>%
+  filter(drug_list %in% c("d[1]", "d[2]", "d[3]", "d[4]", "d[5]"))
+CB_trt_results
+```
+
+
+```{r}
+gemtc_trt_results
+AB_trt_results
+LA_trt_results
+CB_trt_results
+```
+
+
+```{r}
+gemtc::forest(gemtc::relative.effect(cons.out,"1", c("2","3","4","5")))
+gemtc_trt_results <- rownames_to_column(gemtc_trt_results, var = "drug_list")
+```
+
+```{r}
+#### Cleaning the data before running the forest plot #### 
+Gemtc_Result<-gemtc_trt_results%>%
+  mutate(LL = as.numeric((`2.5%`)), 
+         UL = as.numeric((`97.5%`)), 
+         mean = as.numeric((mean)))
+
+ABresults<-AB_trt_results%>%
+  mutate(LL = as.numeric((X2.5.)), 
+         UL = as.numeric((X97.5.)), 
+         mean = as.numeric((mean)))%>%
+  filter(!(drug_list=="lor[1]"))
+CBresults<-CB_trt_results%>%
+  mutate(LL = as.numeric((X2.5.)), 
+         UL = as.numeric((X97.5.)), 
+         mean = as.numeric((mean)))%>%
+  filter(!(drug_list=="d[1]"))
+LAresults<-LA_trt_results%>%
+  mutate(LL = as.numeric((X2.5.)), 
+         UL = as.numeric((X97.5.)), 
+         mean = as.numeric((mean)))%>%
+  filter(!(drug_list=="d[1]"))
+
+LAresults$drug_list = Gemtc_Result$drug_list
+CBresults$drug_list = Gemtc_Result$drug_list
+ABresults$drug_list = Gemtc_Result$drug_list
+```
+
+
+````{r, fig.width = 6, fig.height = 7}
+##Runnning forest plots##
+
+gridExtra::grid.arrange(
+ggplot(Gemtc_Result, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 0, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(-4,2)+ 
+  labs(y = "", x="", title = "GEMTC NMA Treatments Effects"), 
+ggplot(LAresults, aes(y = drug_list, x =mean )) +
+  scale_y_discrete(limits=rev) + 
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  geom_vline(xintercept = 0, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(-4,2)+ 
+  labs(y = "", x="", title = "Lu and Ades NMA Treatments Effects") ,
+ggplot(CBresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 0, color = "blue", linewidth=1.5) + 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  xlim(-4,2)+ 
+  labs(y = "", x="", title = "Contrast-Based NMA Treatments Effects") ,
+ggplot(ABresults, aes(y = drug_list, x =mean )) +
+  geom_point(shape = 18, size = 5) +  
+  geom_errorbarh(aes(xmin = LL, xmax = UL), height = 0.25)+
+  scale_y_discrete(limits=rev) + 
+  geom_vline(xintercept = 0, color = "blue", linewidth=1.5) + 
+  xlim(-4,2)+ 
+  theme(panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  labs(y = "", x="", title = "Arm-Based NMA Treatments Effects"),
+nrow = 4
+)
+```
+
+```{r}
+# result 
+Gemtc_Result[,-c(3,4)]
+LAresults[,-c(3,4)]
+CBresults[,-c(3,4)]
+ABresults[,-c(3,4)]
+```
+
+
+```{r}
+load("result_pk_all.RData")
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
+```{r}
+load("result_pk_all2.RData")
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
+```{r}
+load("result_pk_all2.RData")
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  filter(Model != "GEMTC") %>% 
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Comparison, y = Power, fill = Model), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+
+
+result_pk_all %>% 
+  mutate(Model = factor(Model,levels = c("GEMTC", "LA", "CB", "AB"))) %>%
+  filter(Model != "GEMTC") %>% 
+  pivot_longer(cols = 1:4, names_to = "Comparison", values_to = "Power") %>% 
+  ggplot() + geom_col(aes(x = Model, y = Power, fill = Comparison), position = position_dodge(0.8), width = 0.75)  + labs(x=" ") + ylim(0,1)
+```
+
+

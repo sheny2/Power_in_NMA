@@ -1,0 +1,368 @@
+---
+title: "big_small_result"
+output: pdf_document
+date: "2023-05-20"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = T, warning = F)
+library(metafor)
+library(tidyverse)
+library(kableExtra)
+library(latex2exp)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
+```
+
+# Discussion
+
+Setting:
+  Simulation to compare (several) big studies and (lots of) small studies
+  
+  
+
+### In the setting of only indirect evidence
+
+# 4 big studies approx 600 each
+# two studies of AB, two studies of AC
+
+# 12 small studies approx 200 each
+# six studies of AB, six studies of AC
+
+# ~2400 individuals
+
+
+```{r, fig.height=5.5, fig.width=12}
+load("indirect_result_small.RData")
+load("indirect_result_big.RData")
+
+
+gridExtra::grid.arrange(
+
+indirect_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 * 600, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 * 200, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 * 600, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 * 200, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+)
+
+```
+
+
+```{r, fig.height=5.5, fig.width=12}
+gridExtra::grid.arrange(
+
+indirect_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 big, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 small, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 4 big, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+,
+indirect_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence: 12 small, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+)
+
+```
+
+
+
+### In the setting of direct evidence
+
+# 4 big studies approx 600 each
+# 4 studies of BC
+
+# 12 small studies approx 200 each
+# 12 studies of BC
+
+
+```{r, fig.height=5.5, fig.width=12}
+load("direct_result_small.RData")
+load("direct_result_big.RData")
+
+gridExtra::grid.arrange(
+
+direct_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4*600, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12*200, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4*600, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = power, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = power, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12*200, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+)
+
+```
+
+
+```{r, fig.height=5.5, fig.width=12}
+gridExtra::grid.arrange(
+
+direct_result_big %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4 big, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_small %>% filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12 small, pi_a = 0.05", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_big %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 4 big, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+,
+direct_result_small %>% filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = k_ac, y = rank_correct, color = factor(OR_bc)))  + geom_hline(size = 1.2, aes(yintercept = rank_correct, color = factor(OR_bc))) +
+  facet_wrap(~tau) + labs(title = "direct Evidence: 12 small, pi_a = 0.5", color = "True OR_bc", x = "") + ylim(0,1)
+)
+
+```
+
+
+# another perspective
+
+# keep the total number of individuals as 3000
+
+# vary number of total indirect comparison studies 
+# k_ab = k_ac = c(2,5,10,25)
+
+
+# vary number of total direct comparison studies 
+# k_bc = c(3,6,10,15,25)
+
+```{r}
+load("indirect_result_big_small.RData")
+load("direct_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence pi_a = 0.05", color = "True OR_bc") + ylim(0,1)
+
+,
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence pi_a = 0.5", color = "True OR_bc") + ylim(0,1)
+)
+
+
+
+# indirect_result_big_small %>% filter(tau == 0.4, OR_bc == 1.33)
+
+gridExtra::grid.arrange(
+
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evidence pi_a = 0.05", color = "True OR_bc") + ylim(0,1)
+
+,
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evidence pi_a = 0.5", color = "True OR_bc") + ylim(0,1)
+)
+```
+
+```{r}
+gridExtra::grid.arrange(
+
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence pi_a = 0.05", color = "True OR_bc") + ylim(0,1)
+
+,
+indirect_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Indirect Evidence pi_a = 0.5", color = "True OR_bc") + ylim(0,1)
+)
+
+
+
+gridExtra::grid.arrange(
+
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evidence pi_a = 0.05", color = "True OR_bc") + ylim(0,1)
+
+,
+direct_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Direct Evidence pi_a = 0.5", color = "True OR_bc") + ylim(0,1)
+)
+```
+
+
+# overall 3000 sample size
+# vary number of total studies c(6,12,18,24)
+# k_ab = k_ac = k_bc = c(2,4,6,8)
+
+```{r, fig.height=5.5, fig.width=12}
+load("overall_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + ylim(0,1)
+
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+)
+```
+
+# overall 1200 sample size
+# vary number of total studies: c(6,12,18,24)
+# k_ab = k_ac = k_bc = c(2,4,6,8) 
+
+```{r}
+load("result_1200/overall_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.05", color = "True OR_bc") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.5", color = "True OR_bc") + ylim(0,1)
+)
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.05) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence, $pi_a = 0.05$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.5) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence, $pi_a = 0.5$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+)
+```
+
+
+# overall 3000 sample size
+# vary number of total studies: c(6,12,18,24)
+# look at pi_a = 0.001
+
+```{r, fig.height=5.5, fig.width=12}
+load("result_extreme_small3000/overall_result_big_small.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power")+ ylim(0,1)
+
+,
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau)  + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.01$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Probability of Correct Ranking") + ylim(0,1)
+)
+```
+
+# overall 12000 sample size
+
+```{r}
+load("result_extreme_small/overall_result_big_small2.RData")
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc") + ylim(0,1)
+)
+
+gridExtra::grid.arrange(
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.001", color = "True OR_bc") + ylim(0,1)
+
+,
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.01) %>% 
+  ggplot(aes(x = n_study, y = rank_correct, color = factor(OR_bc)))  + geom_line(size = 1.2) +
+  facet_wrap(~tau) + labs(title = "Overall Evidence pi_a = 0.01", color = "True OR_bc") + ylim(0,1)
+)
+```
+
+
+
