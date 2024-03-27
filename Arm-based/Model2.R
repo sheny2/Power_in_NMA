@@ -25,11 +25,6 @@ ABWish.het.cor<-function(){
 
 
 
-
-
-# old name ABWish.het.eqcor
-# new name NMA.het.eqcor
-
 ABWish.het.eqcor <-function(){
   for (i in 1:Narm){
     y[i] ~ dbinom(mean[i],n[i])
@@ -37,18 +32,6 @@ ABWish.het.eqcor <-function(){
   }
   for (j in 1:Nstudy) { 
     v[j,1:Ndrug] ~ dmnorm(zero.AB[1:Ndrug], COV_mat[1:Ndrug, 1:Ndrug]) }
-  
-  # invR[1:Ndrug, 1:Ndrug] ~ dwish(Omega[1:Ndrug,1:Ndrug], Ndrug)
-  # R[1:Ndrug, 1:Ndrug] <- inverse(invR[ , ])
-  # 
-  # for (k in 1:Ndrug){
-  #   tau[k] <- sqrt(R[k,k])
-  # }
-  # for (j in 1:Ndrug){
-  #   for (k in (j+1):Ndrug){
-  #     rho[j,k] <- R[j,k]/(tau[j]*tau[k])
-  #   }
-  # }
   
   for(j in 1:Ndrug){
     sigma[j] <- 1/sqrt(inv.sig.sq[j])

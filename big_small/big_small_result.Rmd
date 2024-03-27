@@ -455,6 +455,36 @@ overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>%
 ```
 
 
+```{r, fig.height=3.5, fig.width=12}
+load("result_extreme_small3000/overall_result_big_small_new.RData")
+
+overall_result_big_small <- overall_result_big_small %>%
+  mutate(tau = case_when( tau == 0.001 ~ "τ = 0.001", tau == 0.2 ~ "τ = 0.2", tau == 0.4 ~ "τ = 0.4", TRUE ~ as.character(tau)))
+
+PLOTA = overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + geom_point()+
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + scale_color_brewer(palette="Set1")
+
+grid.arrange(
+
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.001) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + geom_point()+
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.001$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme(legend.position = "bottom") + scale_color_brewer(palette="Set1")
+,
+
+
+overall_result_big_small %>% mutate(n_study = k_ab + k_ac + k_bc) %>% 
+  filter(pi_a == 0.1) %>% 
+  ggplot(aes(x = n_study, y = power, color = factor(OR_bc)))  + geom_line(size = 1.2) + geom_point()+
+  facet_wrap(~tau) + labs(title = TeX("Overall Evidence (K = 6,12,18,24), $pi_a = 0.1$"), color = TeX("True $OR_{bc}$"), x = "Number of Studies", y = "Power") + theme(legend.position = "bottom")+ scale_color_brewer(palette="Set1"), nrow = 1  )
+
+
+
+```
+
 ```{r, fig.height=8, fig.width=12}
 load("result_extreme_small30000/overall_result_big_small_new.RData")
 

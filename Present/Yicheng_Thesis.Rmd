@@ -1,0 +1,36 @@
+---
+title: "Understanding Contributions of Indirect and Direct Evidence to Statistical Power in Bayesian Network Meta-analysis"
+subtitle: "Simulation Studies and Real-World Applications"
+author: Yicheng Shen
+institute: Department of Statistical Science \Duke University
+date: March 26, 2024
+fontsize: 9pt
+output: 
+  beamer_presentation:
+    theme: Dresden
+    slide_level: 2
+    # singapore
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = F, warning = F)
+library(tidyverse)
+library(mosaic)
+library(kableExtra)
+library(latex2exp)
+ggplot2::theme_set(ggplot2::theme_bw())
+knitr::opts_chunk$set(out.width = "80%", fig.align = 'center')
+```
+
+# Introduction
+
+# Background
+
+# Method
+
+# Simulation
+
+# Case Study
+
+# Conclusion
+

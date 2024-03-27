@@ -1,5 +1,5 @@
 ---
-title: "Smoking_all_approach"
+title: "Diabetes_all_approach"
 author: "Yicheng Shen"
 date: "2023-06-23"
 output: pdf_document
@@ -179,10 +179,11 @@ inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
 para_AB<-c( "lor", "tau", "mu", "rho")
 fit_AB<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=20000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=ABWish.het.cor)
 #output data 
-fit_AB$BUGSoutput$summary[,c(1, 3, 7)]
+fit_AB$BUGSoutput
+
 #saving treatment effect output
 AB_trt_results<-data.frame(fit_AB$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results <- tibble::rownames_to_column(AB_trt_results, "drug_list")
@@ -221,11 +222,12 @@ inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
 para_AB<-c( "lor", "or", "rho", "sigma", "mu", "COV_mat")
 fit_AB_het.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.het.eqcor)
   
 #output data 
-fit_AB_het.eqcor$BUGSoutput$summary[,c(1, 3, 7)]
+fit_AB_het.eqcor$BUGSoutput
+
 #saving treatment effect output
 AB_trt_results_het.eqcor <-data.frame(fit_AB_het.eqcor$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results_het.eqcor <- tibble::rownames_to_column(AB_trt_results_het.eqcor, "drug_list")
@@ -272,11 +274,12 @@ inits_AB<- list(list(mu=rep(0,6)),
                 list(mu=rep(0,6)))
 para_AB<-c( "lor", "or", "rho", "sigma", "mu", "COV_mat")
 fit_AB_homo.eqcor<-jags(data=data_AB, inits=inits_AB, para_AB,
-             n.iter=10000, n.burnin = 2000, n.chains = 2, n.thin = 1,
+             n.iter=20000, n.burnin = 5000, n.chains = 2, n.thin = 1,
              DIC=TRUE, model.file=NMA.homo.eqcor)
   
 #output data 
-fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)]
+fit_AB_homo.eqcor$BUGSoutput
+
 #saving treatment effect output
 AB_trt_results_homo.eqcor <-data.frame(fit_AB_homo.eqcor$BUGSoutput$summary[,c(1, 3, 7)])
 AB_trt_results_homo.eqcor <- tibble::rownames_to_column(AB_trt_results_homo.eqcor, "drug_list")
@@ -310,11 +313,6 @@ plogit(AB_trt_results_homo.eqcor_AB$mean)
 
 mean_vec = AB_trt_results_homo.eqcor_AB$mean
 COV_mat_T = solve(matrix(AB_trt_results_homo.eqcor_COV$mean, 6, 6))
-
-# random_draws <- MASS::mvrnorm(1, mean_vec, 
-#                                 COV_mat_T)
-# 
-# plogit(random_draws)
 
 saveRDS(list(mean_vec, COV_mat_T), file = "diabetes_AB_trt_results_homo.eqcor.rds")
 ```
@@ -387,10 +385,11 @@ CB_trt_results
 AB_trt_results_het.eqcor
 AB_trt_results_homo.eqcor
 ```
+
+
 ```{r}
-# fit_CB$BUGSoutput$DIC
-# fit_AB$BUGSoutput$DIC
 fit_LA$BUGSoutput$DIC
+fit_AB$BUGSoutput$DIC
 fit_AB_het.eqcor$BUGSoutput$DIC
 fit_AB_homo.eqcor$BUGSoutput$DIC
 ```

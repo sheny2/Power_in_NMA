@@ -21,7 +21,6 @@ ggplot2::theme_set(ggplot2::theme_bw())
 knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```
 
-
 # Smoking secession
 
 ### 24 studies
@@ -29,11 +28,18 @@ knitr::opts_chunk$set(out.width = "100%", fig.align = 'center')
 ```{r, fig.height=7, fig.width=22}
 load("Arm-based/smokingcessation_ab.RData")
 par(mfrow = c(1, 2))
-nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation Treatments", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Cessation", node.col = "orange", edge.col = "gray", adjust.thick = 10,
   trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
 
 nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Sessation", node.col = "orange")
 ```
+
+
+```{r, fig.height=7, fig.width=11}
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Cessation", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+```
+
 
 ```{r}
 library("igraph")
@@ -46,7 +52,7 @@ smokingcessation_eff$treatment <- mapping[smokingcessation_eff$treatment]
 smoke_eff = data.frame(sid = smokingcessation_ab$study, tid = smokingcessation_eff$treatment, 
                        r = smokingcessation_ab$responders, n = smokingcessation_ab$sampleSize)
 
-# dir.binary(smoke_eff)
+dir.binary(smoke_eff)
 eff.binary(smoke_eff)
 ```
 
@@ -430,4 +436,87 @@ p = grid.arrange(
 ggsave(plot = p, filename = "diabete_add.png", width = 18, height = 5, device='tiff', dpi=100)
 ```
 
+
+```{r, fig.height=10, fig.width=15}
+par(mfrow = c(2, 2))
+load("parkinson_ab.RData")
+
+nma.networkplot(study, treatment, data = parkinson_ab, title = "Parkinson Treatments",
+trtname = c("4: Bromocriptine", "5: Cabergoline", "1: Placebo", "2: Pramipexole", "3: Cabergoline"))
+
+
+nma.networkplot(study, treatment, data = diabetes_ab, 
+                title = "Incident Diabetes", 
+                trtname = c("1: diuretic", 
+                            "2: placebo", 
+                            "3: β-blocker", 
+                            "4: CCB","5: ACE", "6: ARB"))
+
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Cessation",
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+```
+
+```{r, fig.height=4, fig.width=12}
+par(mfrow = c(1, 3))
+
+nma.networkplot(study, treatment, data = smokingcessation_ab, title = "Smoking Cessation", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+  trtname = c("A: No intervention", "B: Self help", "C: Individual counseling", "D: Group counseling"))
+
+nma.networkplot(study, treatment, data = parkinson_ab, title = "Parkinson Treatments", 
+                trtname = c("4: Bromocriptine", "5: Cabergoline", "1: Placebo", "2: Pramipexole", "3: Cabergoline"),
+                node.col = "orange", 
+                edge.col = "gray", adjust.thick = 10)
+
+
+nma.networkplot(study, treatment, data = diabetes_ab, 
+                title = "Incident Diabetes", node.col = "orange", edge.col = "gray", adjust.thick = 10,
+                trtname = c("1: diuretic", 
+                            "2: placebo", 
+                            "3: β-blocker", 
+                            "4: CCB","5: ACE", "6: ARB"))
+```
+
+```{r, fig.height=10, fig.width=18}
+par(mfrow = c(1, 2))
+library(gemtc)
+data("thrombolytic")
+data("depression")
+
+plot(thrombolytic, main = "Thrombolytic (Cipriani et al., 2009)")
+plot(depression, main = "Major Depression (Boland et al., 2003)")
+
+thrombolytic_ab = data.frame(thrombolytic$data.ab)
+nma.networkplot(study, treatment, data = thrombolytic_ab,
+                title = "Thrombolytic", node.col = "orange", edge.col = "gray", adjust.thick = 10)
+
+depression_ab = data.frame(depression$data.ab)
+nma.networkplot(study, treatment, data = depression_ab,
+                title = "Major Depression", node.col = "orange", edge.col = "gray", adjust.thick = 10)
+```
+```{r}
+library(dmetar)
+power.analysis(d = 0.2, k = 10, n1 = 25, n2 = 25, p = 0.05, 
+               heterogeneity = "moderate")
+```
+
+```{r}
+library(netmeta)
+data(Baker2009)
+data(smokingcessation)
+smokingcessation
+smokingcessation_ab
+```
+```{r}
+library(knitr)
+library(kableExtra)
+cbind(smokingcessation[,7:9], smokingcessation[,1:6]) %>% 
+  mutate(event3 = ifelse(is.na(event3), "", event3)) %>% 
+  mutate(n3 = ifelse(is.na(n3), "", n3)) %>% 
+  kable() %>%
+  kable_styling(latex_options = "latex")
+```
+```{r}
+smokingcessation_ab %>% kable(booktab=T) %>%
+  kable_styling(latex_options = "striped")
+```
 
